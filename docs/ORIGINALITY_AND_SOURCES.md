@@ -10,12 +10,13 @@ A Gépváros jelen játékváltozata, Futura funkciója, a három választható 
 
 | Elem | Forrás | Licenc | Használat |
 |---|---|---|---|
-| React | Meta/OpenJS ökoszisztéma | MIT | UI runtime |
-| Vite | Vite contributors | MIT | build tool |
-| TypeScript | Microsoft | Apache-2.0 | fordító |
-| Zod | Colin McDonnell/contributors | MIT | runtime validáció |
-| Vitest | Vitest contributors | MIT | tesztelés |
-| Testing Library | Testing Library contributors | MIT | UI tesztelés |
+| React / React DOM 19.1.1 | Meta/OpenJS ökoszisztéma | MIT | UI runtime |
+| Vite 7.1.3 | Vite contributors | MIT | build tool |
+| TypeScript 5.9.2 | Microsoft | Apache-2.0 | fordító |
+| Zod 3.25.76 | Colin McDonnell/contributors | MIT | runtime validáció |
+| Vitest 3.2.4 | Vitest contributors | MIT | tesztelés |
+| Testing Library React 16.3.0 / jest-dom 6.8.0 | Testing Library contributors | MIT | UI tesztelés |
+
+A licencek ellenőrzése 2026. augusztus 27-én a telepített csomagok saját `package.json` fájljaiból történt.
 
 Nincs külső betűtípus, kép, hang vagy zene a technikai spike-ban. A helyi inspirációs PDF nem repository-asset és `.gitignore` védi a véletlen committól.
-

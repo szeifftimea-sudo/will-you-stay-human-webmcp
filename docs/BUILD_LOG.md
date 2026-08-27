@@ -19,5 +19,30 @@
 
 ## Spike-eredmények
 
-Az automatizált teszt-, build- és manuális kliensmátrix eredményeit a szakasz végén kell ide rögzíteni. A valós WebMCP-kliensben még nem futtatott ellenőrzést nem jelöljük sikeresnek.
+### Függőségek és build
 
+- `pnpm install --prefer-offline --ignore-scripts`: sikeres; 213 csomag feloldva, 163 csomag telepítve.
+- Első `pnpm build`: környezeti hiba, mert a csomagolt pnpm gyermekfolyamata nem találta a `node` binárist a PATH-on.
+- Javítás: a csomagolt Node könyvtára explicit bekerült a build/test PATH-ba; az indításnál közvetlenül a csomagolt Node futtatja a Vite entrypointot.
+- Production build: sikeres; 58 modul transzformálva, JS bundle 274,41 kB (gzip 81,89 kB), CSS 3,85 kB (gzip 1,50 kB).
+- A `pnpm licenses list --prod --json` a helyi pnpm store hiányzó package-indexére hibázott (`ERR_PNPM_MISSING_PACKAGE_INDEX_FILE`). A közvetlen függőségek licenceit ezért a telepített csomagok saját `package.json` fájljaiból ellenőriztük; eredmény: React/React DOM/Zod/Vite/Vitest/Testing Library MIT, TypeScript Apache-2.0.
+
+### Automatizált tesztek
+
+- Futás: 2026. augusztus 27.
+- Vitest: `v3.2.4`, jsdom környezet.
+- Eredmény: 4 tesztfájl, 12 teszt, 12 sikeres, 0 sikertelen.
+- Lefedett kapuk: állapotgép, többdilemmás `present_dilemma` atomi bemutatás, reflexiós kontroll, egyszeri reveal, zárt tool-sémák, külön portok, öt tool regisztráció/discovery mockban és tool által kiváltott React UI-változás.
+
+### Helyi böngészős fallback próba
+
+- Környezet: Codex in-app browser, `http://127.0.0.1:4173/`, 2026. augusztus 27.
+- A WebMCP API ebben a környezetben nem volt elérhető; a UI helyesen manuális fallbackre váltott.
+- Ellenőrzött fázisok: `NO_SESSION → MACHINE_CITY_READY → AWAITING_HUMAN_SELECTION → TENTATIVE_SELECTION_RECORDED → REFLECTION_PRESENTED → READY_FOR_CONFIRMATION → DECISION_CONFIRMED → CONSEQUENCE_REVEALED`.
+- Megerősítő gomb kijelölés és reflexió közben nem volt jelen; csak játékosi megtartás után jelent meg.
+- A reveal után a következmény láthatóvá vált, az AGY tesztágban a Kényelem `+1` értékre módosult.
+- Böngészőkonzol: 0 error, 0 warning.
+
+### Nyitott külső ellenőrzés
+
+A valós, WebMCP-képes kliensben történő discovery és invocation még nem futott le. Ezt nem jelöljük sikeresnek; a pontos kliens-, böngésző-, modell- és verzióadat a későbbi manuális mátrixba kerül.

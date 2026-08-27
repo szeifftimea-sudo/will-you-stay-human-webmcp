@@ -19,14 +19,16 @@ Ez működő egyszemélyes technikai prototípus. A multiplayer nem elkészült 
 
 ```bash
 /Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm install
-/Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm dev
+/Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4173
 ```
+
+Ezután nyisd meg a <http://127.0.0.1:4173/> címet. Az `index.html` közvetlen `file://` megnyitása nem támogatott, mert a Vite modul- és dev-server környezetére szükség van.
 
 Automatizált ellenőrzés:
 
 ```bash
-/Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm test:run
-/Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm build
+env PATH="/Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/bin:/bin" /Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm test:run
+env PATH="/Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/bin:/bin" /Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm build
 ```
 
 ## WebMCP tesztelés
@@ -53,4 +55,3 @@ Ezek irányok, nem a hackathonverzió kész képességei. A játék később sem
 A *Metropolisz* megjelölt inspirációs forrás az AGY–KÉZ–SZÍV eredeti jelentésének megértéséhez. A projekt nem adaptálja a regény történetét, nem vesz át hosszabb szöveget vagy jogvédett vizuális elemet. Részletek: [`docs/ORIGINALITY_AND_SOURCES.md`](docs/ORIGINALITY_AND_SOURCES.md).
 
 A forráskód MIT licenc alatt érhető el; lásd [`LICENSE`](LICENSE).
-

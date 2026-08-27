@@ -1,6 +1,7 @@
 node_modules/
 dist/
 coverage/
+*.tsbuildinfo
 .DS_Store
 *.local
 .env
@@ -9,4 +10,3 @@ coverage/
 
 # Local inspiration source; never publish or package this PDF.
 /Metropolis - Thea von Harbou.pdf
-

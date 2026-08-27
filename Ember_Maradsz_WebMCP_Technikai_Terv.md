@@ -319,8 +319,8 @@ Minden sikeres, domainállapotot módosító parancs eggyel növeli a `stateRevi
 |---|---|---|---|---|
 | Agent | `enter_machine_city` | nincs aktív session | `MACHINE_CITY_READY` | session és nullás mérleg létrehozása |
 | Agent | `enter_machine_city` | már van aktív session | változatlan | idempotens módon a meglévő sessiont adja vissza |
-| Agent | `receive_futura_call` | `MACHINE_CITY_READY` | `AWAITING_HUMAN_SELECTION` | aktív dilemma kiválasztása |
-| Agent | `receive_futura_call` | minden nem engedélyezett fázis | változatlan | strukturált `INVALID_PHASE` hiba |
+| Agent | `present_dilemma` | `MACHINE_CITY_READY` | `AWAITING_HUMAN_SELECTION` | aktív dilemma kiválasztása |
+| Agent | `present_dilemma` | minden nem engedélyezett fázis | változatlan | strukturált `INVALID_PHASE` hiba |
 | Player UI | lencse kijelölése | `AWAITING_HUMAN_SELECTION` | `TENTATIVE_SELECTION_RECORDED` | új `TentativeSelection` |
 | Player UI | lencse módosítása | `TENTATIVE_SELECTION_RECORDED`, `REFLECTION_PRESENTED` vagy `READY_FOR_CONFIRMATION` | `TENTATIVE_SELECTION_RECORDED` | új selection ID; régi reflexió érvénytelenítése |
 | Agent | `present_choice_reflection` | `TENTATIVE_SELECTION_RECORDED`, aktuális selection ID és revision | `REFLECTION_PRESENTED` | pontosan a kijelölt lencse reflexiójának rögzítése |
@@ -331,8 +331,8 @@ Minden sikeres, domainállapotot módosító parancs eggyel növeli a `stateRevi
 | Agent/fallback | `reveal_confirmed_consequence` | `DECISION_CONFIRMED` és az ID/revision egyezik | `CONSEQUENCE_REVEALED` | eredmény atomi perzisztálása, history és completed ID egyszeri bővítése |
 | Agent/fallback | `reveal_confirmed_consequence` ismételve | `CONSEQUENCE_REVEALED` vagy későbbi fázis, ugyanaz a döntésazonosító | változatlan | a mentett eredményt adja vissza, a hatást nem alkalmazza újra |
 | Agent/fallback | `reveal_confirmed_consequence` | bármely `DECISION_CONFIRMED` előtti fázis | változatlan | strukturált `INVALID_PHASE` / `HUMAN_DECISION_REQUIRED` hiba |
-| Agent/fallback | `receive_futura_call` | `CONSEQUENCE_REVEALED` és van további `playable` dilemma | `AWAITING_HUMAN_SELECTION` | a következő dilemma aktiválása |
-| Agent/fallback | `receive_futura_call` | `CONSEQUENCE_REVEALED` és nincs további dilemma | `GAME_COMPLETE` | játékmenet lezárása |
+| Agent/fallback | `present_dilemma` | `CONSEQUENCE_REVEALED` és van további `playable` dilemma | `AWAITING_HUMAN_SELECTION` | a következő dilemma aktiválása |
+| Agent/fallback | `present_dilemma` | `CONSEQUENCE_REVEALED` és nincs további dilemma | `GAME_COMPLETE` | játékmenet lezárása |
 | Player UI | új játék | `GAME_COMPLETE` | `NO_SESSION` | session törlése, majd új indítás szükséges |
 
 ## 7. Emberi kontrollpont részletes működése
@@ -522,7 +522,7 @@ Minden `inputSchema` gyökere `type: "object"`, és mindenhol kötelező az `add
 | Tool | Magyar cím | `readOnlyHint` | `untrustedContentHint` |
 |---|---|---:|---:|
 | `enter_machine_city` | Belépés a Gépvárosba | `false` | `false` |
-| `receive_futura_call` | Futura következő hívása | `false` | `false` |
+| `present_dilemma` | Dilemma bemutatása | `false` | `false` |
 | `get_current_game_state` | Aktuális játékállapot | `true` | `false` |
 | `present_choice_reflection` | A kijelölt irány ellenpontja | `false` | `false` |
 | `reveal_confirmed_consequence` | Megerősített döntés következménye | `false` | `false` |
@@ -564,7 +564,7 @@ Minden handler az `execute(input, { signal })` callback abortjelét figyeli. Abo
 
 **Biztonsági megjegyzés:** az agent nem kaphat `reset`, `force`, `playerName` vagy tetszőleges sessionazonosító bemenetet.
 
-### 10.2. `receive_futura_call`
+### 10.2. `present_dilemma`
 
 **Cél:** a következő játszható dilemma kiválasztása és megjelenítése.
 
@@ -785,7 +785,7 @@ Az ellenőrzések sorrendje idempotens újrapróbálkozást tesz lehetővé: ha 
 2. A WebMCP adapter feature detection után regisztrálja az öt toolt.
 3. Futura meghívja az `enter_machine_city` toolt.
 4. A játékmotor létrehozza vagy visszaadja a sessiont; a repository ment; a UI újrarenderel.
-5. Futura meghívja a `receive_futura_call` toolt az aktuális revisionnel.
+5. Futura meghívja a `present_dilemma` toolt az aktuális revisionnel.
 6. A játékmotor kiválasztja az első `playable` dilemmát és `AWAITING_HUMAN_SELECTION` fázisba lép.
 7. A játékos a UI-ban kijelöl egy lencsét; a Player-port perzisztálja a nem végleges `TentativeSelection` rekordot.
 8. Futura lekéri az állapotot, majd a kapott selection ID-val meghívja a `present_choice_reflection` toolt.
@@ -796,7 +796,7 @@ Az ellenőrzések sorrendje idempotens újrapróbálkozást tesz lehetővé: ha 
 13. Futura meghívja a `reveal_confirmed_consequence` toolt.
 14. A domain atomi módon kiszámítja és alkalmazza az eredményt, perzisztálja a tooleredményt és az egyszeri hatás bizonylatát, majd `CONSEQUENCE_REVEALED` fázisba lép.
 15. A tool strukturált trade-offot ad vissza, a UI pedig ugyanabból a perzisztált állapotból megjeleníti az Embermérleget.
-16. A következő `receive_futura_call` további játszható dilemma esetén új kört indít `AWAITING_HUMAN_SELECTION` fázisban; az utolsó dilemma után `GAME_COMPLETE` fázisba lép.
+16. A következő `present_dilemma` további játszható dilemma esetén új kört indít `AWAITING_HUMAN_SELECTION` fázisban; az utolsó dilemma után `GAME_COMPLETE` fázisba lép.
 
 ## 12. Perzisztencia és helyreállítás
 
@@ -977,7 +977,7 @@ A `birthday.hu.ts` és `shadow-call.hu.ts` fájlokat csak akkor kell létrehozni
 8. Abortált végrehajtás nem hagy félkész tranzakciót.
 9. Ismételt `enter_machine_city` nem nulláz aktív játékot.
 10. Ismételt `reveal_confirmed_consequence` nem alkalmazza kétszer a deltát.
-11. A `receive_futura_call` nem ad vissza következményt vagy mérleg-deltát.
+11. A `present_dilemma` nem ad vissza következményt vagy mérleg-deltát.
 12. Az idempotens reveal-retry a korábbi revisionnel is ugyanazt a mentett eredményt adja vissza.
 13. A `present_choice_reflection` az aktuális selection ID-ra idempotens.
 14. Kijelölésmódosítás után a régi selection ID `SELECTION_ID_MISMATCH` hibát ad.
@@ -1027,7 +1027,7 @@ A `birthday.hu.ts` és `shadow-call.hu.ts` fájlokat csak akkor kell létrehozni
 1. A támogatott Codex/ChatGPT desktop böngésző felismeri mind az öt toolt.
 2. A toolnevek, magyar címek és leírások helyesen jelennek meg.
 3. `enter_machine_city` láthatóan módosítja a közös oldalt.
-4. `receive_futura_call` megjeleníti a bocsánatkérési dilemmát.
+4. `present_dilemma` megjeleníti a bocsánatkérési dilemmát.
 5. Futura reflexiós próbája kijelölés nélkül és nem aktuális selection ID-val elutasítódik.
 6. A játékos kijelöl; `present_choice_reflection` csak ehhez az irányhoz mutat reflexiót.
 7. Reflexió után a megerősítés még tiltott; a játékos megtart vagy módosít, szükség esetén új reflexió történik.

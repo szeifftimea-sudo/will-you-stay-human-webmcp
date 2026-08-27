@@ -21,12 +21,15 @@ Minden JSON Schema zárt (`additionalProperties: false`). Egyik inputban sincs `
 
 ## Hívási bizonyítékok
 
-A spike végén rögzítendő:
+| Eset | Eredmény | Bizonyíték |
+|---|---|---|
+| `enter_machine_city {}` | siker; `MACHINE_CITY_READY` | UI integrációs teszt és helyi fallback próba |
+| `present_dilemma` helyes session/revision | siker; aktív dilemma és `AWAITING_HUMAN_SELECTION` együtt | `gameEngine.test.ts`, UI integrációs teszt |
+| bármely tool extra `lens` mezővel | `INVALID_INPUT`, állapotváltozás nélkül | `playerAgentBoundary.test.ts` |
+| reflexió nem aktuális selection ID-val | `SELECTION_ID_MISMATCH` | `gameEngine.test.ts` |
+| reveal megerősítés előtt | `HUMAN_DECISION_REQUIRED` | `gameEngine.test.ts` |
+| reveal megerősítés után | siker; `CONSEQUENCE_REVEALED` | domain- és fallback próba |
+| ugyanazon reveal retry | `alreadyRevealed: true`; változatlan balance; history hossza 1 | `gameEngine.test.ts` |
+| következő `present_dilemma` két elemű tesztkatalógussal | új dilemma ID és `AWAITING_HUMAN_SELECTION` egy commitban | `gameEngine.test.ts` |
 
-- sikeres `enter_machine_city` és látható `NO_SESSION → MACHINE_CITY_READY` UI-változás;
-- sikeres `present_dilemma` és megjelenő aktuális dilemma;
-- kijelölés nélküli reflexió elutasítása;
-- megerősítés előtti reveal elutasítása;
-- sikeres reveal és idempotens retry változatlan Embermérleggel;
-- többdilemmás szerződési teszt: kiválasztható fázis nem jöhet létre dilemma nélkül.
-
+Az automatizált ModelContext mock `getTools()` eredménye pontosan az öt stabil toolnevet tartalmazta. Ez regisztrációs/discovery integrációs bizonyíték, nem helyettesíti a későbbi valós WebMCP-klienspróbát.
