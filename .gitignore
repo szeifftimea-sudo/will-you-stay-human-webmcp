@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.local
+.env
+.env.*
+!.env.example
+
+# Local inspiration source; never publish or package this PDF.
+/Metropolis - Thea von Harbou.pdf
+
