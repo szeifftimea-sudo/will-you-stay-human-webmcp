@@ -31,7 +31,7 @@
 
 - Futás: 2026. augusztus 27.
 - Vitest: `v3.2.4`, jsdom környezet.
-- Eredmény: 4 tesztfájl, 12 teszt, 12 sikeres, 0 sikertelen.
+- Eredmény: 4 tesztfájl, 13 teszt, 13 sikeres, 0 sikertelen.
 - Lefedett kapuk: állapotgép, többdilemmás `present_dilemma` atomi bemutatás, reflexiós kontroll, egyszeri reveal, zárt tool-sémák, külön portok, öt tool regisztráció/discovery mockban és tool által kiváltott React UI-változás.
 
 ### Helyi böngészős fallback próba
@@ -42,6 +42,16 @@
 - Megerősítő gomb kijelölés és reflexió közben nem volt jelen; csak játékosi megtartás után jelent meg.
 - A reveal után a következmény láthatóvá vált, az AGY tesztágban a Kényelem `+1` értékre módosult.
 - Böngészőkonzol: 0 error, 0 warning.
+
+### Projektgazdai manuális UAT és tartalmi korrekció
+
+- Futás: 2026. augusztus 27., WebMCP nélküli fallback felület.
+- Eredmény: a teljes egyszemélyes játékkör sikeres volt a munkamenet létrehozásától a `GAME_COMPLETE` állapotig.
+- Ellenőrizve: dilemma bemutatása; emberi kijelölés; reflexió előtti megerősítés tiltása; SZÍV-specifikus reflexió; SZÍV → AGY módosítás; a régi reflexió érvénytelenítése; új AGY-reflexió kikényszerítése; külön megtartási lépés; üres opcionális indoklással végzett megerősítés; változatlan mérleg `DECISION_CONFIRMED` állapotban; külön agentművelettel végzett feltárás; egyszeri mérlegmódosítás; `GAME_COMPLETE`; valamint frissítés utáni állapot- és mérleghelyreállítás.
+- Megfigyelés: az AGY következménye megnevezte a saját és a generált hang közötti határ elmosódását, de ezt a mérleg korábban nem jelenítette meg negatív változásként.
+- Döntés: az AGY nyers hatása `connection: -1` értékkel egészült ki. Ez a Kapcsolódás tengely definíciójával konzisztens, mert az az emberi kapcsolat valódiságára gyakorolt hatást vizsgálja; a módosítás nem teszi az AGY irányt automatikusan helytelenné, a Kényelem `+1` és Kontroll `+1` nyeresége megmarad.
+- Regressziós bizonyíték: célzott domainteszt ellenőrzi a teljes nyers és alkalmazott deltát, a mentett mérleget és a hozzá tartozó narratív árat.
+- Újraellenőrzés: a teljes Vitest-csomag 4 tesztfájlban 13/13 sikeres teszttel zárult; a production build 58 modul transzformálásával sikeresen elkészült.
 
 ### Nyitott külső ellenőrzés
 

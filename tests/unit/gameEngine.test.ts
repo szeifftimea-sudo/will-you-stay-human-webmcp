@@ -71,6 +71,32 @@ describe("GameEngine", () => {
     expect(retry.session.revealedOutcome?.toolExecution.resultPayload).toEqual(first.payload);
   });
 
+  it("az AGY ág narratív árát Kapcsolódás mínusz egyként alkalmazza", () => {
+    const context = advanceToConfirmedDecision();
+    const confirmed = context.engine.getSnapshot()!;
+    const decisionId = confirmed.confirmedDecision!.decisionId;
+
+    const revealed = context.agent.revealConfirmedConsequence(
+      confirmed.sessionId,
+      decisionId,
+      confirmed.stateRevision,
+    );
+
+    expect(revealed.payload.rawDelta).toEqual({
+      comfort: 1,
+      control: 1,
+      connection: -1,
+      freedom: 0,
+      responsibility: 0,
+    });
+    expect(revealed.payload.appliedDelta).toEqual(revealed.payload.rawDelta);
+    expect(revealed.session.balance).toEqual(revealed.payload.balanceAfter);
+    expect(revealed.session.balance.connection).toBe(-1);
+    expect(revealed.payload.costs).toContain(
+      "A saját hangod és a generált hang közötti határ elmosódhat.",
+    );
+  });
+
   it("a következő dilemma bemutatását és a választható fázist együtt commitálja", () => {
     const second = structuredClone(apologyDilemma);
     second.id = "second-temporary-dilemma";
@@ -128,4 +154,3 @@ describe("GameEngine", () => {
     expect(completed.session.activeDilemmaId).toBeNull();
   });
 });
-

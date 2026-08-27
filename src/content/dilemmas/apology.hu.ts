@@ -27,7 +27,7 @@ export const apologyDilemma: Dilemma = {
         question: "Mitől lesz ez a te bocsánatkérésed, ha a legnehezebb mondatokat a gép találja meg?",
       },
       consequence: {
-        delta: { comfort: 1, control: 1, connection: 0, freedom: 0, responsibility: 0 },
+        delta: { comfort: 1, control: 1, connection: -1, freedom: 0, responsibility: 0 },
         gains: ["Átgondolt és szerkeszthető kiindulópontot kapsz."],
         costs: ["A saját hangod és a generált hang közötti határ elmosódhat."],
         explanation: "Megtartod a végső kontrollt, miközben a megfogalmazás terhének egy részét átadod.",
@@ -77,4 +77,3 @@ export const apologyDilemma: Dilemma = {
     },
   ],
 };
-
