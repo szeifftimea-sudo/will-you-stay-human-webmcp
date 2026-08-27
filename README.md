@@ -2,6 +2,12 @@
 
 Magyar nyelvű, egyszemélyes döntési játék prototípusa. Futura WebMCP-toolokkal mutatja be a dilemmát és tárja fel a következményt, miközben az AGY–KÉZ–SZÍV kijelölés, a reflexió utáni megtartás és a végleges megerősítés kizárólag a játékos webes UI-jában történhet.
 
+## Élő technikai prototípus
+
+Publikus HTTPS URL: <https://will-you-stay-human.vercel.app/>
+
+A Vercel deployment a WebMCP klienspróbához szükséges `Origin-Agent-Cluster: ?1` és `Permissions-Policy: tools=(self)` válaszfejléceket adja. Ha a kliens nem biztosít `document.modelContext` API-t, az oldal automatikusan a manuális agent-fallbacket mutatja; ez nem teszi lehetővé az agent számára a játékosi kijelölést vagy megerősítést.
+
 ## Ebben a hackathonverzióban megvalósított scope
 
 - egy ideiglenes magyar „Kérjek bocsánatot helyetted?” dilemma;

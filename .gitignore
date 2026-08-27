@@ -11,3 +11,4 @@ coverage/
 
 # Local inspiration source; never publish or package this PDF.
 /Metropolis - Thea von Harbou.pdf
+.vercel/

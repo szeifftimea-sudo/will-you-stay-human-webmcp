@@ -9,14 +9,16 @@ pnpm build
 
 A tesztcsomag lefedi a domainátmeneteket, az egyszeri következményalkalmazást, a zárt tool-sémákat, a Player/Agent határt, a regisztrációt és a tool által okozott React UI-változást.
 
-Legutóbbi teljes futás: 2026. augusztus 27. — 4 tesztfájl, 15/15 sikeres teszt; production build sikeres.
+Legutóbbi teljes futás: 2026. augusztus 28. — dependency install sikeres; 4 tesztfájl, 15/15 sikeres teszt; production build sikeres, 58 modul transzformálva.
 
 ## Manuális kliensmátrix
 
 | Dátum | Kliens | Böngésző/WebView | Modell | Verzió | Discovery | Hívás | Megjegyzés |
 |---|---|---|---|---|---|---|---|
 | 2026-08-27 | Codex desktop in-app browser | beágyazott WebView | Codex | környezet által kezelt | WebMCP API nem érhető el | fallback sikeres | teljes manuális kör, 0 konzolhiba |
-| kitöltendő | WebMCP-képes kliens | kitöltendő | kitöltendő | kitöltendő | nem futott | nem futott | Valós WebMCP-kliensmérés szükséges |
+| 2026-08-28 | Vercel production + `curl` | HTTPS / HTTP/2 | n/a | Vercel CLI 59.6.2 | n/a | n/a | HTTP 200; mindkét előírt header ténylegesen jelen van |
+| 2026-08-28 | Codex desktop in-app browser | publikus top-level HTTPS WebView | Codex, pontos modell-ID nem elérhető | 26.818.21641 (6849) | blokkolt: nincs `document.modelContext`, 0 felfedezett Site tool | nem indítható | oldal betölt, fallback aktív, 0 error és 0 warning |
+| kitöltendő | jogosult WebMCP-képes kliens | top-level HTTPS vagy Chrome testing flag | támogatott modell | kitöltendő | nem futott | nem futott | Site tools engedélyezése után szükséges |
 
 ## Manuális fallback
 
@@ -77,4 +79,36 @@ Külön teszt bizonyítja, hogy SZÍV-reflexió után az AGY kijelölése törli
 
 Eredmény: 4 tesztfájl, 15/15 sikeres teszt; a production build 58 modul transzformálásával sikeresen elkészült.
 
-A valódi WebMCP-kliens discovery és invocation továbbra is külön, nyitott technikai kapu.
+## Publikus deployment ellenőrzése — 2026. augusztus 28.
+
+Kanonikus URL: <https://will-you-stay-human.vercel.app/>
+
+```text
+$ curl -I https://will-you-stay-human.vercel.app/
+HTTP/2 200
+origin-agent-cluster: ?1
+permissions-policy: tools=(self)
+```
+
+A `dist/assets/index-W3Abx7DZ.js` megfelelő publikus assetútvonalának külön HEAD-próbája szintén `HTTP/2 200` választ és ugyanezt a két headert adta. A Vercel deployment állapota `Ready`, targetje `production`, deployment ID-ja `dpl_8grXnUZ4zYv3C7SocCMmzLvbmKzK`.
+
+### Konzol- és Site tools próba
+
+A publikus URL top-level dokumentumként, HTTPS-en töltődött be a Codex desktop `26.818.21641` (`6849`) beépített böngészőjében. A címsor és az alkalmazás DOM-ja helyes volt; a konzol 0 errort és 0 warningot tartalmazott.
+
+Read-only probe:
+
+```text
+protocol: https:
+topLevel: true
+"modelContext" in document: false
+typeof document.modelContext?.registerTool: undefined
+typeof document.modelContext?.getTools: undefined
+felfedezett várt Site toolok: 0/5
+```
+
+Az invocationt nem jelöljük sikertelen toolhívásnak, mert discovery hiányában toolhívás nem volt lehetséges. Ez a jelenlegi kliens/modell/workspace környezet blokkolója; az alkalmazás fallbackje rendben működik, és nem készült kódszintű megkerülés.
+
+Még szükséges manuális felhasználói lépés: jogosult Codex/ChatGPT desktop környezetben a Site tools engedély bekapcsolása és támogatott modell kiválasztása, majd a publikus URL újranyitása. Alternatív klienspróba Chrome-ban, a hivatalos WebMCP testing flag engedélyezése után végezhető.
+
+A valódi Site tools discovery és invocation ezért továbbra is külön, nyitott technikai kapu.

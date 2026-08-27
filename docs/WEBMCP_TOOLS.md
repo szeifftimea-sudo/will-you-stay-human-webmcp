@@ -17,7 +17,12 @@ Minden JSON Schema zárt (`additionalProperties: false`). Egyik inputban sincs `
 - Implementáció: `document.modelContext.registerTool()` imperatív API.
 - Az oldal saját státuszmezőben jelzi az öt regisztráció sikerét vagy a fallback módot.
 - Automatizált discovery-bizonyíték: a regisztrációs teszt mock `ModelContext` mellett mind az öt definíciót és nevét ellenőrzi.
-- Valós kliens/böngésző discovery: még mérendő; eredménye kliens-, modell-, böngészőverzió- és dátummezővel kerül ide.
+- Publikus teszt-URL: <https://will-you-stay-human.vercel.app/>.
+- Hostingbizonyíték: `HTTP/2 200`, `Origin-Agent-Cluster: ?1`, `Permissions-Policy: tools=(self)` a gyökér HTML-en és a verziózott JS asseten is.
+- Valós klienspróba: Codex desktop in-app browser `26.818.21641` (`6849`), 2026. augusztus 28.; modellazonosító a kliensből nem olvasható, ezért `Codex / környezet által kezelt`.
+- Eredmény: `"modelContext" in document === false`; `registerTool` és `getTools` típusa `undefined`; a várt öt Site toolból 0 jelent meg a kliens tool-metadatái között.
+- Konzol: 0 error, 0 warning; az oldal top-level HTTPS dokumentumként helyesen a manuális fallbacket mutatta.
+- Minősítés: környezeti/kliensoldali discovery-blokkoló. Nem változtatjuk meg az alkalmazáskódot a hiányzó böngésző-API megkerülésére.
 
 ## Hívási bizonyítékok
 
@@ -32,4 +37,11 @@ Minden JSON Schema zárt (`additionalProperties: false`). Egyik inputban sincs `
 | ugyanazon reveal retry | `alreadyRevealed: true`; változatlan balance; history hossza 1 | `gameEngine.test.ts` |
 | következő `present_dilemma` két elemű tesztkatalógussal | új dilemma ID és `AWAITING_HUMAN_SELECTION` egy commitban | `gameEngine.test.ts` |
 
-Az automatizált ModelContext mock `getTools()` eredménye pontosan az öt stabil toolnevet tartalmazta. Ez regisztrációs/discovery integrációs bizonyíték, nem helyettesíti a későbbi valós WebMCP-klienspróbát.
+Az automatizált ModelContext mock `getTools()` eredménye pontosan az öt stabil toolnevet tartalmazta. Ez regisztrációs/discovery integrációs bizonyíték, nem helyettesíti a valós WebMCP-klienspróbát.
+
+### Mockban bizonyított és valós kliensben nyitott eredmény
+
+- Mock ModelContext: 5/5 tool regisztrálható és felfedezhető; a szerződés-, állapot- és emberikontroll-tesztek sikeresek.
+- Publikus valós kliens: az alkalmazás és a szükséges response headerek elérhetők, de a tesztelt Codex desktop környezet nem injektálta a `document.modelContext` API-t.
+- Emiatt valós invocation nem indult, tehát azt nem állítjuk sem sikeresnek, sem alkalmazáshibaként sikertelennek.
+- Következő manuális kapu: Site tools engedélyezése jogosult kliensben és támogatott modell mellett, majd az öt név discoveryje és legalább a read-only `get_current_game_state` hívása.

@@ -64,6 +64,77 @@
 - Regresszió: táblavezérelt AGY–KÉZ–SZÍV teljes folyamat, pontos delták, strukturált tartalomkapcsolat, emberi kontroll és idempotens reveal; külön SZÍV → AGY reflexióérvénytelenítési teszt.
 - Teljes ellenőrzés: 4 tesztfájl, 15/15 sikeres teszt; production build sikeres, 58 modul, JS bundle 274,79 kB (gzip 82,01 kB), CSS 3,85 kB (gzip 1,50 kB).
 
-### Nyitott külső ellenőrzés
+## 2026. augusztus 27–28. — Vercel deployment és valódi klienspróba
 
-A valós, WebMCP-képes kliensben történő discovery és invocation még nem futott le. Ezt nem jelöljük sikeresnek; a pontos kliens-, böngésző-, modell- és verzióadat a későbbi manuális mátrixba kerül.
+### Környezet és verziók
+
+- Tesztelt alkalmazáskód-baseline: `38f007dce7a2464266b3181d66f27364003aee12` (`fix(content): balance all apology dilemma branches`).
+- Vercel account: `szeifftimea-sudo`; scope: `szeifftimea-projects`; projekt: `will-you-stay-human`.
+- Helyi Vercel CLI: `59.6.2`, Node.js `24.19.0`; távoli build CLI: `59.3.0`; távoli pnpm: `11.19.0`.
+- Klienspróba: Codex desktop in-app browser `26.818.21641` (`6849`), macOS `26.6.2` (`25G83`), Europe/Budapest.
+- Modellazonosító: a kliens nem teszi elérhetővé; a mérésben `Codex / környezet által kezelt` értékkel szerepel.
+
+### Verziózott hostingkonfiguráció
+
+- `vercel.json`: Vite framework, `pnpm build`, `dist` output.
+- Minden útvonalra explicit `Origin-Agent-Cluster: ?1` és `Permissions-Policy: tools=(self)` fejléc.
+- SPA rewrite nincs: a jelenlegi alkalmazás nem használ kliensoldali routert vagy mélylinkelt route-ot.
+- `.vercel/` és a Vercel által létrehozott helyi `.env.local` nincs verziózva.
+
+### Első, sikertelen production deployment
+
+- Időpont: 2026. augusztus 27. 23:56 CEST.
+- Inspector: <https://vercel.com/szeifftimea-projects/will-you-stay-human/WBLs2rLPAwjuc3jXDLJ4j8Kfd3ty>.
+- Deployment URL: `https://will-you-stay-human-fukcohz3a-szeifftimea-projects.vercel.app`.
+- Eredmény: sikertelen; a távoli `pnpm install` `ERR_PNPM_IGNORED_BUILDS` hibával állt meg az `esbuild@0.25.12` nem jóváhagyott postinstall scriptjénél. Az alkalmazás buildje nem indult el.
+- A hiba nem lett elrejtve vagy sikeres deploymentként dokumentálva.
+
+### Célzott javítás és helyi ellenőrzés
+
+A jóváhagyott, teljes allowlist:
+
+```yaml
+allowBuilds:
+  esbuild: true
+```
+
+- Más dependency build script nincs engedélyezve; `dangerouslyAllowAllBuilds` nincs használva.
+- `CI=true pnpm install --frozen-lockfile --prefer-offline`: sikeres; a lockfile megfelelt a supply-chain szabályoknak.
+- Teljes Vitest-futás: 4 tesztfájl, 15/15 sikeres teszt, 0 sikertelen.
+- Production build: sikeres; 58 modul, JS `274,79 kB` (gzip `82,01 kB`), CSS `3,85 kB` (gzip `1,50 kB`).
+
+### Javított production deployment
+
+- Időpont: 2026. augusztus 28. 00:02 CEST.
+- Deployment ID: `dpl_8grXnUZ4zYv3C7SocCMmzLvbmKzK`; target: `production`; állapot: `Ready`.
+- Inspector: <https://vercel.com/szeifftimea-projects/will-you-stay-human/8grXnUZ4zYv3C7SocCMmzLvbmKzK>.
+- Egyedi deployment URL: <https://will-you-stay-human-kzky2xqgf-szeifftimea-projects.vercel.app/>.
+- Kanonikus publikus URL: <https://will-you-stay-human.vercel.app/>.
+- A távoli log igazolja, hogy kizárólag az `esbuild@0.25.12` postinstall futott le, majd a `tsc -b && vite build` sikeresen befejeződött.
+
+### HTTP- és fejlécbizonyíték
+
+```text
+$ curl -I https://will-you-stay-human.vercel.app/
+HTTP/2 200
+origin-agent-cluster: ?1
+permissions-policy: tools=(self)
+```
+
+A verziózott JS asset külön `curl -I` próbája szintén `HTTP/2 200`, `Origin-Agent-Cluster: ?1` és `Permissions-Policy: tools=(self)` eredményt adott. Ez bizonyítja, hogy a wildcard fejlécszabály nem csak a gyökér HTML-re érvényes.
+
+### Publikus top-level Site tools discovery
+
+- URL: <https://will-you-stay-human.vercel.app/>; protokoll: `https:`; origin: `https://will-you-stay-human.vercel.app`; top-level dokumentum: igen.
+- Az oldal címe helyesen betöltött; konzol: 0 error, 0 warning.
+- `"modelContext" in document`: `false`; `registerTool`: `undefined`; `getTools`: `undefined`.
+- Az UI helyesen ezt jelezte: „A WebMCP API nem érhető el; manuális agentmód aktív.”
+- Az öt várt Site tool közül egy sem jelent meg a kliens tool-metadatái között, ezért valódi invocation nem volt indítható.
+- Minősítés: környezeti/kliensoldali blokkoló, nem alkalmazáshiba. Alkalmazáskódos kerülőmegoldás nem készült.
+- Még szükséges manuális beállítás/próba: jogosult Codex/ChatGPT desktop környezetben a Site tools engedély bekapcsolása, támogatott modell kiválasztása, majd a publikus top-level URL újbóli megnyitása. Alternatív interoperabilitási próba Chrome-ban a hivatalos WebMCP testing flaggel végezhető.
+
+### Ellenőrzött források
+
+- Vercel `vercel.json` és headers: <https://vercel.com/docs/project-configuration/vercel-json>, ellenőrizve 2026. augusztus 28-án.
+- pnpm `strictDepBuilds` és `allowBuilds`: <https://pnpm.io/settings/build>, ellenőrizve 2026. augusztus 28-án.
+- OpenAI WebMCP/Site tools útmutató: <https://learn.chatgpt.com/docs/webmcp>, ellenőrizve 2026. augusztus 28-án.
