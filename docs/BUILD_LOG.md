@@ -31,7 +31,7 @@
 
 - Futás: 2026. augusztus 27.
 - Vitest: `v3.2.4`, jsdom környezet.
-- Eredmény: 4 tesztfájl, 13 teszt, 13 sikeres, 0 sikertelen.
+- Legutóbbi eredmény: 4 tesztfájl, 15 teszt, 15 sikeres, 0 sikertelen.
 - Lefedett kapuk: állapotgép, többdilemmás `present_dilemma` atomi bemutatás, reflexiós kontroll, egyszeri reveal, zárt tool-sémák, külön portok, öt tool regisztráció/discovery mockban és tool által kiváltott React UI-változás.
 
 ### Helyi böngészős fallback próba
@@ -52,6 +52,17 @@
 - Döntés: az AGY nyers hatása `connection: -1` értékkel egészült ki. Ez a Kapcsolódás tengely definíciójával konzisztens, mert az az emberi kapcsolat valódiságára gyakorolt hatást vizsgálja; a módosítás nem teszi az AGY irányt automatikusan helytelenné, a Kényelem `+1` és Kontroll `+1` nyeresége megmarad.
 - Regressziós bizonyíték: célzott domainteszt ellenőrzi a teljes nyers és alkalmazott deltát, a mentett mérleget és a hozzá tartozó narratív árat.
 - Újraellenőrzés: a teljes Vitest-csomag 4 tesztfájlban 13/13 sikeres teszttel zárult; a production build 58 modul transzformálásával sikeresen elkészült.
+
+### Háromágú tartalmi–egyensúlyi korrekció
+
+- Futás: 2026. augusztus 27.
+- Az AGY számai változatlanok; a másodlagos következmény konkrétabban nevezi meg a saját és generált mondatok későbbi megkülönböztetésének nehézségét.
+- A KÉZ számai változatlanok; a Szabadság `+1` értéket most a felszabaduló idő és mentális kapacitás, valamint az eszkalációt csökkentő gyors, higgadt üzenet támasztja alá. A reflexió nem feltételez eltitkolt automatizálást.
+- A SZÍV új deltája: Kényelem `−1`, Kontroll `+1`, Kapcsolódás `+1`, Szabadság `−1`, Felelősség `+1`. A Kapcsolódás a gesztus közvetlenségét jelenti; a szöveg külön rögzíti, hogy ez nem garantál helyreállított kapcsolatot.
+- Az alkalmazás nem számol és nem jelenít meg összpontszámot; a három vektor nem erkölcsi rangsor.
+- Tartalomverzió: dilemma `spike-2`, katalógus `hu-spike-2`. A korábbi verziójú perzisztált sessiont a meglévő kompatibilitási ellenőrzés nem folytatja az új következményekkel.
+- Regresszió: táblavezérelt AGY–KÉZ–SZÍV teljes folyamat, pontos delták, strukturált tartalomkapcsolat, emberi kontroll és idempotens reveal; külön SZÍV → AGY reflexióérvénytelenítési teszt.
+- Teljes ellenőrzés: 4 tesztfájl, 15/15 sikeres teszt; production build sikeres, 58 modul, JS bundle 274,79 kB (gzip 82,01 kB), CSS 3,85 kB (gzip 1,50 kB).
 
 ### Nyitott külső ellenőrzés
 
