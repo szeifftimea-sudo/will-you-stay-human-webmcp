@@ -9,7 +9,7 @@ pnpm build
 
 A tesztcsomag lefedi a domainátmeneteket, az egyszeri következményalkalmazást, a zárt tool-sémákat, a Player/Agent határt, a regisztrációt és a tool által okozott React UI-változást.
 
-Legutóbbi teljes futás: 2026. augusztus 28. — dependency install sikeres; 4 tesztfájl, 15/15 sikeres teszt; production build sikeres, 58 modul transzformálva.
+Legutóbbi teljes futás: 2026. augusztus 28. — 4 tesztfájl, 16/16 sikeres teszt; production build sikeres, 58 modul transzformálva.
 
 ## Manuális kliensmátrix
 
@@ -19,7 +19,7 @@ Legutóbbi teljes futás: 2026. augusztus 28. — dependency install sikeres; 4 
 | 2026-08-28 | Vercel production + `curl` | HTTPS / HTTP/2 | n/a | Vercel CLI 59.6.2 | n/a | n/a | HTTP 200; mindkét előírt header ténylegesen jelen van |
 | 2026-08-28 | Codex desktop in-app browser | publikus top-level HTTPS WebView | Codex, pontos modell-ID nem elérhető | 26.818.21641 (6849) | blokkolt: nincs `document.modelContext`, 0 felfedezett Site tool | nem indítható | oldal betölt, fallback aktív, 0 error és 0 warning |
 | 2026-08-28 | Google Chrome | localhost top-level dokumentum, explicit testing flagek | n/a, producer-runtime próba | 152.0.7977.65 | sikeres producer-discovery: 5/5 tool | nem történt | a ChatGPT Chrome-oldalsáv hivatalosan nem Site tools kliens; `NO_SESSION` maradt |
-| nyitott | Chrome DevTools `Application → WebMCP` | ugyanaz a flages Chrome-runtime | n/a | 152.0.7977.65 | Available Tools még rögzítendő a panelen | nem futott | invocation input/output/status és history szükséges |
+| 2026-08-28 | Chrome DevTools `Application → WebMCP` | ugyanaz a flages Chrome-runtime | n/a | 152.0.7977.65 | sikeres: Available Tools 5/5 | `enter_machine_city {}`: `Error` | callback context-kompatibilitási fix automatizáltan igazolt; kézi reteszt és invocation history még szükséges |
 
 ## Manuális fallback
 
@@ -131,7 +131,37 @@ browsing context: top-level localhost document
 - A UI `NO_SESSION` állapotban volt; a producer-discovery nem módosította a játékállapotot.
 - A Playwright izolált végrehajtási világa `document.modelContext`, `registerTool` és `getTools` esetén `undefined` értéket látott. Ez a probe-korlát nem írja felül a fő runtime 5/5 regisztrációs bizonyítékát.
 - A ChatGPT Chrome-oldalsáv ugyanazon aktív tab mellett 0 Site toolt jelzett. Az OpenAI dokumentációja szerint a Site tools kliens jelenleg a ChatGPT desktop beépített böngészőjében használható, Chrome-ban nem.
-- Az `enter_machine_city` ezért nem kapott valós invocationt; a fázis `NO_SESSION` maradt. Nincs sikeres vagy sikertelen tool-execution státusz, mert hívás nem történt.
+- A ChatGPT-oldalsáv próbájában az `enter_machine_city` nem kapott valós invocationt; a fázis `NO_SESSION` maradt. Ebben a korábbi próbában nem volt tool-execution státusz, mert hívás nem történt.
+
+## Chrome 152 első DevTools-invocation és kompatibilitási regresszió — 2026. augusztus 28.
+
+### Valós runtime-eredmény a javítás előtt
+
+- Kliens: Chrome `152.0.7977.65`, `WebMCPTesting` és `DevToolsWebMCPSupport`, DevTools `Application → WebMCP` panel.
+- Az Available Tools lista megjelent az öt stabil toolnévvel.
+- Hívás: `enter_machine_city`, input: `{}`.
+- Státusz: `Error`.
+- Output: `TypeError: Cannot destructure property 'signal' of 'undefined' as it is undefined.`
+- Állapot: `NO_SESSION`, változatlan. Más tool nem futott.
+
+Ez valódi Chrome runtime invocation-kísérlet, de nem sikeres end-to-end invocation. A kivétel az adapter callback belépésekor, a domainparancs előtt keletkezett.
+
+### Javítás és automatizált bizonyíték
+
+Az adapter az opcionális második execution-contextet `options?.signal?.aborted` alakban kezeli. A regressziós teszt az `execute({})` egyargumentumos Chrome-formát használja, és igazolja a sikeres `MACHINE_CITY_READY` átmenetet. A már támogatott `AbortSignal`-ellenőrzés megmaradt, a JSON tool-szerződések és az emberi parancshatár nem változtak.
+
+```text
+pnpm test:run
+Test Files  4 passed (4)
+Tests       16 passed (16)
+
+pnpm build
+tsc -b && vite build
+58 modules transformed
+build successful
+```
+
+A javítás utáni kézi DevTools-újrapróba nincs ebben a checkpointban; ez a következő nyitott tesztlépés.
 
 ### Bizonyítottsági státusz
 
@@ -139,13 +169,14 @@ browsing context: top-level localhost document
 |---|---|---|
 | Mock integration | kész | automatizált 5/5 registration/discovery, tool-szerződés, UI-hatás és emberikontroll-invariánsok |
 | Real Chrome runtime discovery | kész | a valódi Chrome producer-runtime 5/5 toolt regisztrál és felsorol |
-| Real runtime invocation | nyitott | még nincs DevTools WebMCP-panelből vagy támogatott Site tools kliensből végrehajtott hívás |
+| Real runtime invocation | nyitott | első DevTools-hívás: `Error` a hiányzó második callback-argumentum miatt; minimális javítás és regressziós teszt kész, kézi újrapróba még nincs |
 
-Következő teszt: Chrome DevTools `Application → WebMCP`, Available Tools lista, manuális sikeres és elvárt sikertelen hívások, invocation history, emberi UI-kontrollpont, majd idempotens második reveal. Részletes evidence: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
+Következő teszt: Chrome DevTools `Application → WebMCP`, az `enter_machine_city {}` javítás utáni kézi újrahívása; csak annak sikere után folytatható az invocation history, az emberi UI-kontrollpont és az idempotens reveal bizonyítása. Részletes evidence: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
 
 ### Hivatalos források
 
 - OpenAI Site tools: <https://help.openai.com/en/articles/20001423-using-site-tools-in-the-chatgpt-desktop-app>, ellenőrizve 2026. augusztus 28-án.
 - Chrome WebMCP: <https://developer.chrome.com/docs/ai/webmcp>, ellenőrizve 2026. augusztus 28-án.
+- Chrome Imperative API: <https://developer.chrome.com/docs/ai/webmcp/imperative-api>, ellenőrizve 2026. augusztus 28-án.
 - Chrome DevTools WebMCP panel: <https://developer.chrome.com/docs/devtools/application/webmcp>, ellenőrizve 2026. augusztus 28-án.
 - Chrome 149 DevTools WebMCP flag: <https://developer.chrome.com/blog/new-in-devtools-149>, ellenőrizve 2026. augusztus 28-án.

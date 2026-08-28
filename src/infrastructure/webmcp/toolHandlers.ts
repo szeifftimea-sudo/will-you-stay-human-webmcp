@@ -108,8 +108,8 @@ const definition = <TInput extends Record<string, unknown>>(
   description,
   inputSchema: schema,
   annotations: { readOnlyHint, untrustedContentHint: false },
-  async execute(input, { signal }) {
-    if (signal.aborted) {
+  async execute(input, options) {
+    if (options?.signal?.aborted) {
       return failure(name, new GameError("INVALID_INPUT", "A toolhívás megszakadt."), getSession());
     }
     try {
@@ -215,4 +215,3 @@ export function createWebMcpToolDefinitions(
     ),
   ];
 }
-

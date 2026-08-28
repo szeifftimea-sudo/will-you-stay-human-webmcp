@@ -147,8 +147,19 @@ A verziózott JS asset külön `curl -I` próbája szintén `HTTP/2 200`, `Origi
 - Ez valós Chrome producer-discovery, nem mock és nem end-to-end invocation.
 - A Playwright read-only probe izolált világa ugyanakkor nem látta a kísérleti `document.modelContext` felületet. Mivel a fő runtime ugyanazon a dokumentumon bizonyítottan regisztrálta az öt toolt, az izolált probe `undefined` eredménye nem minősíthető a fő dokumentum API-hiányának vagy alkalmazáshibának.
 - A ChatGPT Chrome-oldalsáv az aktív tab mellett nyitva volt, de 0 Site toolt jelzett. Az OpenAI aktuális dokumentációja szerint a Site tools jelenleg a desktop alkalmazás beépített böngészőjében érhető el, Chrome-ban nem; ezért az oldalsáv nem megfelelő invocation-kliens ehhez a teszthez.
-- Az `enter_machine_city` nem futott le, a fázis `NO_SESSION` maradt. Ezt nem jelöljük sem alkalmazáshibának, sem sikertelen tool-executionnek, mert invocation nem történt.
+- A ChatGPT-oldalsáv próbájában az `enter_machine_city` nem futott le, a fázis `NO_SESSION` maradt. Ezt a korábbi oldalsáv-próbát nem jelöljük tool-executionnek, mert invocation nem történt.
 - Részletes evidence-rekord és képhash: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
+
+### Chrome DevTools első valós invocation és adapterjavítás
+
+- A Chrome DevTools `Application → WebMCP` panel Available Tools listája megjelent, és az öt regisztrált toolt felsorolta. A képernyőkép azonosítója és SHA-256 értéke az evidence-rekordban szerepel.
+- Az első valós DevTools-hívás az `enter_machine_city` toolt üres `{}` inputtal elérte, de `Error` státusszal zárult. Pontos output: `TypeError: Cannot destructure property 'signal' of 'undefined' as it is undefined.`
+- A hiba a domainhandler előtt keletkezett, ezért az alkalmazás helyesen `NO_SESSION` állapotban maradt; más tool nem futott.
+- Ok: az adapter `execute(input, { signal })` alakban kötelezően destrukturálta a második execution-context argumentumot, a Chrome 152 DevTools runtime viszont ennél a hívásnál csak az inputot adta át.
+- Minimális javítás: az execution context és azon belül a `signal` opcionális. Ha a runtime ad `AbortSignal`-t, az abort-ellenőrzés változatlanul érvényes; az input JSON Schema, a toolnevek, a portok és az emberi kontroll nem változott.
+- Új regressziós teszt közvetlenül `execute({})` formában hívja az `enter_machine_city` definíciót, és `MACHINE_CITY_READY` eredményt vár.
+- Teljes ellenőrzés: 4 tesztfájl, 16/16 sikeres teszt; production build: 58 modul, sikeres.
+- A javítás utáni kézi DevTools-invocation a jelen checkpointban szándékosan nem történt meg; a valós runtime invocation továbbra is nyitott újraellenőrzés.
 
 ### Bizonyítási checkpoint
 
@@ -156,9 +167,9 @@ A verziózott JS asset külön `curl -I` próbája szintén `HTTP/2 200`, `Origi
 |---|---|
 | Mock integration | kész: 5/5 tool, szerződés-, állapot- és emberikontroll-tesztek |
 | Real Chrome runtime discovery | kész: 5/5 producer-regisztráció és névlista Chrome 152-ben |
-| Real runtime invocation | nyitott: nincs végrehajtott valós toolhívás vagy invocation history |
+| Real runtime invocation | nyitott: az első DevTools-hívás adapterhibával elérte az `execute` callbacket; a kompatibilitási javítás automatizáltan igazolt, kézi újrapróba még nincs |
 
-A következő nyitott kapu a Chrome DevTools `Application → WebMCP` paneles Available Tools lista, manuális invocation és history rögzítése. Origin Trial-, alkalmazáskód- vagy konfigurációmódosítás nem történt.
+A következő nyitott lépés ugyanebben a Chrome DevTools panelben az `enter_machine_city {}` kézi újrapróbája, majd csak annak sikere után a további invocation- és history-tesztek. Origin Trial-, UI-, tartalmi vagy tool-szerződés-módosítás nem történt.
 
 ### Ellenőrzött források
 
@@ -166,5 +177,6 @@ A következő nyitott kapu a Chrome DevTools `Application → WebMCP` paneles Av
 - pnpm `strictDepBuilds` és `allowBuilds`: <https://pnpm.io/settings/build>, ellenőrizve 2026. augusztus 28-án.
 - OpenAI Site tools útmutató: <https://help.openai.com/en/articles/20001423-using-site-tools-in-the-chatgpt-desktop-app>, ellenőrizve 2026. augusztus 28-án.
 - Chrome WebMCP: <https://developer.chrome.com/docs/ai/webmcp>, ellenőrizve 2026. augusztus 28-án.
+- Chrome WebMCP Imperative API: <https://developer.chrome.com/docs/ai/webmcp/imperative-api>, ellenőrizve 2026. augusztus 28-án.
 - Chrome DevTools WebMCP panel: <https://developer.chrome.com/docs/devtools/application/webmcp>, ellenőrizve 2026. augusztus 28-án.
 - Chrome 149 DevTools WebMCP flag: <https://developer.chrome.com/blog/new-in-devtools-149>, ellenőrizve 2026. augusztus 28-án.

@@ -24,7 +24,8 @@ Minden JSON Schema zárt (`additionalProperties: false`). Egyik inputban sincs `
 - Chrome-eredmény: a fő runtime 5/5 toolt regisztrált és felfedezhetőként felsorolt a pontos stabil nevekkel.
 - Playwright-korlát: az izolált read-only világ nem látta a kísérleti `document.modelContext` felületet. Ezt nem használjuk a fő runtime ellenbizonyítékaként, mert ugyanazon dokumentum producer-regisztrációja 5/5 sikeres volt.
 - ChatGPT Chrome-oldalsáv: az aktív tabhoz kapcsolódott, de 0 Site toolt jelzett. Az OpenAI termékdokumentációja szerint a Site tools jelenleg nem Chrome-ban, hanem a ChatGPT desktop beépített böngészőjében érhető el.
-- Az `enter_machine_city` nem futott le, a fázis `NO_SESSION` maradt. Ez nem alkalmazáshiba és nem sikertelen tool-execution: invocation nem történt.
+- A ChatGPT-oldalsáv próbájában az `enter_machine_city` nem futott le, a fázis `NO_SESSION` maradt. Ez a korábbi eredmény nem tool-execution: invocation nem történt.
+- A Chrome DevTools `Application → WebMCP` panel később elérte az `enter_machine_city` `execute` callbackjét, de a javítás előtti adapter `Error` státuszt adott, mert kötelezően destrukturálta a runtime által el nem küldött második context argumentumot. Ez valós invocation-kísérlet, nem sikeres end-to-end hívás.
 - Részletes evidence: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
 
 ## Hívási bizonyítékok
@@ -32,6 +33,8 @@ Minden JSON Schema zárt (`additionalProperties: false`). Egyik inputban sincs `
 | Eset | Eredmény | Bizonyíték |
 |---|---|---|
 | `enter_machine_city {}` | siker; `MACHINE_CITY_READY` | UI integrációs teszt és helyi fallback próba |
+| `enter_machine_city {}` Chrome DevToolsból, javítás előtt | `Error`; hiányzó második execution context; állapot maradt `NO_SESSION` | valós Chrome 152 invocation-kísérlet, felhasználó által rögzített pontos output |
+| `enter_machine_city.execute({})` második argumentum nélkül | siker; `MACHINE_CITY_READY` | `registration.test.ts` Chrome-forma regressziós teszt |
 | `present_dilemma` helyes session/revision | siker; aktív dilemma és `AWAITING_HUMAN_SELECTION` együtt | `gameEngine.test.ts`, UI integrációs teszt |
 | bármely tool extra `lens` mezővel | `INVALID_INPUT`, állapotváltozás nélkül | `playerAgentBoundary.test.ts` |
 | reflexió nem aktuális selection ID-val | `SELECTION_ID_MISMATCH` | `gameEngine.test.ts` |
@@ -48,11 +51,15 @@ Az automatizált ModelContext mock `getTools()` eredménye pontosan az öt stabi
 |---|---|---|
 | Mock integration | kész | 5/5 tool regisztráció és `getTools()`-lista; zárt sémák; állapot-, UI- és emberikontroll-tesztek |
 | Real Chrome runtime discovery | kész | Chrome 152 fő runtime: 5/5 regisztrált és felsorolt tool |
-| Real runtime invocation | nyitott | még nincs valós WebMCP-hívás, input/output/státusz vagy invocation history |
+| Real runtime invocation | nyitott | az első valós DevTools-hívás `Error` státusza dokumentált; adapterfix kész és automatizáltan igazolt, kézi reteszt még nincs |
 
 A „Hívási bizonyítékok” táblázat jelenlegi sikerei mock-, domain-, UI-integrációs vagy fallback-bizonyítékok; egyik sem címkézhető valós Chrome invocationként.
 
-Következő nyitott kapu: Chrome DevTools `Application → WebMCP` panel. Itt kell rögzíteni az Available Tools listát, a sikeres és elvárt sikertelen hívásokat, az invocation historyt, az emberi kontrollpontot és az idempotens második reveal változatlan mérlegét.
+Következő nyitott kapu: a Chrome DevTools `Application → WebMCP` panelen az `enter_machine_city {}` javítás utáni újrapróbája. Siker után kell folytatni a további hívásokat, az invocation historyt, az emberi kontrollpontot és az idempotens második reveal változatlan mérlegét.
+
+### `execute` runtime-kompatibilitás
+
+A definíciók az `execute(input)` és az `execute(input, { signal })` formát egyaránt elfogadják. A második context argumentum és a `signal` opcionális; ha az abortjel jelen van és megszakított, a tool továbbra is állapotváltozás nélkül hibát ad. Ez adapter-kompatibilitási részlet, nem változtatja meg a tool input/output szerződését és nem nyit játékosi parancsot az agent számára.
 
 ## Hivatalos források
 

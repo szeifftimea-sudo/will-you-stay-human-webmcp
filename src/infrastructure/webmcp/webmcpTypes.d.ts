@@ -2,7 +2,7 @@ export {};
 
 declare global {
   interface WebMcpExecuteOptions {
-    signal: AbortSignal;
+    signal?: AbortSignal;
   }
 
   interface WebMcpToolDefinition {
@@ -16,7 +16,7 @@ declare global {
     };
     execute(
       input: Record<string, unknown>,
-      options: WebMcpExecuteOptions,
+      options?: WebMcpExecuteOptions,
     ): Promise<unknown> | unknown;
   }
 
@@ -39,4 +39,3 @@ declare global {
     modelContext?: ModelContext;
   }
 }
-

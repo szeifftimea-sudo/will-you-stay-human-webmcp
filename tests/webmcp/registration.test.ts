@@ -39,5 +39,23 @@ describe("WebMCP regisztráció", () => {
     expect(discovered.map(({ name }) => name)).toEqual([...WEBMCP_TOOL_NAMES]);
     expect(statuses.at(-1)).toBe("webmcp");
   });
-});
 
+  it("az execute a Chrome runtime egyargumentumos hívásformájával is működik", async () => {
+    const engine = new GameEngine(dilemmaCatalog, new MemoryGameRepository());
+    const definitions = createWebMcpToolDefinitions(
+      createAgentCommandPort(engine),
+      createAgentQueryPort(engine),
+      () => engine.getSnapshot(),
+    );
+    const enterMachineCity = definitions.find(({ name }) => name === "enter_machine_city")!;
+
+    const result = await enterMachineCity.execute({});
+
+    expect(result).toMatchObject({
+      ok: true,
+      tool: "enter_machine_city",
+      phase: "MACHINE_CITY_READY",
+    });
+    expect(engine.getSnapshot()?.phase).toBe("MACHINE_CITY_READY");
+  });
+});
