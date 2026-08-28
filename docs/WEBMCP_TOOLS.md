@@ -27,6 +27,7 @@ Minden JSON Schema zárt (`additionalProperties: false`). Egyik inputban sincs `
 - A ChatGPT-oldalsáv próbájában az `enter_machine_city` nem futott le, a fázis `NO_SESSION` maradt. Ez a korábbi eredmény nem tool-execution: invocation nem történt.
 - A Chrome DevTools `Application → WebMCP` panel később elérte az `enter_machine_city` `execute` callbackjét, de a javítás előtti adapter `Error` státuszt adott, mert kötelezően destrukturálta a runtime által el nem küldött második context argumentumot. Ez valós invocation-kísérlet, nem sikeres end-to-end hívás.
 - A javítás utáni Chrome DevTools-reteszt ugyanazt a toolt `{}` inputtal `Completed`, `ok: true` eredménnyel futtatta; a UI `MACHINE_CITY_READY`, revision 0 állapotba váltott. A korábbi hiba ettől nem törlődik, a két esemény együtt bizonyítja a javítás eredményét.
+- Production producer-próba: ugyanebben a Chrome 152 környezetben, explicit flagekkel a <https://will-you-stay-human.vercel.app/> top-level HTTPS dokumentumon 5/5 discovery és a minimális háromhívásos smoke sikeres volt. Origin Trial vagy token nem kellett a testing-flages próbához.
 - Részletes evidence: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
 
 ## Hívási bizonyítékok
@@ -58,6 +59,9 @@ Minden JSON Schema zárt (`additionalProperties: false`). Egyik inputban sincs `
 | reveal megerősítés után | siker; `CONSEQUENCE_REVEALED` | domain- és fallback próba |
 | ugyanazon reveal retry | `alreadyRevealed: true`; változatlan balance; history hossza 1 | `gameEngine.test.ts` |
 | következő `present_dilemma` két elemű tesztkatalógussal | új dilemma ID és `AWAITING_HUMAN_SELECTION` egy commitban | `gameEngine.test.ts` |
+| production `enter_machine_city {}` | `Completed`; `ok: true`; `MACHINE_CITY_READY`; revision 0; látható UI-váltás | Chrome 152 DevTools, publikus HTTPS origin; 1 total, 0 failed |
+| production `present_dilemma` helyes sessionnel és revision 0-val | `Completed`; `ok: true`; `AWAITING_HUMAN_SELECTION`; revision 1; dilemma látható | Chrome 152 DevTools, publikus HTTPS origin; 2 total, 0 failed |
+| production `get_current_game_state` helyes sessionnel | `ok: true`; `AWAITING_HUMAN_SELECTION`; revision 1; döntési mezők null; mérleg változatlan | valós production read-only output; az agent nem választott |
 
 Az automatizált ModelContext mock `getTools()` eredménye pontosan az öt stabil toolnevet tartalmazta. Ez regisztrációs/discovery integrációs bizonyíték, nem helyettesíti a valós WebMCP-klienspróbát.
 
@@ -68,10 +72,13 @@ Az automatizált ModelContext mock `getTools()` eredménye pontosan az öt stabi
 | Mock integration | kész | 5/5 tool regisztráció és `getTools()`-lista; zárt sémák; állapot-, UI- és emberikontroll-tesztek |
 | Real Chrome runtime discovery | kész | Chrome 152 fő runtime: 5/5 regisztrált és felsorolt tool |
 | Real runtime invocation | kész localhoston | az öt tool discoveryje, pozitív és negatív invocationök, Player UI-kontrollpont, első reveal és két idempotens retry bizonyított |
+| Production Chrome smoke | kész | 5/5 discovery és `enter_machine_city → present_dilemma → get_current_game_state` sikeres a publikus HTTPS originen |
 
-A „Hívási bizonyítékok” táblázat első és további sikersorai mock-, domain-, UI-integrációs vagy fallback-bizonyítékok; kizárólag a külön „Chrome DevToolsból, javítás után” sor címkézhető jelenleg sikeres valós Chrome invocationként.
+A „Hívási bizonyítékok” táblázata elkülöníti a mock-, domain-, UI-/fallback-, localhost Chrome- és production Chrome-bizonyítékokat. Sikeres valós Chrome invocationként csak a kifejezetten Chrome DevTools- vagy production-sorok értelmezhetők.
 
 A localhost DevTools invocation-kapu lezárult; további reveal-hívás nem szükséges. A valós képen összecsukott `data.alreadyRevealed` és a teljes belső outcome history mezőszintű invariánsát a táblázatban jelzett automatizált regressziós teszt támasztja alá.
+
+A production smoke szándékosan csak az első három agentműveletet fedte le. `AWAITING_HUMAN_SELECTION` állapotban `tentativeSelectionId`, `tentativeLens`, `reflectionId`, `confirmedDecisionId` és `confirmedLens` mind `null` maradt. A tool surface továbbra sem kínál kijelölési, reflexió-megtartási vagy megerősítési parancsot, ezért a smoke sem kerülte meg a Player UI kontrollpontját.
 
 ### `execute` runtime-kompatibilitás
 

@@ -292,8 +292,24 @@ A verziózott JS asset külön `curl -I` próbája szintén `HTTP/2 200`, `Origi
 | Mock integration | kész: 5/5 tool, szerződés-, állapot- és emberikontroll-tesztek |
 | Real Chrome runtime discovery | kész: 5/5 producer-regisztráció és névlista Chrome 152-ben |
 | Real runtime invocation | kész localhoston: teljes agent–Player UI-folyam, negatív kontrollpróbák, pozitív reveal és két változatlan idempotens retry bizonyított |
+| Production Chrome smoke | kész: publikus HTTPS originen 5/5 discovery és `enter_machine_city → present_dilemma → get_current_game_state` sikeres |
 
 A localhost Chrome DevTools invocation-kapu lezárult. További toolhívás nem szükséges; Origin Trial-, alkalmazáskód-, tartalmi vagy tool-szerződés-módosítás nem történt.
+
+### Production redeployment és minimális Chrome WebMCP smoke
+
+- Tesztelt forráscommit: `f703e75d6aa71363e1da17a73b44ae5d7438993f`; ez tartalmazza a `913fc1d` Chrome-kompatibilitási javítást.
+- Vercel production deployment: `dpl_9PhN9iuQVJNpxgh11KAWTD6Ff138`; állapot `Ready`; létrehozva 2026. augusztus 28-án 22:47:30 CEST.
+- Nyilvános, zsűri által használható URL: <https://will-you-stay-human.vercel.app/>. A deployment egyedi, Vercel-védelemmel ellátott URL-je nem a publikus tesztcím.
+- A kanonikus URL `HTTP/2 200` választ adott. Tényleges headerek: `Origin-Agent-Cluster: ?1`, `Permissions-Policy: tools=(self)`.
+- A live HTML az `assets/index-DZlbAWle.js` bundle-t szolgálta ki. A helyi, commitból épített és a publikus bundle SHA-256 értéke azonos: `a88a43ab3827beab26164b9ff71fe45f0c712f12110083327b3d498fad52caa4`. A bundle az opcionális második execution-contextet kezelő `execute(input, options)` adapterjavítást tartalmazza.
+- Böngésző: Google Chrome `152.0.7977.65`; a főfolyamatban explicit `WebMCPTesting,DevToolsWebMCPSupport` feature-kapcsolók; top-level production HTTPS dokumentum.
+- A DevTools `Application → WebMCP` panel a production originen mind az öt pontos toolnevet felsorolta. Origin Trial-regisztráció, token vagy további konfigurációmódosítás nem kellett ehhez a flages teszthez.
+- `enter_machine_city`: Chrome `Completed`, alkalmazás `ok: true`; látható `NO_SESSION → MACHINE_CITY_READY`, revision 0; 1 total call / 0 failed.
+- `present_dilemma`: Chrome `Completed`, alkalmazás `ok: true`; látható dilemma és `AWAITING_HUMAN_SELECTION`, revision 1; 2 total call / 0 failed.
+- `get_current_game_state`: alkalmazás `ok: true`, `AWAITING_HUMAN_SELECTION`, revision 1. `tentativeSelectionId`, `tentativeLens`, `reflectionId`, `confirmedDecisionId` és `confirmedLens` mind `null`; a mérleg mind az öt tengelye 0. A read-only hívás nem hozott létre játékosi választást.
+- A production smoke itt szándékosan megállt. A tool surface továbbra sem tartalmaz kijelölési, reflexió-megtartási vagy végleges megerősítési toolt; az agent nem választhat a játékos helyett. A teljes emberikontroll- és idempotenciafolyamot a korábbi localhost Chrome-evidence és az automatizált regresszió bizonyítja, azt productionön nem ismételtük meg.
+- Részletes fájlnevek, képméretek és SHA-256 értékek: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
 
 ### Ellenőrzött források
 

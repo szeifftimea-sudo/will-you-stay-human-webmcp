@@ -225,10 +225,41 @@ A kézi próba véletlenül két retryt tartalmazott. A rekord ezt változtatás
 | Mock integration | kész | 5/5 regisztráció, `getTools()`-lista, szerződések, állapot- és emberikontroll-invariánsok automatizált környezetben |
 | Real Chrome runtime discovery | kész | a valódi Chrome 152 fő dokumentum-runtime-ja 5/5 toolt regisztrál és felsorol |
 | Real runtime invocation | kész localhoston | teljes agent–Player UI-folyam, negatív kontrolltesztek, pozitív reveal és két változatlan idempotens retry |
+| Production Chrome smoke | kész | publikus HTTPS originen 5/5 discovery és három sikeres hívás `AWAITING_HUMAN_SELECTION` állapotig |
+
+## Production redeployment és smoke evidence
+
+### Deployment-azonosság
+
+- Tesztelt forráscommit: `f703e75d6aa71363e1da17a73b44ae5d7438993f`; tartalmazott kompatibilitási fix: `913fc1d`.
+- Vercel deployment ID: `dpl_9PhN9iuQVJNpxgh11KAWTD6Ff138`; target `production`; állapot `Ready`; időpont 2026. augusztus 28. 22:47:30 CEST.
+- Kanonikus publikus URL: <https://will-you-stay-human.vercel.app/>; `HTTP/2 200`.
+- Tényleges response headerek: `Origin-Agent-Cluster: ?1`; `Permissions-Policy: tools=(self)`.
+- Live asset: `assets/index-DZlbAWle.js`. A helyi és letöltött asset SHA-256 értéke egyaránt `a88a43ab3827beab26164b9ff71fe45f0c712f12110083327b3d498fad52caa4`. A bundle-ben jelen van az opcionális második contexttel kompatibilis callbackalak.
+
+### Production discovery és invocation
+
+- Google Chrome `152.0.7977.65`; igazolt főfolyamat-kapcsolók: `--enable-features=WebMCPTesting,DevToolsWebMCPSupport`.
+- Top-level production HTTPS dokumentum; Chrome DevTools `Application → WebMCP` panel.
+- Available Tools: `enter_machine_city`, `get_current_game_state`, `present_choice_reflection`, `present_dilemma`, `reveal_confirmed_consequence` — 5/5.
+- A listában nincs játékosi kijelölési, reflexió-megtartási vagy végleges megerősítési tool.
+- `enter_machine_city {}`: `Completed`, `ok: true`, `MACHINE_CITY_READY`, revision 0, session `010cd149-86f5-459b-a6e3-3188e4de6e9b`; látható UI-váltás; 1 total / 0 failed.
+- `present_dilemma` ugyanezzel a sessionnel és `expectedRevision: 0` bemenettel: `Completed`, `ok: true`, `AWAITING_HUMAN_SELECTION`, revision 1; a dilemma látható; 2 total / 0 failed.
+- `get_current_game_state` ugyanezzel a sessionnel: `ok: true`, `AWAITING_HUMAN_SELECTION`, revision 1; aktív dilemma `apology-delegation`; `tentativeSelectionId`, `tentativeLens`, `reflectionId`, `confirmedDecisionId` és `confirmedLens` null; `reflectionAcknowledged: false`; balance 0/0/0/0/0.
+- A read-only output közvetlen strukturált evidence-ként került átadásra; ehhez külön képernyőkép nem készült. A hívás nem módosította a UI-t és nem hozott létre játékosi döntést.
+- A smoke scope itt véget ért. A teljes emberikontroll- és idempotenciafolyamot nem ismételtük meg productionön; azt a fenti localhost Chrome-flow és a regressziós tesztek bizonyítják.
+
+### Production képi evidence
+
+1. `codex-clipboard-02295da9-44ff-498f-9754-5e77e40017c3.png`; `3644 × 2218`; SHA-256: `4db8b24dd3fd44326b9cc58d6e9bef9c65077bc31596bc55b389926674d4ce8f`. Production URL, `NO_SESSION`, 5/5 Available Tools, még üres Tool Activity.
+2. `codex-clipboard-1e663fc8-a5f8-4520-99b4-dc6e9fcfea04.png`; `3644 × 2218`; SHA-256: `02fef4e8907fd1bbf6378eedf084e41591ba647928baed9cff3cef9df2c4c87b`. `enter_machine_city` `Completed`, `ok: true`, `MACHINE_CITY_READY`, revision 0, 1 total / 0 failed és látható UI-váltás.
+3. `codex-clipboard-f9a6ad59-6747-4100-a69e-f0f1210b5b3f.png`; `3644 × 2218`; SHA-256: `2b1626c04e3ee0c92b151ce55d0ca7139d4215db86d363b4f56a1dd22ba6885c`. `present_dilemma` `Completed`, `ok: true`, `AWAITING_HUMAN_SELECTION`, revision 1, 2 total / 0 failed és látható dilemma.
+
+Origin Trial-regisztráció, token, további hostingkonfiguráció vagy alkalmazáskód-módosítás nem történt. A testing flaggel futó production-origin discovery sikeres volt, ezért Origin Trial nem vált szükségessé ehhez a bizonyításhoz.
 
 ## Technikai kapu eredménye
 
-A localhost Chrome DevTools WebMCP discovery- és invocation-kapu lezárult. További reveal-hívás nem szükséges. A production originen végzett Origin Trial-, token- vagy konfigurációs kísérlet nem része ennek a checkpointnak.
+A localhost teljes Chrome DevTools WebMCP discovery- és invocation-kapu, valamint a production 5/5 discovery és minimális smoke-kapu lezárult. A Codex/ChatGPT desktop Site tools kliensoldali elérhetősége továbbra is külön környezeti kérdés; nem írja felül a Chrome producer- és invocation-bizonyítékot.
 
 ## Hivatalos források
 

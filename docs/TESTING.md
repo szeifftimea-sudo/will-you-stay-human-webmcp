@@ -49,7 +49,7 @@ Az AGY ág költségszövege — „A saját hangod és a generált hang közöt
 Kényelem +1, Kontroll +1, Kapcsolódás -1, Szabadság 0, Felelősség 0
 ```
 
-Az automatizált regressziós teszt ellenőrzi a nyers deltát, az alkalmazott deltát, a mentett mérleget és a narratív költséget; a teljes csomag 13/13 sikeres teszttel futott le. A valós Chrome producer-discovery később 5/5 sikerrel lezárult, a valós runtime invocation ettől függetlenül továbbra is nyitott technikai kapu.
+Az automatizált regressziós teszt ellenőrzi a nyers deltát, az alkalmazott deltát, a mentett mérleget és a narratív költséget; a teljes csomag 13/13 sikeres teszttel futott le. Ennél a korábbi checkpointnál a valós runtime invocation még nyitott kapu volt; ezt a későbbi localhost teljes flow és production smoke lezárta.
 
 ## Háromágú tartalmi–egyensúlyi regresszió
 
@@ -113,7 +113,7 @@ Az invocationt nem jelöljük sikertelen toolhívásnak, mert discovery hiányá
 
 Ez a publikus Codex WebView-próba nem írja felül a külön Chrome 152 eredményt. A két kliens képességeit és következtetéseit elkülönítve kell kezelni.
 
-A valós Chrome producer-discovery és a valós runtime invocation ezért két külön kapu: az előbbi lezárt, az utóbbi nyitott.
+A valós Chrome producer-discovery és a valós runtime invocation két külön kapu volt. Ez a szakasz a korábbi köztes állapotot rögzíti; a későbbi DevTools-próbák mindkettőt lezárták localhoston, majd a production originen külön minimális smoke is sikeres lett.
 
 ## Chrome 152 producer-runtime discovery — 2026. augusztus 28.
 
@@ -308,8 +308,24 @@ Ez a reveal előtti mérlegbaseline és az ember által létrehozott valós deci
 | Mock integration | kész | automatizált 5/5 registration/discovery, tool-szerződés, UI-hatás és emberikontroll-invariánsok |
 | Real Chrome runtime discovery | kész | a valódi Chrome producer-runtime 5/5 toolt regisztrál és felsorol |
 | Real runtime invocation | kész localhoston | a teljes invocation-folyam, a Player UI-kontrollpont, az első reveal és két változatlan idempotens retry bizonyított |
+| Production Chrome smoke | kész | HTTPS originen 5/5 discovery és három sikeres, szerződéshelyes toolhívás `AWAITING_HUMAN_SELECTION` állapotig |
 
 A localhost valós runtime-kapu lezárult; további kézi hívás nem szükséges. Részletes evidence: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
+
+## Production Chrome WebMCP smoke — 2026. augusztus 28.
+
+- Forráscommit: `f703e75d6aa71363e1da17a73b44ae5d7438993f`, benne a `913fc1d` adapterjavítással.
+- URL: <https://will-you-stay-human.vercel.app/>; HTTPS `HTTP/2 200`.
+- Headerek: `Origin-Agent-Cluster: ?1`; `Permissions-Policy: tools=(self)`.
+- Live bundle: `assets/index-DZlbAWle.js`; remote és helyi SHA-256: `a88a43ab3827beab26164b9ff71fe45f0c712f12110083327b3d498fad52caa4`.
+- Kliens: Chrome `152.0.7977.65`, explicit `WebMCPTesting,DevToolsWebMCPSupport`, DevTools `Application → WebMCP`, production top-level HTTPS origin.
+- Discovery: mind az öt tool pontos névvel megjelent; a felsorolásban nincs kijelölési, reflexió-megtartási vagy megerősítési tool.
+- `enter_machine_city`: `Completed`, `ok: true`, `MACHINE_CITY_READY`, revision 0; látható UI-változás; 1 total / 0 failed.
+- `present_dilemma`: `Completed`, `ok: true`, `AWAITING_HUMAN_SELECTION`, revision 1; a dilemma látható; 2 total / 0 failed.
+- `get_current_game_state`: `ok: true`, `AWAITING_HUMAN_SELECTION`, revision 1; aktív dilemma `apology-delegation`; minden selection/reflection/confirmation mező üres vagy `null`; mérleg 0/0/0/0/0.
+- Következtetés: a production producer-regisztráció és a minimális invocation-flow működik. Az agent a smoke végén sem hozott létre választást vagy megerősítést. A teljes localhost flow-t a scope szerint nem ismételtük meg.
+- Origin Trial-, token-, alkalmazáskód-, UI-, tartalmi vagy tool-szerződés-módosítás nem történt. A testing flaggel futó production discovery sikeres volt, ezért Origin Trial javaslatára sem volt szükség.
+- Ebben a dokumentációs checkpointban automatizált tesztet és buildet nem futtattunk újra: a deployment a tiszta, korábban ellenőrzött commitból készült, a feladat pedig kizárólag a production smoke és annak evidence-rögzítése volt.
 
 ### Hivatalos források
 
