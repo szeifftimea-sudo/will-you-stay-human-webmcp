@@ -19,10 +19,13 @@ Minden JSON Schema zárt (`additionalProperties: false`). Egyik inputban sincs `
 - Automatizált discovery-bizonyíték: a regisztrációs teszt mock `ModelContext` mellett mind az öt definíciót és nevét ellenőrzi.
 - Publikus teszt-URL: <https://will-you-stay-human.vercel.app/>.
 - Hostingbizonyíték: `HTTP/2 200`, `Origin-Agent-Cluster: ?1`, `Permissions-Policy: tools=(self)` a gyökér HTML-en és a verziózott JS asseten is.
-- Valós klienspróba: Codex desktop in-app browser `26.818.21641` (`6849`), 2026. augusztus 28.; modellazonosító a kliensből nem olvasható, ezért `Codex / környezet által kezelt`.
-- Eredmény: `"modelContext" in document === false`; `registerTool` és `getTools` típusa `undefined`; a várt öt Site toolból 0 jelent meg a kliens tool-metadatái között.
-- Konzol: 0 error, 0 warning; az oldal top-level HTTPS dokumentumként helyesen a manuális fallbacket mutatta.
-- Minősítés: környezeti/kliensoldali discovery-blokkoló. Nem változtatjuk meg az alkalmazáskódot a hiányzó böngésző-API megkerülésére.
+- Publikus Codex WebView-próba: in-app browser `26.818.21641` (`6849`), 2026. augusztus 28.; a kliens nem injektálta a `document.modelContext` API-t, 0/5 discovery, 0 konzolhiba. Ez külön klienskörnyezeti eredmény.
+- Valós Chrome producer-próba: Google Chrome `152.0.7977.65`, explicit `WebMCPTesting` és `DevToolsWebMCPSupport` feature-kapcsolók, `http://127.0.0.1:4173/localhost` top-level dokumentum.
+- Chrome-eredmény: a fő runtime 5/5 toolt regisztrált és felfedezhetőként felsorolt a pontos stabil nevekkel.
+- Playwright-korlát: az izolált read-only világ nem látta a kísérleti `document.modelContext` felületet. Ezt nem használjuk a fő runtime ellenbizonyítékaként, mert ugyanazon dokumentum producer-regisztrációja 5/5 sikeres volt.
+- ChatGPT Chrome-oldalsáv: az aktív tabhoz kapcsolódott, de 0 Site toolt jelzett. Az OpenAI termékdokumentációja szerint a Site tools jelenleg nem Chrome-ban, hanem a ChatGPT desktop beépített böngészőjében érhető el.
+- Az `enter_machine_city` nem futott le, a fázis `NO_SESSION` maradt. Ez nem alkalmazáshiba és nem sikertelen tool-execution: invocation nem történt.
+- Részletes evidence: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
 
 ## Hívási bizonyítékok
 
@@ -39,9 +42,22 @@ Minden JSON Schema zárt (`additionalProperties: false`). Egyik inputban sincs `
 
 Az automatizált ModelContext mock `getTools()` eredménye pontosan az öt stabil toolnevet tartalmazta. Ez regisztrációs/discovery integrációs bizonyíték, nem helyettesíti a valós WebMCP-klienspróbát.
 
-### Mockban bizonyított és valós kliensben nyitott eredmény
+### Bizonyítottsági szintek
 
-- Mock ModelContext: 5/5 tool regisztrálható és felfedezhető; a szerződés-, állapot- és emberikontroll-tesztek sikeresek.
-- Publikus valós kliens: az alkalmazás és a szükséges response headerek elérhetők, de a tesztelt Codex desktop környezet nem injektálta a `document.modelContext` API-t.
-- Emiatt valós invocation nem indult, tehát azt nem állítjuk sem sikeresnek, sem alkalmazáshibaként sikertelennek.
-- Következő manuális kapu: Site tools engedélyezése jogosult kliensben és támogatott modell mellett, majd az öt név discoveryje és legalább a read-only `get_current_game_state` hívása.
+| Szint | Státusz | Bizonyított állítás |
+|---|---|---|
+| Mock integration | kész | 5/5 tool regisztráció és `getTools()`-lista; zárt sémák; állapot-, UI- és emberikontroll-tesztek |
+| Real Chrome runtime discovery | kész | Chrome 152 fő runtime: 5/5 regisztrált és felsorolt tool |
+| Real runtime invocation | nyitott | még nincs valós WebMCP-hívás, input/output/státusz vagy invocation history |
+
+A „Hívási bizonyítékok” táblázat jelenlegi sikerei mock-, domain-, UI-integrációs vagy fallback-bizonyítékok; egyik sem címkézhető valós Chrome invocationként.
+
+Következő nyitott kapu: Chrome DevTools `Application → WebMCP` panel. Itt kell rögzíteni az Available Tools listát, a sikeres és elvárt sikertelen hívásokat, az invocation historyt, az emberi kontrollpontot és az idempotens második reveal változatlan mérlegét.
+
+## Hivatalos források
+
+- OpenAI Site tools: <https://help.openai.com/en/articles/20001423-using-site-tools-in-the-chatgpt-desktop-app>, ellenőrizve 2026. augusztus 28-án.
+- Chrome WebMCP: <https://developer.chrome.com/docs/ai/webmcp>, ellenőrizve 2026. augusztus 28-án.
+- Chrome Imperative API: <https://developer.chrome.com/docs/ai/webmcp/imperative-api>, ellenőrizve 2026. augusztus 28-án.
+- Chrome DevTools WebMCP panel: <https://developer.chrome.com/docs/devtools/application/webmcp>, ellenőrizve 2026. augusztus 28-án.
+- Chrome 149 DevTools WebMCP flag: <https://developer.chrome.com/blog/new-in-devtools-149>, ellenőrizve 2026. augusztus 28-án.

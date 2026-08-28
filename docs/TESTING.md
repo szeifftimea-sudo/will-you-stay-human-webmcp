@@ -18,7 +18,8 @@ Legutóbbi teljes futás: 2026. augusztus 28. — dependency install sikeres; 4 
 | 2026-08-27 | Codex desktop in-app browser | beágyazott WebView | Codex | környezet által kezelt | WebMCP API nem érhető el | fallback sikeres | teljes manuális kör, 0 konzolhiba |
 | 2026-08-28 | Vercel production + `curl` | HTTPS / HTTP/2 | n/a | Vercel CLI 59.6.2 | n/a | n/a | HTTP 200; mindkét előírt header ténylegesen jelen van |
 | 2026-08-28 | Codex desktop in-app browser | publikus top-level HTTPS WebView | Codex, pontos modell-ID nem elérhető | 26.818.21641 (6849) | blokkolt: nincs `document.modelContext`, 0 felfedezett Site tool | nem indítható | oldal betölt, fallback aktív, 0 error és 0 warning |
-| kitöltendő | jogosult WebMCP-képes kliens | top-level HTTPS vagy Chrome testing flag | támogatott modell | kitöltendő | nem futott | nem futott | Site tools engedélyezése után szükséges |
+| 2026-08-28 | Google Chrome | localhost top-level dokumentum, explicit testing flagek | n/a, producer-runtime próba | 152.0.7977.65 | sikeres producer-discovery: 5/5 tool | nem történt | a ChatGPT Chrome-oldalsáv hivatalosan nem Site tools kliens; `NO_SESSION` maradt |
+| nyitott | Chrome DevTools `Application → WebMCP` | ugyanaz a flages Chrome-runtime | n/a | 152.0.7977.65 | Available Tools még rögzítendő a panelen | nem futott | invocation input/output/status és history szükséges |
 
 ## Manuális fallback
 
@@ -47,7 +48,7 @@ Az AGY ág költségszövege — „A saját hangod és a generált hang közöt
 Kényelem +1, Kontroll +1, Kapcsolódás -1, Szabadság 0, Felelősség 0
 ```
 
-Az automatizált regressziós teszt ellenőrzi a nyers deltát, az alkalmazott deltát, a mentett mérleget és a narratív költséget; a teljes csomag 13/13 sikeres teszttel futott le. A valós WebMCP-kliensben végzett discovery és invocation ettől függetlenül továbbra is nyitott technikai kapu.
+Az automatizált regressziós teszt ellenőrzi a nyers deltát, az alkalmazott deltát, a mentett mérleget és a narratív költséget; a teljes csomag 13/13 sikeres teszttel futott le. A valós Chrome producer-discovery később 5/5 sikerrel lezárult, a valós runtime invocation ettől függetlenül továbbra is nyitott technikai kapu.
 
 ## Háromágú tartalmi–egyensúlyi regresszió
 
@@ -109,6 +110,42 @@ felfedezett várt Site toolok: 0/5
 
 Az invocationt nem jelöljük sikertelen toolhívásnak, mert discovery hiányában toolhívás nem volt lehetséges. Ez a jelenlegi kliens/modell/workspace környezet blokkolója; az alkalmazás fallbackje rendben működik, és nem készült kódszintű megkerülés.
 
-Még szükséges manuális felhasználói lépés: jogosult Codex/ChatGPT desktop környezetben a Site tools engedély bekapcsolása és támogatott modell kiválasztása, majd a publikus URL újranyitása. Alternatív klienspróba Chrome-ban, a hivatalos WebMCP testing flag engedélyezése után végezhető.
+Ez a publikus Codex WebView-próba nem írja felül a külön Chrome 152 eredményt. A két kliens képességeit és következtetéseit elkülönítve kell kezelni.
 
-A valódi Site tools discovery és invocation ezért továbbra is külön, nyitott technikai kapu.
+A valós Chrome producer-discovery és a valós runtime invocation ezért két külön kapu: az előbbi lezárt, az utóbbi nyitott.
+
+## Chrome 152 producer-runtime discovery — 2026. augusztus 28.
+
+### Környezet
+
+```text
+Google Chrome: 152.0.7977.65
+feature flags: WebMCPTesting, DevToolsWebMCPSupport
+URL: http://127.0.0.1:4173/localhost
+browsing context: top-level localhost document
+```
+
+### Eredmény
+
+- A fő dokumentum-runtime 5/5 toolt regisztrált és felfedezhetőként felsorolt, a pontos nevekkel: `enter_machine_city`, `present_dilemma`, `get_current_game_state`, `present_choice_reflection`, `reveal_confirmed_consequence`.
+- A UI `NO_SESSION` állapotban volt; a producer-discovery nem módosította a játékállapotot.
+- A Playwright izolált végrehajtási világa `document.modelContext`, `registerTool` és `getTools` esetén `undefined` értéket látott. Ez a probe-korlát nem írja felül a fő runtime 5/5 regisztrációs bizonyítékát.
+- A ChatGPT Chrome-oldalsáv ugyanazon aktív tab mellett 0 Site toolt jelzett. Az OpenAI dokumentációja szerint a Site tools kliens jelenleg a ChatGPT desktop beépített böngészőjében használható, Chrome-ban nem.
+- Az `enter_machine_city` ezért nem kapott valós invocationt; a fázis `NO_SESSION` maradt. Nincs sikeres vagy sikertelen tool-execution státusz, mert hívás nem történt.
+
+### Bizonyítottsági státusz
+
+| Réteg | Státusz | Következtetés |
+|---|---|---|
+| Mock integration | kész | automatizált 5/5 registration/discovery, tool-szerződés, UI-hatás és emberikontroll-invariánsok |
+| Real Chrome runtime discovery | kész | a valódi Chrome producer-runtime 5/5 toolt regisztrál és felsorol |
+| Real runtime invocation | nyitott | még nincs DevTools WebMCP-panelből vagy támogatott Site tools kliensből végrehajtott hívás |
+
+Következő teszt: Chrome DevTools `Application → WebMCP`, Available Tools lista, manuális sikeres és elvárt sikertelen hívások, invocation history, emberi UI-kontrollpont, majd idempotens második reveal. Részletes evidence: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
+
+### Hivatalos források
+
+- OpenAI Site tools: <https://help.openai.com/en/articles/20001423-using-site-tools-in-the-chatgpt-desktop-app>, ellenőrizve 2026. augusztus 28-án.
+- Chrome WebMCP: <https://developer.chrome.com/docs/ai/webmcp>, ellenőrizve 2026. augusztus 28-án.
+- Chrome DevTools WebMCP panel: <https://developer.chrome.com/docs/devtools/application/webmcp>, ellenőrizve 2026. augusztus 28-án.
+- Chrome 149 DevTools WebMCP flag: <https://developer.chrome.com/blog/new-in-devtools-149>, ellenőrizve 2026. augusztus 28-án.
