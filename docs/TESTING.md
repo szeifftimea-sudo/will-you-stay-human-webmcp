@@ -19,7 +19,8 @@ Legutóbbi teljes futás: 2026. augusztus 28. — 4 tesztfájl, 16/16 sikeres te
 | 2026-08-28 | Vercel production + `curl` | HTTPS / HTTP/2 | n/a | Vercel CLI 59.6.2 | n/a | n/a | HTTP 200; mindkét előírt header ténylegesen jelen van |
 | 2026-08-28 | Codex desktop in-app browser | publikus top-level HTTPS WebView | Codex, pontos modell-ID nem elérhető | 26.818.21641 (6849) | blokkolt: nincs `document.modelContext`, 0 felfedezett Site tool | nem indítható | oldal betölt, fallback aktív, 0 error és 0 warning |
 | 2026-08-28 | Google Chrome | localhost top-level dokumentum, explicit testing flagek | n/a, producer-runtime próba | 152.0.7977.65 | sikeres producer-discovery: 5/5 tool | nem történt | a ChatGPT Chrome-oldalsáv hivatalosan nem Site tools kliens; `NO_SESSION` maradt |
-| 2026-08-28 | Chrome DevTools `Application → WebMCP` | ugyanaz a flages Chrome-runtime | n/a | 152.0.7977.65 | sikeres: Available Tools 5/5 | `enter_machine_city {}`: `Error` | callback context-kompatibilitási fix automatizáltan igazolt; kézi reteszt és invocation history még szükséges |
+| 2026-08-28 | Chrome DevTools `Application → WebMCP`, javítás előtt | ugyanaz a flages Chrome-runtime | n/a | 152.0.7977.65 | sikeres: Available Tools 5/5 | `enter_machine_city {}`: `Error` | hiányzó második callback-context; `NO_SESSION` maradt |
+| 2026-08-28 | Chrome DevTools `Application → WebMCP`, javítás után | localhost top-level dokumentum, explicit testing flagek | n/a | 152.0.7977.65 | sikeres: Available Tools 5/5 | `enter_machine_city {}`: `Completed`, `ok: true` | látható `MACHINE_CITY_READY`, revision 0; 1 total call, 0 failed |
 
 ## Manuális fallback
 
@@ -161,7 +162,144 @@ tsc -b && vite build
 build successful
 ```
 
-A javítás utáni kézi DevTools-újrapróba nincs ebben a checkpointban; ez a következő nyitott tesztlépés.
+Az adapterfix automatizált checkpointjában még nem történt kézi DevTools-újrapróba; a következő, külön rögzített próbában ez sikeresen lezárult.
+
+### Javítás utáni valós Chrome-reteszt
+
+- Tool/input: `enter_machine_city`, `{}`.
+- Státusz/output: `Completed`, `ok: true`.
+- Session: `11cd1208-a922-49b6-8b31-1018e701d12c`; `stateRevision: 0`.
+- Látható UI-hatás: `NO_SESSION → MACHINE_CITY_READY`.
+- Panelösszesítő: 1 total call, 0 failed, 0 canceled, 0 in progress.
+- Az Available Tools listában mind az öt stabil toolnév szerepel.
+- Más tool és Player UI-művelet nem történt.
+
+Ez sikeres valós Chrome invocation- és UI-hatásbizonyíték az első toolra. A teljes runtime invocation kapu még nem lezárt: a dilemma bemutatása, a negatív kontrolltesztek, a kézi játékosi kontrollpont és az idempotens reveal még hátravan.
+
+### Valós `present_dilemma` hívások
+
+1. Első próba: Chrome-státusz `Completed`, alkalmazásoutput `ok: false`; a Run Tool paraméterképe `sessionId: <empty_string>` értéket mutatott. Az inputot a zárt séma elutasította, a fázis `MACHINE_CITY_READY` maradt.
+2. Megismételt, szerződéshelyes próba: `sessionId: 11cd1208-a922-49b6-8b31-1018e701d12c`, `expectedRevision: 0`; `Completed`, `ok: true`, `AWAITING_HUMAN_SELECTION`.
+
+A második próba ugyanabban az átmenetben megjelenítette a „Kérjek bocsánatot helyetted?” dilemmát. A panelösszesítő 3 total call, 0 failed, 0 canceled, 0 in progress lett. Más tool és Player UI-művelet nem történt. A következő read-only állapotlekérdezés fogja külön rögzíteni az aktuális revisiont és publikus állapotot.
+
+### Valós read-only `get_current_game_state`
+
+- Input: `sessionId: 11cd1208-a922-49b6-8b31-1018e701d12c`.
+- Eredmény: Chrome `Completed`, alkalmazás `ok: true`, fázis `AWAITING_HUMAN_SELECTION`.
+- A DevTools Details nézetben `Flags: readOnly` látható.
+- A dilemma és a UI változatlan maradt; az állapotlekérdezés nem hozott létre játékosi eseményt.
+- Panelösszesítő: 4 total call, 0 failed, 0 canceled, 0 in progress.
+- Két csatolt kép ugyanazt az egy invocationt mutatja eltérő kivágásban.
+
+### Negatív reflexiópróba kijelölés nélkül
+
+- Tool/input: `present_choice_reflection`, helyes session ID, `tentativeSelectionId: fabricated-selection-without-player-ui`, `expectedRevision: 1`.
+- Eredmény: Chrome `Completed`, alkalmazás `ok: false`; elvárt domainok: `TENTATIVE_SELECTION_REQUIRED`.
+- A fázis `AWAITING_HUMAN_SELECTION` maradt, a UI és a revision nem változott.
+- Ez bizonyítja, hogy a tool nem tud kitalált azonosítóval játékosi kijelölést vagy reflexiós szakaszt létrehozni.
+- Panelösszesítő: 5 total call, 0 failed, 0 canceled, 0 in progress.
+
+### Reveal emberi megerősítés előtt — két azonos negatív hívás
+
+- Tool/input: `reveal_confirmed_consequence`, helyes session ID, `confirmedDecisionId: fabricated-decision-without-player-confirmation`, `expectedRevision: 1`.
+- A hívás felhasználói véletlenből kétszer futott le; ezt két külön invocationként tartjuk nyilván.
+- Mindkettő: Chrome `Completed`, alkalmazás `ok: false`, `HUMAN_DECISION_REQUIRED`, változatlan `AWAITING_HUMAN_SELECTION`.
+- Nem jött létre megerősített döntés, következmény, mérlegdeltát alkalmazó esemény vagy outcome history-bejegyzés.
+- Ez két konzisztens előfeltétel-elutasítás, nem a sikeres reveal idempotenciatesztje.
+- Panelösszesítő: 7 total call, 0 failed, 0 canceled, 0 in progress; reveal toolszámláló: 2.
+
+### Pozitív emberi kijelölés a Player UI-ban
+
+- A játékos pontosan egyszer az AGY kártyára kattintott a webes játékfelületen.
+- Eredmény: `TENTATIVE_SELECTION_RECORDED`, revision 2, AGY kijelölve.
+- Az Embermérleg változatlan; reflexió, megtartás vagy megerősítés nem történt.
+- Toolhívás és fallback agentművelet nem történt; a history 7 total call értéken maradt.
+- Ez a PlayerCommandPort eredetű kijelölés a következő valódi reflexió szükséges előfeltétele.
+
+### Kijelölés read-only azonosító-ellenőrzése
+
+A `get_current_game_state` valós outputja:
+
+- `phase: TENTATIVE_SELECTION_RECORDED`, `stateRevision: 2`;
+- `activeDilemma.id: apology-delegation`;
+- `tentativeSelectionId: 3020f571-9e00-4729-8416-dedbbb0b095b`;
+- `tentativeLens: brain`;
+- `reflectionId: null`, `reflectionAcknowledged: false`;
+- `confirmedDecisionId: null`, `confirmedLens: null`;
+- minden mérlegtengely 0.
+
+Az output `nextAllowedActions` mezője a `present_choice_reflection` és `get_current_game_state` toolokat jelöli. Más tool és UI-művelet nem történt.
+
+### Valós választásspecifikus reflexió
+
+- `present_choice_reflection` input: helyes session ID, `tentativeSelectionId: 3020f571-9e00-4729-8416-dedbbb0b095b`, `expectedRevision: 2`.
+- Eredmény: Chrome `Completed`, alkalmazás `ok: true`, `REFLECTION_PRESENTED`, revision 3.
+- Az AGY-specifikus reflexió megjelent a webes UI-ban; a kijelölt ág AGY maradt.
+- Az Embermérleg mind az öt tengelyen 0 maradt.
+- A history 9 total call / 0 failed; a `present_choice_reflection` toolszámláló 2 a korábbi negatív és a jelen sikeres hívással.
+- Más tool és UI-művelet nem történt.
+
+Ez pozitívan bizonyítja, hogy a tool csak a Player UI által létrehozott aktuális selection ID-hoz tudott reflexiót bemutatni. A reflexió megtartása továbbra is külön Player UI-művelet.
+
+### Reflexió megtartása kizárólag Player UI-ban
+
+- A játékos a bemutatott AGY-reflexió után a Player UI megtartási műveletét használta.
+- A kizárólagos emberi kontrollpanel és a végleges megerősítő gomb megjelent; tool nem végezte el a megtartást.
+- A DevTools history változatlanul 9 total call / 0 failed.
+- Végleges döntésmegerősítés nem történt, az opcionális indoklás üres.
+- A képi evidence alapján a megtartási kapu teljesült; a következő read-only query rögzíti a `READY_FOR_CONFIRMATION`, revision 4, `reflectionAcknowledged: true` és `confirmedDecisionId: null` mezőket.
+
+### Megtartási állapot read-only igazolása
+
+A valós `get_current_game_state` output rögzíti:
+
+- `READY_FOR_CONFIRMATION`, revision 4;
+- aktuális AGY selection ID: `3020f571-9e00-4729-8416-dedbbb0b095b`;
+- reflection ID: `5d6a9d7b-d1b9-4a5b-bdfa-6e8bad6695ff`;
+- `reflectionAcknowledged: true`;
+- `confirmedDecisionId: null`, `confirmedLens: null`;
+- minden mérlegtengely 0, completed dilemma nincs.
+
+Ez külön bizonyítja a megtartott reflexiót a végleges megerősítés előtt. A query read-only, ezért nem helyettesítheti a következő emberi döntési eseményt.
+
+### Végleges megerősítés kizárólag Player UI-ban
+
+- A játékos pontosan egyszer kattintott a végleges megerősítő gombra, üres opcionális indoklással.
+- A UI szerint az emberi döntés rögzítve van, a következmény még rejtett.
+- Az Embermérleg minden tengelyen 0 maradt; reveal nem történt.
+- A DevTools history változatlanul 10 total call / 0 failed; tool vagy más UI-művelet nem történt.
+- Ez vizuálisan bizonyítja a külön Player UI-megerősítést. A pontos `DECISION_CONFIRMED`, revision 5, `confirmedDecisionId` és `confirmedLens` mezőket a következő read-only query rögzíti.
+
+### `DECISION_CONFIRMED` read-only igazolása
+
+A valós állapotoutput rögzíti:
+
+- `DECISION_CONFIRMED`, revision 5;
+- `confirmedDecisionId: 59ac1c7e-b958-440a-9b5e-356085c3d5ec`;
+- `confirmedLens: brain`;
+- aktuális selection ID és acknowledged reflection ID változatlanul kapcsolódik az AGY ághoz;
+- minden mérlegtengely 0;
+- `completedDilemmaIds: []`;
+- következő engedélyezett tool: `reveal_confirmed_consequence` vagy read-only state query.
+
+Ez a reveal előtti mérlegbaseline és az ember által létrehozott valós decision ID bizonyítéka.
+
+### Első pozitív reveal valós Chrome-runtime-ban
+
+- Input: `sessionId: 11cd1208-a922-49b6-8b31-1018e701d12c`, `confirmedDecisionId: 59ac1c7e-b958-440a-9b5e-356085c3d5ec`, `expectedRevision: 5`.
+- Eredmény: Chrome `Completed`, alkalmazás `ok: true`, `CONSEQUENCE_REVEALED`, revision 6.
+- A következmény UI-ja megjelent az „egyszer alkalmazva” jelzéssel. A képi bizonyíték a Kényelem `+1` és Kontroll `+1` értéket közvetlenül mutatja; a teljes mérlegvektort és az `alreadyRevealed` mezőt az automatizált regressziós teszt ellenőrzi.
+- History: 12 total call, 0 failed, 0 canceled, 0 in progress; reveal toolszámláló 3 = két korábbi negatív próba + egy sikeres alkalmazás.
+- A fázis nem ugrott közvetlenül `GAME_COMPLETE` állapotba. Az első sikeres alkalmazás bizonyított; a későbbi két azonos retry változatlan revisiont és UI-t hagyott hátra, az outcome history pontos egyszeriségét az automatizált regressziós teszt bizonyítja.
+
+### Idempotens reveal valós Chrome-runtime-ban
+
+- Az első sikeres reveal azonos inputját két alkalommal ismételték meg: ugyanaz a session ID, confirmed decision ID és `expectedRevision: 5`. A két új invocationt külön history-sor és a reveal toolszámláló `3 → 5` változása igazolja.
+- Mindkét Chrome-callback `Completed`, és mindkét alkalmazásoutput `ok: true`; mindkettő `CONSEQUENCE_REVEALED`, revision 6 állapotot hagyott hátra. A total history `12 → 14`, miközben `0 Failed`, `0 Canceled`, `0 In Progress` maradt.
+- A következmény UI-ja és a teljes Embermérleg változatlan maradt; a felület továbbra is „egyszer alkalmazva” állapotot jelzett. Ez valós runtime-szinten igazolja, hogy a retryk nem hoztak létre új állapotmutációt vagy második mérleghatást.
+- A csatolt képen a `data` objektum összecsukott, ezért az `alreadyRevealed` mező és a képkivágásból kimaradó teljes mérlegvektor nem állítható közvetlen képi bizonyítékként. Ezek pontos mezőszintű invariánsát a meglévő automatizált teszt bizonyítja: `alreadyRevealed: true`, változatlan teljes balance és outcome history hossza 1.
+- A véletlen két retryt nem rejtjük el és nem számítjuk egy hívásnak; mindkettő ugyanazt az idempotens eredményt hagyta hátra.
 
 ### Bizonyítottsági státusz
 
@@ -169,9 +307,9 @@ A javítás utáni kézi DevTools-újrapróba nincs ebben a checkpointban; ez a 
 |---|---|---|
 | Mock integration | kész | automatizált 5/5 registration/discovery, tool-szerződés, UI-hatás és emberikontroll-invariánsok |
 | Real Chrome runtime discovery | kész | a valódi Chrome producer-runtime 5/5 toolt regisztrál és felsorol |
-| Real runtime invocation | nyitott | első DevTools-hívás: `Error` a hiányzó második callback-argumentum miatt; minimális javítás és regressziós teszt kész, kézi újrapróba még nincs |
+| Real runtime invocation | kész localhoston | a teljes invocation-folyam, a Player UI-kontrollpont, az első reveal és két változatlan idempotens retry bizonyított |
 
-Következő teszt: Chrome DevTools `Application → WebMCP`, az `enter_machine_city {}` javítás utáni kézi újrahívása; csak annak sikere után folytatható az invocation history, az emberi UI-kontrollpont és az idempotens reveal bizonyítása. Részletes evidence: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
+A localhost valós runtime-kapu lezárult; további kézi hívás nem szükséges. Részletes evidence: [`evidence/CHROME_RUNTIME_2026-08-28.md`](evidence/CHROME_RUNTIME_2026-08-28.md).
 
 ### Hivatalos források
 
