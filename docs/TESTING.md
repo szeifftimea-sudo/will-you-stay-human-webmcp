@@ -9,7 +9,7 @@ pnpm build
 
 A tesztcsomag lefedi a domainátmeneteket, az egyszeri következményalkalmazást, a zárt tool-sémákat, a Player/Agent határt, a regisztrációt és a tool által okozott React UI-változást.
 
-Legutóbbi teljes futás: 2026. augusztus 28. — 4 tesztfájl, 16/16 sikeres teszt; production build sikeres, 58 modul transzformálva.
+Legutóbbi teljes futás: 2026. augusztus 30. — 4 tesztfájl, 18/18 sikeres teszt; production build sikeres, 4602 modul transzformálva; `git diff --check` hibamentes.
 
 ## Manuális kliensmátrix
 
@@ -342,3 +342,18 @@ A localhost valós runtime-kapu lezárult; további kézi hívás nem szüksége
 - A végleges megerősítés előtt a visszalépés fókuszolható és látható, utána nem renderelődik.
 - A SZÍV consequence külön regressziója mind az öt, domainből érkező értéket ellenőrzi: Kényelem `−1`, Kontroll `+1`, Kapcsolódás `+1`, Szabadság `0`, Felelősség `+2`.
 - Az Embermérleg tesztje a hozzáférhető tengelycímkéket olvassa, nem törékeny CSS-pozíciót vagy teljes prózaszöveget rögzít.
+
+## Magyar vertical slice production smoke — 2026. augusztus 30.
+
+- Tesztelt release commit: `b5519a3f2310db96ec678abe11439c64a2c081d8`.
+- Production deployment: `dpl_4qWz3hckyDNqZ6W2FVaC84nGonrT`; kanonikus URL: <https://will-you-stay-human.vercel.app/>.
+- HTTPS: `HTTP/2 200`; tényleges WebMCP-headerek: `Origin-Agent-Cluster: ?1`, `Permissions-Policy: tools=(self)`.
+- Live–local buildazonosság: HTML, `assets/index-XXkxlLEC.js` és `assets/index-CHzBf55-.css` SHA-256 értéke rendre azonos (`548f7a…340f`, `891e80…4406`, `99472f…7b78`).
+- Kliens: Chrome `152.0.7977.65`, explicit `WebMCPTesting,DevToolsWebMCPSupport`, DevTools `Application → WebMCP`, top-level production HTTPS dokumentum.
+- Discovery: 5/5 stabil toolnév. A surface nem tartalmaz választási, reflexió-megtartási vagy megerősítési toolt.
+- `enter_machine_city {}`: `Completed`, `ok: true`, `MACHINE_CITY_READY`, revision 0; látható UI-állapotváltás.
+- `present_dilemma` valós sessionnel és `expectedRevision: 0` értékkel: `Completed`, `ok: true`, `AWAITING_HUMAN_SELECTION`, revision 1; látható dilemma.
+- `get_current_game_state`: `ok: true`, `AWAITING_HUMAN_SELECTION`, revision 1; `tentativeSelectionId`, `tentativeLens`, `reflectionId`, `confirmedDecisionId` és `confirmedLens` null; `reflectionAcknowledged: false`; balance 0/0/0/0/0.
+- A read-only lekérés után a UI változatlan maradt. Az agent nem hozott létre játékosi kijelölést vagy megerősítést; a smoke az emberi kontrollpontnál véget ért.
+- A teljes reveal-flow nem része ennek a production smoke-nak; azt a localhost Chrome-evidence és az automatizált regresszió bizonyítja.
+- Részletes környezet, hívások és képi hashlista: [`evidence/PRODUCTION_RELEASE_2026-08-30.md`](evidence/PRODUCTION_RELEASE_2026-08-30.md).

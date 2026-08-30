@@ -80,6 +80,14 @@ A localhost DevTools invocation-kapu lezárult; további reveal-hívás nem szü
 
 A production smoke szándékosan csak az első három agentműveletet fedte le. `AWAITING_HUMAN_SELECTION` állapotban `tentativeSelectionId`, `tentativeLens`, `reflectionId`, `confirmedDecisionId` és `confirmedLens` mind `null` maradt. A tool surface továbbra sem kínál kijelölési, reflexió-megtartási vagy megerősítési parancsot, ezért a smoke sem kerülte meg a Player UI kontrollpontját.
 
+### 2026. augusztus 30-i release production checkpoint
+
+- A `b5519a3f2310db96ec678abe11439c64a2c081d8` magyar vertical-slice release Vercel production deploymentje a publikus HTTPS originen ismét 5/5 discoveryt adott Chrome 152-ben, explicit `WebMCPTesting,DevToolsWebMCPSupport` kapcsolókkal.
+- `enter_machine_city → present_dilemma → get_current_game_state` mind szerződéshelyesen lefutott; a végállapot `AWAITING_HUMAN_SELECTION`, revision 1.
+- A session `ad446065-bfb6-415b-97b8-55769c12c7fe`; az aktív dilemma `apology-delegation`; minden játékosi selection-, reflection- és confirmation-mező üres, a mérleg mind az öt tengelye 0.
+- Ez a smoke egyszerre igazolja az új live bundle tool-regisztrációját, a toolhívások UI-hatását és az emberi parancshatár érintetlenségét. Nem minősül teljes production reveal-flow-nak, és nem is ismétli meg azt.
+- Deployment-, bundle-, header- és képi evidence: [`evidence/PRODUCTION_RELEASE_2026-08-30.md`](evidence/PRODUCTION_RELEASE_2026-08-30.md).
+
 ### `execute` runtime-kompatibilitás
 
 A definíciók az `execute(input)` és az `execute(input, { signal })` formát egyaránt elfogadják. A második context argumentum és a `signal` opcionális; ha az abortjel jelen van és megszakított, a tool továbbra is állapotváltozás nélkül hibát ad. Ez adapter-kompatibilitási részlet, nem változtatja meg a tool input/output szerződését és nem nyit játékosi parancsot az agent számára.

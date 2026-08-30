@@ -329,3 +329,20 @@ A localhost Chrome DevTools invocation-kapu lezárult. További toolhívás nem 
 - Új UI-regresszió mind az öt SZÍV-tengelyt ellenőrzi az engine → session → UI adatúton.
 - Az Embermérleg címe „A döntés lenyomata” lett.
 - A lokális review MP4 nem release-asset, nem kerül commitba vagy deploymentbe.
+
+## 2026. augusztus 30. — magyar vertical slice production release-checkpoint
+
+- Release commit: `b5519a3f2310db96ec678abe11439c64a2c081d8` — `feat(vertical-slice): deliver Hungarian machine-city journey`.
+- Release előtti ellenőrzés: 4 tesztfájl, 18/18 sikeres teszt; production build sikeres, 4602 modul transzformálva; `git diff --check` hibamentes.
+- Build output: `index.html` 0,55 kB; `assets/index-XXkxlLEC.js` 344,80 kB (gzip 101,57 kB); `assets/index-CHzBf55-.css` 44,15 kB (gzip 9,91 kB).
+- Vercel production deployment ID: `dpl_4qWz3hckyDNqZ6W2FVaC84nGonrT`; egyedi URL: <https://will-you-stay-human-6wdk4rv97-szeifftimea-projects.vercel.app>; kanonikus URL: <https://will-you-stay-human.vercel.app/>.
+- A kanonikus URL 2026. augusztus 30-án `HTTP/2 200` választ adott. Tényleges headerek: `Origin-Agent-Cluster: ?1`, `Permissions-Policy: tools=(self)`.
+- A live HTML, JavaScript és CSS bájtszinten egyezik a release commit helyi buildjével. SHA-256: HTML `548f7a1bf06127da65ebd3d33cf0ced6c9670e3db84cca7206a36ef55c7f340f`; JS `891e80ad86d21a1b0f472138b9a804920a418c2cd7448bccae7a6d416b074406`; CSS `99472fbfa291e8e506e99f6bcb98722c1c17cabbd45b8010cde8e663c7037b78`.
+- Chrome `152.0.7977.65`, explicit `WebMCPTesting,DevToolsWebMCPSupport`, production top-level HTTPS origin: a DevTools `Application → WebMCP` panel 5/5 toolt sorolt fel.
+- Smoke session: `ad446065-bfb6-415b-97b8-55769c12c7fe`.
+- `enter_machine_city {}`: `Completed`, `ok: true`, `MACHINE_CITY_READY`, revision 0; a UI „FUTURA KAPCSOLÓDVA / Hoztam neked egy kérdést” jelenetre váltott; 1 total / 0 failed.
+- `present_dilemma` a valós session ID-val és `expectedRevision: 0` értékkel: `Completed`, `ok: true`, `AWAITING_HUMAN_SELECTION`, revision 1; a „Kérjek bocsánatot helyetted?” dilemma megjelent; 2 total / 0 failed.
+- `get_current_game_state`: `ok: true`, `AWAITING_HUMAN_SELECTION`, revision 1; aktív dilemma `apology-delegation`; minden selection-, reflection- és confirmation-mező `null` vagy `false`; a mérleg 0/0/0/0/0.
+- A smoke az emberi kontrollpontnál megállt. Az öt tool között nincs játékosi kijelölési, reflexió-megtartási vagy végleges megerősítési parancs; az agent nem választott és nem erősített meg a játékos helyett.
+- A teljes döntési/reveal folyamatot productionön nem ismételtük meg. Origin Trial-, token-, alkalmazáskód-, konfiguráció-, UI- vagy tartalommódosítás nem történt.
+- Részletes release-evidence: [`evidence/PRODUCTION_RELEASE_2026-08-30.md`](evidence/PRODUCTION_RELEASE_2026-08-30.md).
