@@ -334,3 +334,11 @@ A localhost valós runtime-kapu lezárult; további kézi hívás nem szüksége
 - Chrome Imperative API: <https://developer.chrome.com/docs/ai/webmcp/imperative-api>, ellenőrizve 2026. augusztus 28-án.
 - Chrome DevTools WebMCP panel: <https://developer.chrome.com/docs/devtools/application/webmcp>, ellenőrizve 2026. augusztus 28-án.
 - Chrome 149 DevTools WebMCP flag: <https://developer.chrome.com/blog/new-in-devtools-149>, ellenőrizve 2026. augusztus 28-án.
+
+## Magyar vertical slice P0 regresszió — 2026. augusztus 30.
+
+- A Journey nyitóflow-ja, a dilemma külön bemutatása, az AGY–KÉZ–SZÍV választás, az Ellenpont utáni megtartás vagy visszaválasztás, a végleges emberi megerősítés, a külön következmény és a külön Embermérleg automatizált UI-folyama lefedett.
+- A Player UI-visszalépés ugyanazt a meglévő `selectLens` parancsutat használja; nem hoz létre párhuzamos állapotlogikát.
+- A végleges megerősítés előtt a visszalépés fókuszolható és látható, utána nem renderelődik.
+- A SZÍV consequence külön regressziója mind az öt, domainből érkező értéket ellenőrzi: Kényelem `−1`, Kontroll `+1`, Kapcsolódás `+1`, Szabadság `0`, Felelősség `+2`.
+- Az Embermérleg tesztje a hozzáférhető tengelycímkéket olvassa, nem törékeny CSS-pozíciót vagy teljes prózaszöveget rögzít.

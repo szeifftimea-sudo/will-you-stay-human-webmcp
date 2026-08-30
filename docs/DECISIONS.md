@@ -26,9 +26,9 @@
 
 - AGY: Kényelem `+1`, Kontroll `+1`, Kapcsolódás `−1`, Szabadság `0`, Felelősség `0`;
 - KÉZ: Kényelem `+2`, Kontroll `−1`, Kapcsolódás `−1`, Szabadság `+1`, Felelősség `−1`;
-- SZÍV: Kényelem `−1`, Kontroll `+1`, Kapcsolódás `+1`, Szabadság `−1`, Felelősség `+1`.
+- SZÍV: Kényelem `−1`, Kontroll `+1`, Kapcsolódás `+1`, Szabadság `0`, Felelősség `+2`.
 
-Az öt tengelyből nem készül összpontszám, és a pozitív vagy negatív eltérések nem jelölnek helyes vagy helytelen választ. A KÉZ Szabadság-nyeresége a felszabaduló időt, mentális kapacitást és deeszkalációs lehetőséget jelenti. A SZÍV Kapcsolódás-nyeresége a gesztus közvetlenségét, nem a kapcsolat biztos helyreállítását jelöli; az idő- és figyelemigény Szabadság `−1` értékben is megjelenik.
+Az öt tengelyből nem készül összpontszám, és a pozitív vagy negatív eltérések nem jelölnek helyes vagy helytelen választ. A KÉZ Szabadság-nyeresége a felszabaduló időt, mentális kapacitást és deeszkalációs lehetőséget jelenti. A SZÍV Kapcsolódás-nyeresége a gesztus közvetlenségét, nem a kapcsolat biztos helyreállítását jelöli; a teljes cselekvési felelősség vállalását a Felelősség `+2` rögzíti, miközben a Szabadság tengely változatlan marad.
 
 **Indok:** Mindhárom ág valós, helyzetfüggő nyereséget és árat mutasson, erkölcsi rangsor nélkül. A tartalmi és mérlegváltozás miatt a dilemma verziója `spike-2`, a katalógusé `hu-spike-2`; így korábbi, még fel nem tárt döntés nem kaphat észrevétlenül új következményt.
 

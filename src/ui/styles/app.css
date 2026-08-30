@@ -1,70 +1,536 @@
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
   color: #f2eee5;
-  background: #111315;
+  background: #061014;
   font-synthesis: none;
-  --surface: #1a1e20;
-  --line: #343b3e;
-  --muted: #aeb8b5;
-  --signal: #e7a94b;
-  --heart: #e67b70;
-  --ok: #79c7a5;
+  --petrol: #061014;
+  --petrol-deep: #02090c;
+  --cyan: #68d4e8;
+  --teal: #63c4bd;
+  --copper: #e58743;
+  --copper-soft: #f4a666;
+  --ivory: #f2eee5;
+  --muted: #b8c1bf;
+  --coral: #dc765f;
+  --line: rgba(160, 205, 207, 0.3);
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; min-height: 100vh; background: radial-gradient(circle at top right, #263033 0, #111315 42%); }
+html, body { min-width: 320px; min-height: 100%; background: var(--petrol); }
+body { margin: 0; }
 button, textarea { font: inherit; }
 button { cursor: pointer; }
-main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0 80px; }
-.hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 28px; margin-bottom: 24px; }
-h1 { margin: 5px 0 8px; font-size: clamp(2.7rem, 8vw, 5.8rem); line-height: .9; letter-spacing: -.06em; }
-h2 { margin: 4px 0 14px; font-size: 1.35rem; }
-p { color: var(--muted); line-height: 1.55; }
-.eyebrow { color: var(--signal); text-transform: uppercase; letter-spacing: .14em; font-size: .72rem; font-weight: 800; }
-.status { max-width: 330px; border: 1px solid var(--line); background: rgba(20, 24, 25, .9); padding: 15px; display: grid; gap: 5px; border-radius: 10px; }
-.status-webmcp { border-color: var(--ok); }
-.status-fallback, .status-error { border-color: var(--signal); }
-.status span, .status small { color: var(--muted); }
-.state-strip { display: flex; gap: 12px; align-items: center; border-block: 1px solid var(--line); padding: 10px 0; margin-bottom: 24px; font-size: .82rem; }
-.state-strip span { color: var(--muted); }
-.state-strip strong { color: var(--ok); margin-right: 18px; }
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
-.game-column { display: grid; gap: 18px; }
-.panel { background: color-mix(in srgb, var(--surface) 94%, transparent); border: 1px solid var(--line); border-radius: 14px; padding: 22px; box-shadow: 0 18px 45px rgba(0,0,0,.18); }
-.dilemma { border-left: 4px solid var(--signal); }
-blockquote { margin: 18px 0; padding: 14px 18px; border-left: 2px solid var(--signal); background: #141718; color: #f6d59d; }
-.tension { color: #f2eee5; font-weight: 700; }
-.choice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.choice { min-height: 175px; padding: 18px; text-align: left; color: inherit; background: #141718; border: 1px solid var(--line); border-radius: 11px; display: grid; align-content: start; gap: 10px; }
-.choice:hover, .choice:focus-visible { border-color: var(--signal); }
-.choice.selected { border-color: var(--heart); box-shadow: inset 0 0 0 1px var(--heart); }
-.choice strong { color: var(--signal); font-size: 1.25rem; }
-.choice span { color: #f2eee5; font-size: .92rem; }
-.choice small { color: var(--muted); line-height: 1.45; }
-.reflection { border-color: #5a7274; }
-.confirmation { border-color: var(--heart); }
-.button-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-button:not(.choice) { border: 0; border-radius: 8px; background: var(--signal); color: #17130d; font-weight: 800; padding: 11px 15px; }
-button.confirm { background: var(--heart); margin-top: 14px; }
-label { display: grid; gap: 8px; color: var(--muted); }
-textarea { min-height: 90px; resize: vertical; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #101314; color: #fff; }
-.hint { color: var(--signal); font-size: .86rem; }
-.fallback { border-style: dashed; }
-.error { padding: 12px 15px; border: 1px solid #d96c62; background: #391c1a; color: #ffd4d0; border-radius: 8px; }
-.balance-list { display: grid; gap: 16px; }
-.balance-row { display: grid; grid-template-columns: 104px 1fr 28px; align-items: center; gap: 9px; font-size: .86rem; }
-.balance-track { position: relative; height: 5px; background: #343b3e; }
-.balance-zero { position: absolute; left: 50%; top: -4px; width: 1px; height: 13px; background: #778083; }
-.balance-marker { position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%); background: var(--ok); transition: left .25s ease; }
-.balance-marker.negative { background: var(--heart); }
-.tradeoffs { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.tradeoffs li { color: var(--muted); margin-bottom: 8px; }
+button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--ivory); outline-offset: 5px; }
+.game-app [tabindex="-1"]:focus { outline: none; }
 
-@media (max-width: 850px) {
-  .hero { display: grid; }
-  .status { max-width: none; }
-  .layout { grid-template-columns: 1fr; }
-  .choice-grid { grid-template-columns: 1fr; }
-  .choice { min-height: 0; }
+.game-app { position: relative; min-height: 100dvh; overflow: hidden; isolation: isolate; background: var(--petrol); }
+.game-app::before { content: ""; position: fixed; inset: -3%; z-index: -3; background-repeat: no-repeat; background-position: center; background-size: cover; transition: transform 720ms cubic-bezier(.2,.72,.25,1), background-position 720ms cubic-bezier(.2,.72,.25,1), filter 650ms ease; }
+.game-app::after { content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none; box-shadow: inset 0 0 190px 50px rgba(1, 6, 8, 0.68); }
+.game-app-entry::before { background-image: url("/assets/machine-city-entry.png"); transform: scale(1.03); }
+.game-app-journey::before { background-image: url("/assets/machine-city-journey.png"); background-position: center 52%; transform: scale(1.025); }
+.game-app-journey.stage-counterpoint::before { transform: scale(1.08); }
+.game-app-journey.stage-retention::before { transform: scale(1.13); filter: saturate(.78) contrast(1.08); }
+.game-app-journey.lens-brain.stage-counterpoint::before, .game-app-journey.lens-brain.stage-retention::before { background-position: 43% 50%; }
+.game-app-journey.lens-hand.stage-counterpoint::before, .game-app-journey.lens-hand.stage-retention::before { background-position: 50% 48%; }
+.game-app-journey.lens-heart.stage-counterpoint::before, .game-app-journey.lens-heart.stage-retention::before { background-position: 57% 50%; }
+.game-app-journey.stage-confirmation::before, .game-app-journey.phase-decision_confirmed::before { background-image: url("/assets/machine-city-entry.png"); background-position: center; transform: scale(1.08); filter: saturate(.76); }
+.game-app-journey.phase-consequence_revealed::before { transform: scale(1.045); filter: saturate(1.35) brightness(1.08); animation: city-answer 1600ms ease both; }
+.game-app-journey.phase-game_complete::before { transform: scale(1.02); filter: saturate(.9) brightness(.82); }
+
+.entry-screen { position: relative; min-height: 100dvh; display: grid; align-items: center; padding: clamp(28px, 5vw, 84px); }
+.entry-copy { width: min(460px, 38vw); animation: materialize 800ms ease both; text-shadow: 0 3px 22px rgba(0,0,0,.88); }
+.brand-overline, .stage-kicker, .balance-kicker, .inspector-kicker { margin: 0; color: var(--cyan); font-size: .72rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.entry-copy h1 { margin: 12px 0 6px; font-size: clamp(4.5rem, 7.2vw, 7.3rem); font-weight: 400; letter-spacing: -.055em; line-height: .88; text-wrap: balance; }
+.brand-subtitle { margin: 16px 0 22px; color: var(--copper); font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.65rem, 2.4vw, 2.5rem); }
+.signal-rule { position: relative; width: min(100%, 350px); height: 1px; background: rgba(229,135,67,.6); }
+.signal-rule span { position: absolute; left: 50%; top: -4px; width: 8px; height: 8px; border: 1px solid var(--copper); transform: rotate(45deg); background: var(--petrol); }
+.tagline { margin: 34px 0; color: var(--ivory); font-size: clamp(1.05rem,1.4vw,1.38rem); line-height: 1.6; }
+.futura-intro { width: min(100%,350px); margin: 0 0 32px; padding-top: 19px; border-top: 1px solid rgba(104,212,232,.42); }
+.futura-intro span { color: var(--cyan); letter-spacing: .28em; text-transform: uppercase; }
+.futura-intro p { margin: 8px 0 0; color: var(--muted); line-height: 1.55; }
+
+.primary-action { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 13px 22px; border: 1px solid rgba(244,166,102,.92); border-radius: 3px; color: #fff5ec; background: rgba(112,48,24,.9); box-shadow: 0 12px 42px rgba(229,105,37,.28), inset 0 0 18px rgba(255,166,96,.15); font-size: 1.125rem; font-weight: 650; letter-spacing: .01em; transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
+.primary-action:hover { transform: translateY(-3px); background: rgba(145,62,28,.96); box-shadow: 0 16px 48px rgba(229,105,37,.4); }
+.primary-action:active { transform: translateY(0); }
+.entry-action { width: min(100%,450px); min-height: 74px; justify-content: space-between; padding-inline: 30px; font-size: 1.22rem; }
+
+.futura-status { position: fixed; z-index: 8; top: 26px; right: 34px; display: inline-flex; align-items: center; gap: 9px; color: #b9d9da; font-size: .78rem; letter-spacing: .06em; text-shadow: 0 2px 12px #000; }
+.entry-screen > .futura-status { top: auto; bottom: 30px; right: clamp(24px,5vw,84px); }
+.futura-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 18px 5px rgba(99,196,189,.38); animation: pulse 2.4s ease-in-out infinite; }
+.journey-screen { position: relative; min-height: 100dvh; }
+
+/* A single event pulse crosses the city when the canonical phase changes. */
+.scene-event { position: fixed; z-index: 3; left: 50%; top: 12vh; width: 2px; height: 76vh; pointer-events: none; background: rgba(104,212,232,.78); box-shadow: 0 0 28px 7px rgba(104,212,232,.5); opacity: 0; transform-origin: center bottom; }
+.scene-event-dilemma { animation: signal-descend 620ms ease-out both; }
+.scene-event-direction { animation: route-unseal 760ms cubic-bezier(.2,.72,.2,1) both; }
+.scene-event-counterpoint { left: 26%; background: rgba(244,166,102,.9); box-shadow: 0 0 34px 8px rgba(229,135,67,.44); animation: route-commit 620ms ease-out both; }
+.scene-event-retention { left: 38%; height: 58vh; background: rgba(220,118,95,.92); box-shadow: 0 0 34px 8px rgba(220,118,95,.4); animation: counterpoint-cut 720ms ease-out both; }
+.scene-event-confirmation { left: 64%; background: rgba(229,135,67,.88); box-shadow: 0 0 36px 9px rgba(229,135,67,.4); animation: gate-open 760ms ease-out both; }
+.phase-decision_confirmed .scene-event-imprint { left: 64%; background: rgba(220,118,95,.92); animation: gate-seal 620ms ease-in both; }
+.phase-consequence_revealed .scene-event-imprint { height: 100vh; top: 0; background: rgba(242,238,229,.96); box-shadow: 0 0 70px 20px rgba(104,212,232,.6); animation: consequence-release 1250ms ease-out both; }
+.phase-game_complete .scene-event-imprint { display: none; }
+
+.route-disturbance { position: fixed; inset: -3%; z-index: 2; pointer-events: none; background: url("/assets/machine-city-journey.png") center 52% / cover no-repeat; filter: contrast(1.55) saturate(.35) hue-rotate(145deg); opacity: .22; animation: route-break 780ms steps(2,end) 1 both; }
+.lens-brain .route-disturbance { clip-path: polygon(0 42%,45% 45%,56% 100%,0 100%); }
+.lens-hand .route-disturbance { clip-path: polygon(39% 30%,61% 30%,58% 100%,42% 100%); }
+.lens-heart .route-disturbance { clip-path: polygon(56% 44%,100% 35%,100% 100%,45% 100%); }
+
+.stage { position: relative; z-index: 4; min-height: 100dvh; }
+.stage h2 { margin: 7px 0; color: var(--ivory); font-size: clamp(2.1rem,3vw,3.2rem); font-weight: 450; letter-spacing: -.04em; line-height: 1.04; text-shadow: 0 3px 22px rgba(0,0,0,.9); }
+.stage-kicker { color: var(--copper-soft); display: inline-flex; align-items: center; gap: 8px; }
+
+/* Futura enters as a signal moving through the city, not a card. */
+.stage-card { position: absolute; left: 8vw; top: 21vh; width: min(470px,38vw); text-shadow: 0 3px 24px rgba(0,0,0,.95); animation: transmission-arrive 620ms ease-out both; }
+.stage-card::before { content: ""; position: absolute; left: -28px; top: 0; width: 2px; height: 100%; background: var(--cyan); box-shadow: 0 0 25px 5px rgba(104,212,232,.45); }
+.stage-card p { max-width: 520px; color: #dbe2e0; font-size: 1.125rem; line-height: 1.58; }
+.stage-card .primary-action { margin-top: 14px; }
+.signal-card { top: 27vh; }
+
+.dilemma-arrival-stage { position: absolute; inset: 0; }
+.dilemma-arrival-stage .stage-heading { top: 18vh; width: min(820px,78vw); }
+.dilemma-arrival-stage .stage-heading h2 { font-size: clamp(2.6rem,4.8vw,5rem); }
+.situation-beats { width: min(720px,90vw); margin: 24px auto 0; display: grid; gap: 12px; padding: 18px 22px; background: linear-gradient(90deg,rgba(2,9,12,.15),rgba(2,9,12,.84) 20%,rgba(2,9,12,.84) 80%,rgba(2,9,12,.15)); }
+.dilemma-arrival-stage .stage-heading .situation-beats p { max-width: 720px; margin: 0; color: rgba(242,246,244,.94); font-size: clamp(1.125rem,1.35vw,1.25rem); line-height: 1.48; }
+.dilemma-options-action { position: absolute; z-index: 8; left: 50%; top: 57vh; transform: translateX(-50%); animation: action-arrive 480ms ease-out 520ms both; }
+.dilemma-options-action:hover { transform: translateX(-50%) translateY(-3px); }
+
+.direction-stage { position: absolute; inset: 0; }
+.stage-heading { position: absolute; z-index: 4; top: 6vh; left: 50%; width: min(780px,70vw); text-align: center; transform: translateX(-50%); text-shadow: 0 3px 24px rgba(0,0,0,.95); animation: dilemma-transmission 560ms ease-out both; }
+.stage-heading h2 { margin: 5px 0; }
+.stage-heading h3 { margin: 0; color: #dce7e4; font-size: 1.05rem; font-weight: 500; }
+.stage-heading p { max-width: 760px; margin: 9px auto 0; color: rgba(225,232,230,.76); line-height: 1.42; font-size: .82rem; }
+
+/* Three spatial exits. The city roads beneath them carry the affordance. */
+.decision-grid { position: absolute; inset: 0; }
+.route-choice { position: absolute; z-index: 5; width: 232px; min-height: 274px; padding: 0; border: 0; color: var(--ivory); background: transparent; text-align: center; perspective: 900px; opacity: 0; transform-style: preserve-3d; animation: deal-route-object 650ms cubic-bezier(.18,.8,.24,1) var(--deal-delay) both; transition: transform 620ms cubic-bezier(.2,.74,.24,1), opacity 440ms ease, filter 440ms ease; }
+.route-choice-brain { left: 24%; top: 36%; color: #bfe9f4; transform: translateX(-50%); }
+.route-choice-hand { left: 50%; top: 30%; color: #a8e2d8; transform: translateX(-50%); }
+.route-choice-heart { left: 76%; top: 36%; color: #f0ac78; transform: translateX(-50%); }
+.route-object { position: relative; min-height: 235px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 22px 18px 26px; border: 1px solid currentColor; border-radius: 5px; background: rgba(4,17,21,.92); box-shadow: 0 24px 32px rgba(0,0,0,.62), 0 0 26px rgba(104,212,232,.15), inset 0 0 0 1px rgba(242,238,229,.08), inset 0 18px 28px rgba(255,255,255,.025); transform: rotateX(8deg) translateZ(0); transform-origin: center bottom; transition: transform 360ms cubic-bezier(.2,.75,.2,1), box-shadow 360ms ease, border-color 360ms ease; }
+.route-object::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -9px; height: 8px; border: 1px solid rgba(175,198,198,.34); border-top: 0; background: #02090c; box-shadow: 0 7px 10px rgba(0,0,0,.65); transform: skewX(-8deg); }
+.route-surface-light { position: absolute; left: 13px; right: 13px; top: 13px; height: 1px; background: currentColor; box-shadow: 0 0 18px 3px currentColor; opacity: .42; }
+.route-contact { width: 74%; height: 15px; margin: 11px auto 0; border-radius: 50%; background: rgba(0,0,0,.72); filter: blur(5px); opacity: .82; transition: transform 360ms ease, opacity 360ms ease; }
+.route-choice:hover .route-object, .route-choice:focus-visible .route-object { transform: rotateX(2deg) rotateY(-3deg) translateY(-12px) translateZ(20px); box-shadow: 0 31px 42px rgba(0,0,0,.68), 0 0 38px rgba(104,212,232,.29), inset 0 0 0 1px rgba(242,238,229,.12); }
+.route-choice:hover .route-contact, .route-choice:focus-visible .route-contact { transform: scale(.82); opacity: .5; }
+.route-choice:focus-visible { outline: 0; }
+.route-choice:focus-visible .route-object { outline: 2px solid var(--ivory); outline-offset: 5px; }
+.route-beacon { width: 66px; height: 66px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; background: rgba(2,11,14,.72); box-shadow: 0 0 27px rgba(104,212,232,.24), inset 0 0 15px rgba(104,212,232,.08); }
+.route-choice-heart .route-beacon { box-shadow: 0 0 27px rgba(229,135,67,.28), inset 0 0 15px rgba(229,135,67,.09); }
+.route-label { margin-top: 3px; font-size: 1.78rem; font-weight: 500; letter-spacing: .08em; }
+.route-choice strong { max-width: 190px; font-size: 1.125rem; line-height: 1.25; }
+.route-choice small { display: none; }
+.route-choice.is-subdued { opacity: .38; filter: saturate(.42) brightness(.72); transform: translateX(-50%) translateY(24px) scale(.88); }
+.route-choice.is-selected { z-index: 7; left: 50%; top: 30%; color: var(--copper-soft); opacity: 1; transform: translateX(-50%) translateY(-38px) scale(1.1); filter: none; }
+.route-choice.is-selected .route-object { border-color: var(--copper-soft); box-shadow: 0 36px 50px rgba(0,0,0,.68), 0 0 58px 12px rgba(229,135,67,.3), inset 0 0 24px rgba(229,135,67,.13); animation: chosen-object-pulse 620ms ease-out 1; }
+.route-choice.is-selected .route-contact { transform: scale(.7); opacity: .42; }
+.route-footprint { margin-top: 5px; color: var(--copper-soft); font-size: .63rem; letter-spacing: .18em; text-transform: uppercase; }
+.lens-brain .direction-stage-selected .route-choice-hand { left: 25%; }
+.lens-brain .direction-stage-selected .route-choice-heart { left: 75%; }
+.lens-heart .direction-stage-selected .route-choice-brain { left: 25%; }
+.lens-heart .direction-stage-selected .route-choice-hand { left: 75%; }
+.direction-stage-selected .stage-heading { top: 5vh; padding: 14px 22px; background: linear-gradient(90deg,transparent,rgba(2,9,12,.8) 18%,rgba(2,9,12,.8) 82%,transparent); }
+.direction-stage-selected .stage-heading p { max-width: 720px; color: #e0e7e5; font-size: 1.125rem; line-height: 1.45; }
+.direction-stage-returning .stage-heading { top: 6vh; }
+.centered-action { position: absolute; z-index: 8; left: 50%; top: 72%; transform: translateX(-50%); animation: action-arrive 480ms ease-out 520ms both; }
+.centered-action:hover { transform: translateX(-50%) translateY(-3px); }
+
+/* One physical decision card carries selection, counterpoint, seal and outcome. */
+.reflection-stage, .sealed-stage, .outcome-stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; }
+.reflection-stage { justify-content: flex-start; gap: 16px; padding: 5vh 24px 3vh; }
+.ritual-prompt { z-index: 7; width: min(660px,82vw); text-align: center; text-shadow: 0 3px 24px #000; animation: ritual-prompt-arrive 520ms ease-out both; }
+.ritual-prompt h2 { margin-block: 5px; }
+.ritual-prompt p { margin: 8px auto 0; color: var(--muted); }
+.ritual-card { position: relative; z-index: 7; width: 320px; height: 390px; flex: 0 0 auto; color: var(--copper-soft); perspective: 1300px; filter: drop-shadow(0 34px 30px rgba(0,0,0,.62)); }
+.ritual-card-object { position: absolute; inset: 0 0 18px; transform-style: preserve-3d; }
+.ritual-card-face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; overflow: hidden; visibility: hidden; padding: 34px 30px; border: 1px solid currentColor; border-radius: 6px; background: linear-gradient(155deg, rgba(11,29,34,.98), rgba(2,10,13,.99)); box-shadow: inset 0 0 0 2px rgba(242,238,229,.045), inset 0 20px 32px rgba(255,255,255,.025), 0 0 44px rgba(104,212,232,.13); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.ritual-card-rim { position: absolute; inset: 14px; border: 1px solid color-mix(in srgb, currentColor 42%, transparent); pointer-events: none; }
+.ritual-card-rim::before, .ritual-card-rim::after { content: ""; position: absolute; width: 28px; height: 28px; border-color: currentColor; opacity: .62; }
+.ritual-card-rim::before { left: 7px; top: 7px; border-left: 1px solid; border-top: 1px solid; }
+.ritual-card-rim::after { right: 7px; bottom: 7px; border-right: 1px solid; border-bottom: 1px solid; }
+.ritual-card-front { visibility: visible; transform: rotateY(0deg); }
+.ritual-card-back, .ritual-card-result { transform: rotateY(180deg); }
+.ritual-card-icon { width: 82px; height: 82px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; background: rgba(2,10,13,.78); box-shadow: 0 0 28px rgba(104,212,232,.22), inset 0 0 18px rgba(104,212,232,.07); }
+.ritual-card-heart .ritual-card-icon { box-shadow: 0 0 30px rgba(229,135,67,.26), inset 0 0 18px rgba(229,135,67,.08); }
+.ritual-card-label { margin-top: 4px; font-size: 2.35rem; font-weight: 500; letter-spacing: .1em; }
+.ritual-card-face > strong { color: var(--ivory); font-size: 1.02rem; }
+.ritual-card-front small { max-width: 240px; color: rgba(236,241,239,.68); line-height: 1.45; text-align: center; }
+.ritual-card-edge { position: absolute; z-index: -1; left: 8px; right: -8px; bottom: 9px; height: 18px; border: 1px solid rgba(191,170,137,.42); border-top: 0; border-radius: 0 0 7px 7px; background: #02080a; transform: skewX(-7deg); box-shadow: 0 8px 10px rgba(0,0,0,.78); }
+.ritual-card-shadow { position: absolute; z-index: -2; left: 12%; right: 12%; bottom: -2px; height: 23px; border-radius: 50%; background: rgba(0,0,0,.82); filter: blur(8px); }
+.ritual-card-reflection .ritual-card-object { animation: ritual-card-turn 780ms cubic-bezier(.18,.8,.2,1) both; }
+.ritual-card-reflection .ritual-card-front { visibility: hidden; }
+.ritual-card-reflection .ritual-card-back { visibility: visible; transform: rotateY(0deg); }
+.ritual-card-back { gap: 14px; color: #f2a58f; text-align: left; }
+.ritual-card-back .ritual-card-back-kicker { align-self: flex-start; color: var(--copper-soft); font-size: .64rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.ritual-card-back > strong { align-self: flex-start; color: #fff2ec; font-size: 1.125rem; line-height: 1.38; }
+.ritual-card-back p { margin: 0; color: #dbe2e0; font-size: 1.05rem; line-height: 1.45; }
+.ritual-card-back blockquote, .ritual-card-result blockquote { width: 100%; margin: 3px 0 0; padding: 11px 0 11px 15px; border-left: 2px solid var(--copper); color: #f6c79e; font-family: Georgia, "Times New Roman", serif; font-size: 1.125rem; line-height: 1.38; }
+.ritual-card-reflection::after { content: ""; position: absolute; z-index: 9; left: -18%; right: -18%; top: 45%; height: 2px; background: var(--coral); box-shadow: 0 0 28px 8px rgba(220,118,95,.48); pointer-events: none; animation: card-reveal-cut 720ms ease-out 270ms both; }
+.ritual-actions { z-index: 8; display: flex; align-items: center; min-height: 96px; animation: action-rise 460ms ease-out 720ms both; }
+.decision-action-block { display: grid; grid-template-columns: repeat(2,minmax(220px,auto)); gap: 14px; width: min(690px,92vw); justify-content: center; }
+.secondary-action { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 13px 22px; border: 1px solid rgba(184,205,204,.72); border-radius: 3px; color: #f2eee5; background: rgba(4,17,21,.9); box-shadow: 0 14px 34px rgba(0,0,0,.46), inset 0 0 18px rgba(104,212,232,.055); font-size: 1.125rem; font-weight: 620; line-height: 1.25; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
+.secondary-action:hover { transform: translateY(-3px); border-color: var(--cyan); background: rgba(8,34,41,.96); box-shadow: 0 18px 40px rgba(0,0,0,.52), 0 0 24px rgba(104,212,232,.14); }
+.secondary-action:focus-visible { outline: 2px solid var(--ivory); outline-offset: 5px; border-color: var(--cyan); }
+
+/* Confirmation is a physical human threshold; the note slides from under the kept card. */
+.confirmation-stage { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(300px,460px) 320px; align-items: center; justify-content: center; gap: clamp(42px,8vw,130px); padding: 8vh 6vw 4vh; }
+.threshold-signal { position: absolute; z-index: 9; top: 3vh; left: 50%; display: flex; align-items: center; gap: 8px; color: rgba(104,212,232,.76); font-size: .68rem; letter-spacing: .13em; text-transform: uppercase; text-shadow: 0 2px 18px #000; transform: translateX(-50%); animation: futura-stops 620ms ease-out both; }
+.confirmation-stage > .ritual-card { grid-column: 2; grid-row: 1; animation: kept-card-arrive 680ms cubic-bezier(.2,.78,.2,1) both; }
+.confirmation-card { position: relative; z-index: 6; grid-column: 1; grid-row: 1; width: min(460px,100%); padding: 29px 30px 25px; border: 1px solid rgba(210,181,142,.55); border-radius: 2px; color: #e9e2d6; background: linear-gradient(145deg, rgba(25,27,25,.97), rgba(8,16,17,.98)); box-shadow: 0 30px 55px rgba(0,0,0,.62), 8px 10px 0 rgba(2,8,10,.82), inset 0 0 0 1px rgba(242,238,229,.035); text-shadow: 0 2px 14px #000; transform: rotate(-1.2deg); animation: note-slip-out 760ms cubic-bezier(.18,.8,.2,1) 360ms both; }
+.confirmation-card::before { content: ""; position: absolute; left: 20px; right: 20px; top: 13px; height: 1px; background: rgba(229,135,67,.45); }
+.confirmation-card p { color: #f0d2b7; }
+.confirmation-card .confirmation-summary { margin: 12px 0 0; font-size: 1.125rem; line-height: 1.45; }
+.confirmation-card label { display: grid; gap: 5px; margin: 18px 0 8px; color: #e7edeb; font-size: 1.125rem; line-height: 1.38; }
+.confirmation-card label span { color: var(--muted); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
+.confirmation-card textarea { width: 100%; min-height: 92px; resize: vertical; padding: 13px 14px; border: 1px solid rgba(244,166,102,.62); border-radius: 4px; color: var(--ivory); caret-color: var(--copper-soft); background: rgba(2,9,12,.82); box-shadow: 0 18px 42px rgba(0,0,0,.42), inset 0 0 18px rgba(229,135,67,.055); }
+.confirmation-card textarea:focus-visible { border-color: var(--ivory); box-shadow: 0 0 0 3px rgba(229,135,67,.24), 0 18px 42px rgba(0,0,0,.42); }
+.confirmation-actions { display: grid; gap: 10px; margin-top: 18px; }
+.confirmation-actions .primary-action, .confirmation-actions .secondary-action { width: 100%; }
+.confirm-action { background: rgba(126,48,34,.94); border-color: var(--coral); }
+.human-seal { position: absolute; right: 20px; bottom: 24px; width: 94px; height: 94px; display: grid; place-items: center; border: 3px double var(--coral); border-radius: 50%; color: #f0a28f; background: rgba(78,25,18,.28); box-shadow: 0 0 30px rgba(220,118,95,.28); transform: rotate(-11deg); animation: human-stamp 650ms cubic-bezier(.12,.82,.18,1) 650ms both; }
+.human-seal::before { content: ""; position: absolute; inset: 8px; border: 1px dashed currentColor; border-radius: 50%; }
+.human-seal span { font-size: .58rem; font-weight: 800; letter-spacing: .16em; }
+.sealed-stage { justify-content: center; gap: 22px; padding: 5vh 20px; }
+.sealed-stage .ritual-card { animation: sealed-card-arrive 720ms cubic-bezier(.18,.8,.2,1) both; }
+.sealed-stage .ritual-card-object { animation: card-lock 620ms ease-out 420ms both; }
+.sealed-reveal-action { opacity: 0; animation: action-rise 480ms ease-out 960ms both; }
+
+/* Reveal reopens the same card; the mechanical balance follows only after a human-paced CTA. */
+.outcome-stage { justify-content: flex-start; padding-top: 4vh; }
+.outcome-stage > h2 { z-index: 8; margin: 0 0 16px; font-size: clamp(2rem,3vw,3rem); opacity: 0; animation: consequence-copy 520ms ease-out 500ms both; }
+.ritual-card-outcome { width: min(840px,84vw); height: 390px; }
+.ritual-card-outcome .ritual-card-object { animation: outcome-card-open 980ms cubic-bezier(.16,.82,.18,1) 260ms both; }
+.ritual-card-outcome .ritual-card-front, .ritual-card-outcome .ritual-card-back { visibility: hidden; }
+.ritual-card-outcome .ritual-card-result { visibility: visible; transform: rotateY(0deg); }
+.ritual-card-outcome .ritual-card-face { padding: 34px 46px; }
+.ritual-card-outcome .ritual-card-result { display: flex; color: #d9e5e2; text-align: center; }
+.ritual-card-outcome .ritual-card-back-kicker { color: var(--copper-soft); font-size: .65rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.ritual-card-outcome .ritual-card-result > p { display: none; }
+.outcome-leaves { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 10px 0; text-align: left; }
+.outcome-leaves > div { min-width: 0; padding: 18px 24px; border-left: 3px solid rgba(104,212,232,.6); background: linear-gradient(90deg,rgba(104,212,232,.09),transparent); }
+.outcome-leaves > div:last-child { border-color: rgba(229,135,67,.72); }
+.outcome-leaves strong { color: var(--copper-soft); font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; }
+.outcome-leaves p { margin: 10px 0 0; color: #edf1ef; font-size: 1.125rem; line-height: 1.48; }
+.ritual-card-outcome .ritual-card-result blockquote { margin-top: 8px; padding-block: 9px; text-align: left; font-size: 1.125rem; }
+.outcome-close-action { position: fixed; z-index: 11; left: 50%; right: auto; bottom: 3vh; transform: translateX(-50%); opacity: 0; animation: outcome-action-arrive-centered 520ms ease-out 1500ms both; }
+.outcome-close-action:hover { transform: translateX(-50%) translateY(-3px); }
+.balance-stage { position: absolute; inset: 0; z-index: 6; }
+.complete-card { left: 50%; top: 6vh; width: min(560px,70vw); text-align: center; transform: translateX(-50%); animation: memory-settle 720ms ease-out both; }
+.complete-card::before { display: none; }
+.complete-card .is-stamped { margin-inline: auto; }
+.complete-card strong { display: block; margin-top: 18px; color: var(--copper-soft); font-family: Georgia, "Times New Roman", serif; font-size: 1.28rem; }
+.complete-card .complete-action { margin: 25px auto 0; }
+
+/* Reveal-only mechanical board rising from the city floor. */
+.human-balance { position: fixed; z-index: 7; left: 50%; bottom: 3.5vh; width: min(880px,78vw); min-height: 410px; transform-origin: center bottom; }
+.human-balance.is-revealing { opacity: 0; animation: balance-emerge 1050ms cubic-bezier(.16,.8,.2,1) 1900ms both; }
+.human-balance.is-memory { bottom: 4vh; transform: translateX(-50%) perspective(950px) rotateX(4deg) scale(.94); }
+.balance-housing { position: relative; min-height: 410px; padding: 28px 36px 24px; border: 1px solid rgba(220,177,116,.82); border-radius: 7px; background: rgba(3,13,16,.97); box-shadow: 0 38px 70px rgba(0,0,0,.72), 0 8px 0 #02080a, 0 11px 0 rgba(125,85,50,.56), inset 0 0 0 2px rgba(242,238,229,.05), inset 0 25px 34px rgba(229,135,67,.045); }
+.balance-housing::before { content: ""; position: absolute; left: 18px; right: 18px; top: 14px; height: 1px; background: rgba(244,166,102,.56); box-shadow: 0 0 16px 2px rgba(229,135,67,.18); }
+.human-balance header { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 22px; padding-bottom: 15px; border-bottom: 1px solid rgba(229,135,67,.42); }
+.human-balance h2 { margin: 5px 0 0; color: var(--muted); font-size: .88rem; font-weight: 400; }
+.balance-kicker { color: var(--ivory); font-size: 1rem; letter-spacing: .21em; }
+.balance-note { color: rgba(224,230,228,.7); font-size: .72rem; }
+.balance-list { display: grid; gap: 15px; }
+.balance-row { display: grid; grid-template-columns: 12px 132px 1fr 78px; align-items: center; gap: 14px; color: #e5ebe9; font-size: .95rem; }
+.balance-label { letter-spacing: .03em; }
+.balance-axis { width: 9px; height: 9px; border-radius: 50%; background: #329bc1; box-shadow: 0 0 10px currentColor; }
+.balance-axis-control { background: #4aaed0; }
+.balance-axis-connection { background: #66c5bd; }
+.balance-axis-freedom { background: #d48643; }
+.balance-axis-responsibility { background: #b65b47; }
+.balance-track { position: relative; height: 31px; }
+.balance-stop { position: absolute; top: -4px; color: rgba(215,222,220,.45); font-size: .56rem; }
+.balance-stop-minus { left: 0; }
+.balance-stop-zero { left: 50%; transform: translateX(-50%); }
+.balance-stop-plus { right: 0; }
+.balance-groove { position: absolute; left: 0; right: 0; top: 17px; height: 8px; border: 1px solid rgba(185,171,141,.5); border-radius: 7px; background: #061014; box-shadow: inset 0 3px 5px #000, 0 1px 0 rgba(242,238,229,.13); }
+.balance-zero { position: absolute; left: 50%; top: 12px; width: 2px; height: 18px; background: rgba(242,238,229,.7); box-shadow: 0 0 7px rgba(242,238,229,.25); }
+.balance-marker { position: absolute; left: var(--marker-position); top: 21px; width: 25px; height: 25px; border: 3px solid var(--ivory); border-radius: 50%; transform: translate(-50%,-50%); background: #142328; box-shadow: 0 8px 10px rgba(0,0,0,.75), inset 0 2px 4px rgba(255,255,255,.16); }
+.is-revealing .balance-row.is-changing .balance-marker { left: 50%; animation: marker-slide 680ms cubic-bezier(.2,.72,.2,1) var(--balance-delay) both; }
+.balance-marker.negative { border-color: var(--coral); }
+.balance-marker.positive { border-color: var(--teal); }
+.balance-marker.neutral { border-color: rgba(242,238,229,.64); }
+.balance-delta { color: var(--ivory); text-align: right; font-size: .88rem; white-space: nowrap; }
+.is-revealing .balance-row.is-changing .balance-delta { opacity: 0; animation: delta-appear 320ms ease-out var(--delta-delay) both; }
+.is-revealing .balance-row.is-static .balance-delta { opacity: .42; }
+.balance-impact { position: absolute; left: var(--marker-position); top: 21px; width: 34px; height: 34px; border: 1px solid rgba(242,238,229,.72); border-radius: 50%; transform: translate(-50%,-50%); opacity: 0; }
+.is-revealing .balance-row.is-changing .balance-impact { animation: marker-impact 520ms ease-out var(--delta-delay) both; }
+.balance-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 17px; padding-top: 14px; border-top: 1px solid rgba(229,135,67,.3); }
+.human-balance .balance-footer p { margin: 0; color: #d9dfdd; font-size: 1rem; line-height: 1.4; }
+.balance-new-round { flex: 0 0 auto; }
+
+.inspector-trigger { position: fixed; right: 14px; bottom: 12px; z-index: 20; display: inline-flex; align-items: center; gap: 6px; padding: 7px 9px; border: 1px solid rgba(183,201,200,.28); border-radius: 2px; color: rgba(225,231,229,.66); background: rgba(5,14,17,.82); font-size: .66rem; }
+.inspector { position: fixed; z-index: 30; top: 14px; right: 14px; bottom: 14px; width: min(430px,calc(100vw - 28px)); overflow: auto; padding: 20px; border: 1px solid rgba(104,212,232,.45); background: #071316; box-shadow: -24px 0 80px rgba(0,0,0,.62); animation: inspector-in 250ms ease both; }
+.inspector > header { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+.inspector h2 { margin: 5px 0 0; font-size: 1.3rem; }
+.inspector-kicker { display: inline-flex; align-items: center; gap: 6px; }
+.icon-button { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--ivory); background: transparent; }
+.inspector-status { margin-top: 20px; padding: 13px; border: 1px solid var(--line); display: grid; gap: 8px; }
+.inspector-status strong { font-size: .82rem; }
+.inspector-status span { color: var(--muted); font-size: .7rem; line-height: 1.45; overflow-wrap: anywhere; }
+.status-webmcp { border-color: rgba(99,196,189,.65); }
+.status-fallback,.status-error { border-color: rgba(229,135,67,.65); }
+.inspector-state { display: grid; gap: 1px; margin: 18px 0; }
+.inspector-state div { display: grid; grid-template-columns: 100px 1fr; padding: 9px 0; border-bottom: 1px solid rgba(184,205,204,.14); }
+.inspector-state dt { color: var(--muted); font-size: .72rem; }
+.inspector-state dd { margin: 0; color: var(--ivory); font-size: .72rem; overflow-wrap: anywhere; }
+.fallback { padding: 16px; border: 1px dashed rgba(229,135,67,.5); }
+.fallback .eyebrow { color: var(--copper-soft); font-size: .68rem; letter-spacing: .13em; text-transform: uppercase; }
+.fallback h2 { margin: 5px 0; font-size: 1rem; }
+.fallback p { color: var(--muted); font-size: .73rem; line-height: 1.45; }
+.fallback .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.fallback button { padding: 8px 10px; border: 1px solid var(--line); background: transparent; color: var(--ivory); font-size: .72rem; }
+.error-toast { position: fixed; z-index: 40; left: 50%; bottom: 22px; transform: translateX(-50%); max-width: min(520px,calc(100vw - 40px)); margin: 0; padding: 12px 16px; border: 1px solid var(--coral); background: #321714; color: #ffe0d8; box-shadow: 0 16px 50px rgba(0,0,0,.5); }
+
+@keyframes materialize { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes pulse { 0%,100% { opacity: .58; transform: scale(.82); } 50% { opacity: 1; transform: scale(1.08); } }
+@keyframes transmission-arrive { from { opacity: 0; transform: translateX(-38px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes dilemma-transmission { from { opacity: 0; transform: translate(-50%,-18px); letter-spacing: .04em; } to { opacity: 1; transform: translate(-50%,0); letter-spacing: normal; } }
+@keyframes deal-route-object { from { opacity: 0; transform: translateX(-50%) translateY(-52px) scale(.82); } to { opacity: 1; } }
+@keyframes chosen-object-pulse { 0% { filter: brightness(1); } 46% { filter: brightness(1.55); } 100% { filter: brightness(1); } }
+@keyframes action-arrive { from { opacity: 0; transform: translate(-50%,18px); } to { opacity: 1; transform: translate(-50%,0); } }
+@keyframes action-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes outcome-action-arrive { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes outcome-action-arrive-centered { from { opacity: 0; transform: translate(-50%,18px); } to { opacity: 1; transform: translate(-50%,0); } }
+@keyframes route-break { 0% { transform: translate(0,0); opacity: 0; } 35% { transform: translate(10px,-2px); opacity: .34; } 68% { transform: translate(-7px,3px); opacity: .25; } 100% { transform: translate(0,0); opacity: .16; } }
+@keyframes ritual-prompt-arrive { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ritual-card-turn { 0% { opacity: .72; transform: rotateY(-88deg) translateY(18px) scale(.95); } 58% { opacity: 1; transform: rotateY(9deg) translateY(0) scale(1.04); } 100% { opacity: 1; transform: rotateY(0deg) translateY(0) scale(1); } }
+@keyframes card-reveal-cut { from { opacity: 0; transform: scaleX(.06); } 45% { opacity: 1; } to { opacity: 0; transform: scaleX(1); } }
+@keyframes futura-stops { from { opacity: 0; transform: translateX(70px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes kept-card-arrive { from { opacity: 0; transform: translateX(-70px) rotate(-4deg) scale(.9); } to { opacity: 1; transform: translateX(0) rotate(0) scale(1); } }
+@keyframes note-slip-out { from { opacity: 0; transform: translateX(150px) rotate(1.4deg) scale(.94); } to { opacity: 1; transform: translateX(0) rotate(-1.2deg) scale(1); } }
+@keyframes human-stamp { 0% { opacity: 0; transform: translate(30px,-55px) rotate(-18deg) scale(1.8); } 68% { opacity: 1; transform: translate(0,0) rotate(-11deg) scale(.92); } 100% { opacity: 1; transform: translate(0,0) rotate(-11deg) scale(1); } }
+@keyframes sealed-card-arrive { from { opacity: 0; transform: translateY(-32px) scale(1.08); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes card-lock { 0%,100% { filter: brightness(1); transform: translateZ(0); } 45% { filter: brightness(1.5); transform: translateZ(24px); } }
+@keyframes consequence-copy { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes outcome-card-open { 0% { opacity: .72; transform: rotateY(88deg) scale(.92); } 58% { opacity: 1; transform: rotateY(-8deg) scale(1.04); } 100% { opacity: 1; transform: rotateY(0deg) scale(1); } }
+@keyframes memory-settle { from { opacity: 0; transform: translate(-50%,-18px); } to { opacity: 1; transform: translate(-50%,0); } }
+@keyframes signal-descend { 0% { opacity: 0; transform: scaleY(.05) translateY(-30%); } 55% { opacity: .9; } 100% { opacity: 0; transform: scaleY(1); } }
+@keyframes route-unseal { 0% { opacity: 0; transform: scaleY(.08); } 40% { opacity: 1; } 100% { opacity: 0; transform: scaleY(1); } }
+@keyframes route-commit { 0% { opacity: 0; transform: translateX(-90px) scaleY(.2); } 45% { opacity: 1; } 100% { opacity: 0; transform: translateX(0) scaleY(1); } }
+@keyframes counterpoint-cut { 0% { opacity: 0; transform: translate(-70px,-20px) rotate(12deg) scaleY(.15); } 48% { opacity: .9; } 100% { opacity: 0; transform: translate(0,0) rotate(12deg) scaleY(1); } }
+@keyframes gate-open { 0% { opacity: 0; transform: scaleY(.12); } 44% { opacity: 1; } 100% { opacity: 0; transform: scaleY(1); } }
+@keyframes gate-seal { 0% { opacity: 0; transform: scaleY(1); } 50% { opacity: 1; } 100% { opacity: 0; transform: scaleY(.04); } }
+@keyframes consequence-release { 0% { opacity: 0; transform: scaleX(.08); } 38% { opacity: 1; } 100% { opacity: 0; transform: scaleX(3.4); } }
+@keyframes city-answer { from { filter: saturate(.55) brightness(.66); } to { filter: saturate(1.35) brightness(1.08); } }
+@keyframes balance-emerge { from { opacity: 0; transform: translateX(-50%) perspective(950px) rotateX(22deg) translateY(170px) scale(.88); } to { opacity: 1; transform: translateX(-50%) perspective(950px) rotateX(4deg) translateY(0) scale(1); } }
+@keyframes marker-slide { from { left: 50%; } to { left: var(--marker-position); } }
+@keyframes marker-impact { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.5); } 35% { opacity: .9; } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.8); } }
+@keyframes delta-appear { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes inspector-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+
+@media (max-width: 900px) {
+  .game-app { overflow: auto; }
+  .game-app::before, .game-app::after { position: absolute; min-height: 100svh; }
+  .game-app-journey::before { background-position: 50% top; }
+  .entry-screen { align-items: end; min-height: 100svh; padding: 38px 22px 74px; }
+  .entry-copy { width: min(520px,100%); text-shadow: 0 3px 20px #000; }
+  .entry-copy h1 { font-size: clamp(3.7rem,18vw,6rem); }
+  .futura-status { top: 18px; right: 18px; }
+  .entry-screen > .futura-status { top: auto; right: 20px; bottom: 22px; }
+  .scene-event { height: 68vh; }
+  .stage { min-height: 100svh; }
+  .stage-card { left: 24px; top: 17vh; width: min(430px,calc(100vw - 48px)); }
+  .dilemma-arrival-stage .stage-heading { top: 16vh; width: calc(100vw - 40px); }
+  .dilemma-options-action { top: 62vh; }
+  .stage-heading { top: 8vh; width: calc(100vw - 36px); }
+  .stage-heading p { max-width: 600px; font-size: .76rem; }
+  .decision-grid { top: 31vh; bottom: 9vh; display: grid; grid-template-columns: repeat(3,1fr); align-items: center; gap: 8px; padding: 0 12px; }
+  .route-choice { position: relative; left: auto; top: auto; width: auto; min-width: 0; min-height: 214px; transform: none; }
+  .route-object { min-height: 190px; padding: 16px 7px 21px; }
+  .route-choice:hover .route-object, .route-choice:focus-visible .route-object { transform: rotateX(2deg) translateY(-8px); }
+  .route-beacon { width: 54px; height: 54px; }
+  .route-label { font-size: 1.25rem; }
+  .route-choice strong { font-size: .74rem; }
+  .route-choice small { display: none; }
+  .route-choice.is-subdued { transform: translateY(18px) scale(.9); }
+  .route-choice.is-selected { left: auto; top: auto; transform: translateY(-22px) scale(1.04); }
+  .centered-action { top: auto; bottom: 7vh; }
+  .reflection-stage { gap: 12px; padding-top: 6vh; }
+  .ritual-card { width: 280px; height: 342px; }
+  .ritual-card-face { padding: 27px 24px; }
+  .ritual-card-label { font-size: 2rem; }
+  .confirmation-stage { grid-template-columns: minmax(280px,440px) 280px; gap: 34px; padding-inline: 28px; }
+  .threshold-signal { left: auto; right: 24px; top: 20px; }
+  .ritual-card-outcome { width: min(720px,90vw); height: 320px; }
+  .outcome-close-action { top: 45vh; right: 18px; }
+  .complete-card { left: 24px; top: 5vh; width: calc(100vw - 48px); transform: none; }
+  .human-balance { width: calc(100vw - 36px); min-height: 320px; bottom: 76px; }
+  .human-balance.is-memory { bottom: 4vh; transform: translateX(-50%) perspective(900px) rotateX(3deg) scale(.96); }
+  .balance-housing { min-height: 320px; padding: 24px 22px 20px; }
+  .balance-row { grid-template-columns: 10px 96px 1fr 38px; gap: 9px; }
 }
 
+@media (max-width: 900px) and (max-height: 620px) {
+  .game-app, .entry-screen, .journey-screen, .stage { min-height: 100svh; }
+  .game-app { overflow: hidden; }
+  .entry-screen { align-items: center; padding: 18px 22px; }
+  .entry-copy { width: 330px; padding: 14px 18px; background: linear-gradient(90deg,rgba(2,9,12,.88),rgba(2,9,12,.56) 78%,transparent); }
+  .brand-overline { font-size: .63rem; }
+  .entry-copy h1 { margin: 5px 0 0; font-size: 4rem; line-height: .84; }
+  .brand-subtitle { margin: 8px 0 10px; font-size: 1.42rem; }
+  .tagline { margin: 13px 0; font-size: 1rem; line-height: 1.45; }
+  .futura-intro { margin-bottom: 13px; padding-top: 10px; font-size: .82rem; }
+  .futura-intro p { margin-top: 4px; line-height: 1.35; }
+  .entry-action { min-height: 54px; padding-inline: 20px; font-size: 1.125rem; }
+
+  .journey-screen > .futura-status { top: 10px; right: 12px; }
+  .stage-card { left: 32px; top: 17vh; width: 470px; padding: 19px 36px 20px 24px; background: linear-gradient(90deg,rgba(2,9,12,.9),rgba(2,9,12,.72) 75%,transparent); }
+  .stage-card h2 { font-size: 2.25rem; }
+  .stage-card p { margin: 12px 0; font-size: 1.125rem; line-height: 1.45; }
+  .stage-card .primary-action { margin-top: 7px; }
+
+  .dilemma-arrival-stage .stage-heading { top: 6vh; width: 740px; }
+  .dilemma-arrival-stage .stage-heading h2 { font-size: 2.35rem; }
+  .situation-beats { width: 720px; margin-top: 14px; gap: 7px; padding: 13px 26px; }
+  .dilemma-arrival-stage .stage-heading .situation-beats p { font-size: 1.125rem; line-height: 1.36; }
+  .dilemma-options-action { top: auto; bottom: 5vh; }
+
+  .stage-heading { top: 3vh; width: 740px; }
+  .stage-heading h2 { font-size: 2.15rem; }
+  .direction-stage:not(.direction-stage-selected) .stage-kicker { color: #e8eeec; font-size: 1.125rem; font-weight: 500; letter-spacing: .01em; text-transform: none; }
+  .decision-grid { top: 25vh; bottom: 9vh; gap: 12px; padding: 0 20px; }
+  .route-choice { min-height: 240px; }
+  .route-object { min-height: 218px; padding: 15px 10px 21px; }
+  .route-beacon { width: 52px; height: 52px; }
+  .route-label { font-size: 1.55rem; }
+  .route-choice strong { max-width: 180px; font-size: 1.125rem; }
+  .direction-stage-selected .stage-heading { top: 1.5vh; padding: 10px 30px; }
+  .direction-stage-selected .stage-heading p { margin-top: 5px; font-size: 1.125rem; line-height: 1.34; }
+  .direction-stage-selected .decision-grid { top: 34vh; bottom: 9vh; }
+  .direction-stage-selected .route-choice { min-height: 190px; }
+  .direction-stage-selected .route-object { min-height: 170px; }
+  .centered-action { bottom: 2.5vh; }
+
+  .reflection-stage { display: block; min-height: 100svh; padding: 0; }
+  .reflection-stage .ritual-prompt { position: absolute; left: 50%; top: 3vh; width: 700px; transform: translateX(-50%); animation: none; }
+  .phase-reflection_presented .futura-status, .phase-ready_for_confirmation .futura-status { right: auto; left: 12px; }
+  .ritual-prompt h2 { font-size: 2rem; }
+  .reflection-stage .ritual-card { position: absolute; left: 34px; top: 22vh; width: 360px; height: 320px; }
+  .reflection-stage .ritual-card-face { padding: 24px 26px; }
+  .ritual-card-back { gap: 10px; }
+  .ritual-card-back > strong, .ritual-card-back p, .ritual-card-back blockquote { font-size: 1.125rem; }
+  .reflection-stage .ritual-actions { position: absolute; right: 28px; top: 36vh; width: 340px; min-height: 0; }
+  .reflection-stage .decision-action-block { grid-template-columns: 1fr; gap: 12px; }
+
+  .confirmation-stage { grid-template-columns: minmax(400px,460px) 210px; gap: 28px; padding: 7vh 28px 2vh; }
+  .confirmation-card { padding: 21px 24px 18px; }
+  .confirmation-card h2 { font-size: 2rem; }
+  .confirmation-card .confirmation-summary, .confirmation-card label { font-size: 1.125rem; }
+  .confirmation-card textarea { min-height: 66px; }
+  .confirmation-actions { grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 12px; }
+  .confirmation-actions .primary-action, .confirmation-actions .secondary-action { min-height: 56px; padding-inline: 12px; font-size: 1.125rem; }
+  .confirmation-stage > .ritual-card { width: 210px; height: 270px; }
+  .confirmation-stage > .ritual-card .ritual-card-face { padding: 20px 15px; }
+  .confirmation-stage > .ritual-card .ritual-card-icon { width: 54px; height: 54px; }
+  .confirmation-stage > .ritual-card .ritual-card-label { font-size: 1.5rem; }
+  .confirmation-stage > .ritual-card small { display: none; }
+
+  .sealed-stage { justify-content: center; gap: 11px; padding: 2vh 20px; }
+  .sealed-stage .ritual-prompt h2 { font-size: 2rem; }
+  .sealed-stage .ritual-card { width: 230px; height: 270px; }
+  .sealed-stage .ritual-card-face { padding: 20px; }
+  .sealed-stage .ritual-card-icon { width: 54px; height: 54px; }
+  .sealed-stage .ritual-card-label { font-size: 1.55rem; }
+
+  .outcome-stage { padding-top: 2vh; }
+  .outcome-stage > h2 { margin-bottom: 7px; font-size: 2.15rem; }
+  .ritual-card-outcome { width: 740px; height: 340px; }
+  .ritual-card-outcome .ritual-card-face { padding: 25px 34px; }
+  .outcome-leaves { gap: 14px; margin: 4px 0; }
+  .outcome-leaves > div { padding: 13px 19px; }
+  .outcome-leaves p, .ritual-card-outcome .ritual-card-result blockquote { font-size: 1.125rem; line-height: 1.38; }
+  .outcome-close-action { top: auto; right: auto; bottom: 2vh; }
+
+  .human-balance { width: 744px; min-height: 454px; bottom: 2vh; }
+  .balance-housing { min-height: 454px; padding: 20px 25px 18px; }
+  .human-balance header { margin-bottom: 12px; padding-bottom: 10px; }
+  .balance-list { gap: 8px; }
+  .balance-row { grid-template-columns: 10px 105px 1fr 74px; gap: 10px; font-size: .9rem; }
+  .balance-track { height: 29px; }
+  .balance-footer { margin-top: 10px; padding-top: 10px; }
+  .human-balance .balance-footer p { font-size: .92rem; }
+  .balance-new-round { min-height: 48px; }
+}
+
+@media (max-width: 560px) {
+  .entry-copy h1 { font-size: clamp(3.5rem,17vw,5rem); }
+  .tagline { margin-block: 25px; }
+  .stage h2 { font-size: 1.9rem; }
+  .stage-heading { top: 8vh; }
+  .direction-stage-selected .stage-heading { top: 8vh; }
+  .stage-heading p { max-height: 6.5em; overflow: hidden; font-size: .71rem; }
+  .decision-grid { top: 35vh; bottom: 5vh; }
+  .route-choice { min-height: 190px; }
+  .route-object { min-height: 168px; padding-inline: 5px; }
+  .route-beacon { width: 46px; height: 46px; }
+  .route-label { font-size: 1.08rem; }
+  .route-choice strong { max-width: 105px; line-height: 1.2; }
+  .centered-action { bottom: 5vh; }
+  .lens-brain .direction-stage-selected .route-choice-hand,
+  .lens-brain .direction-stage-selected .route-choice-heart,
+  .lens-heart .direction-stage-selected .route-choice-brain,
+  .lens-heart .direction-stage-selected .route-choice-hand { left: auto; }
+  .reflection-stage { min-height: 100svh; padding: 8vh 12px 2vh; }
+  .dilemma-arrival-stage .stage-heading { top: 13vh; }
+  .dilemma-arrival-stage .stage-heading h2 { font-size: clamp(2.25rem,10vw,3.25rem); }
+  .dilemma-arrival-stage .stage-heading p { max-height: none; margin-top: 18px; font-size: .88rem; }
+  .dilemma-options-action { top: auto; right: 18px; bottom: 12vh; left: 18px; width: calc(100vw - 36px); transform: none; }
+  .dilemma-options-action:hover { transform: translateY(-3px); }
+  .ritual-prompt { width: calc(100vw - 30px); }
+  .ritual-prompt h2 { font-size: 1.62rem; }
+  .ritual-card { width: min(292px,78vw); height: 326px; }
+  .ritual-card-face { padding: 26px 22px; }
+  .ritual-card-icon { width: 64px; height: 64px; }
+  .ritual-card-label { font-size: 1.72rem; }
+  .ritual-card-back { gap: 9px; }
+  .ritual-card-back > strong { font-size: .88rem; }
+  .ritual-card-back p { font-size: .75rem; }
+  .ritual-card-back blockquote { font-size: .86rem; }
+  .ritual-actions { min-height: 126px; width: min(360px,calc(100vw - 28px)); }
+  .decision-action-block { grid-template-columns: 1fr; gap: 10px; width: 100%; }
+  .decision-action-block .primary-action, .decision-action-block .secondary-action { width: 100%; }
+  .secondary-action { min-height: 50px; font-size: 1.125rem; }
+  .confirmation-stage { display: flex; flex-direction: column; justify-content: center; gap: 0; overflow: auto; padding: 7vh 14px 2vh; }
+  .confirmation-stage > .ritual-card { width: 172px; height: 204px; transform: translateY(15px); }
+  .confirmation-stage > .ritual-card .ritual-card-face { padding: 18px 12px; }
+  .confirmation-stage > .ritual-card .ritual-card-icon { width: 48px; height: 48px; }
+  .confirmation-stage > .ritual-card .ritual-card-label { font-size: 1.35rem; }
+  .confirmation-stage > .ritual-card small { display: none; }
+  .confirmation-stage > .ritual-card .human-seal { right: 9px; bottom: 14px; width: 64px; height: 64px; }
+  .confirmation-card { width: min(360px,calc(100vw - 28px)); padding: 23px 20px 19px; }
+  .confirmation-card textarea { min-height: 82px; }
+  .threshold-signal { right: 12px; font-size: .58rem; transform: none; }
+  .journey-screen > .futura-status { top: 14px; right: 12px; font-size: .6rem; }
+  .journey-screen > .futura-status .futura-pulse { width: 6px; height: 6px; }
+  .journey-screen > .futura-status > span:last-child { display: none; }
+  .sealed-stage { justify-content: flex-start; gap: 14px; padding-top: 6vh; }
+  .sealed-stage .ritual-card { height: 330px; }
+  .outcome-stage { padding-top: 2vh; }
+  .outcome-stage > h2 { margin-bottom: 6px; font-size: 1.45rem; }
+  .ritual-card-outcome { width: calc(100vw - 24px); height: 310px; }
+  .ritual-card-outcome .ritual-card-face { padding: 20px 17px; }
+  .ritual-card-outcome .ritual-card-result > p { font-size: .72rem; }
+  .outcome-leaves > div { padding: 5px 12px; }
+  .outcome-leaves li { font-size: .67rem; }
+  .ritual-card-outcome .ritual-card-result blockquote { font-size: .76rem; }
+  .outcome-close-action { top: auto; right: auto; bottom: 2vh; }
+  .human-balance { width: calc(100vw - 28px); min-height: 316px; bottom: 74px; }
+  .balance-housing { min-height: 316px; padding: 22px 16px 18px; }
+  .human-balance header { margin-bottom: 16px; }
+  .human-balance h2 { font-size: .72rem; }
+  .balance-note { font-size: .58rem; }
+  .balance-row { grid-template-columns: 8px 76px 1fr 30px; gap: 7px; font-size: .72rem; }
+  .balance-list { gap: 12px; }
+  .balance-marker { width: 21px; height: 21px; }
+  .human-balance p { margin-top: 13px; font-size: .61rem; }
+  .complete-card { top: 4vh; }
+  .complete-card h2 { margin-block: 4px; }
+  .complete-card strong { margin-top: 8px; }
+  .complete-card .complete-action { margin-top: 12px; }
+  .inspector-trigger span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}

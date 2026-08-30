@@ -16,7 +16,10 @@ A Gépváros jelen játékváltozata, Futura funkciója, a három választható 
 | Zod 3.25.76 | Colin McDonnell/contributors | MIT | runtime validáció |
 | Vitest 3.2.4 | Vitest contributors | MIT | tesztelés |
 | Testing Library React 16.3.0 / jest-dom 6.8.0 | Testing Library contributors | MIT | UI tesztelés |
+| Phosphor Icons React 2.1.10 | Phosphor Icons contributors | MIT | AGY–KÉZ–SZÍV és Journey UI-ikonok |
+| `machine-city-entry.png` | OpenAI ImageGen, a projekt számára generált saját asset | projektfelhasználás | Gépváros belépőjelenet |
+| `machine-city-journey.png` | OpenAI ImageGen, a projekt számára generált saját asset | projektfelhasználás | A Journey közös városi háttere |
 
-A licencek ellenőrzése 2026. augusztus 27-én a telepített csomagok saját `package.json` fájljaiból történt.
+A csomaglicencek ellenőrzése 2026. augusztus 29-én a telepített csomagok saját `package.json` fájljaiból történt.
 
-Nincs külső betűtípus, kép, hang vagy zene a technikai spike-ban. A helyi inspirációs PDF nem repository-asset és `.gitignore` védi a véletlen committól.
+Nincs külső betűtípus, hang vagy zene a vertical slice-ban. A két raszteres Gépváros-kép 2026. augusztus 29-én, a felhasználó által jóváhagyott vizuális briefből, kifejezetten ehhez a projekthez készült. A felhasználó két vizuális horgonya nem repository-asset; csak az általuk rögzített emberalak-, kamera-, fény- és tárgyi UI-nyelv szolgált irányként. A helyi inspirációs PDF nem repository-asset és `.gitignore` védi a véletlen committól.

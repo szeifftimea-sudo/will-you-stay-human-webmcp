@@ -320,3 +320,12 @@ A localhost Chrome DevTools invocation-kapu lezárult. További toolhívás nem 
 - Chrome WebMCP Imperative API: <https://developer.chrome.com/docs/ai/webmcp/imperative-api>, ellenőrizve 2026. augusztus 28-án.
 - Chrome DevTools WebMCP panel: <https://developer.chrome.com/docs/devtools/application/webmcp>, ellenőrizve 2026. augusztus 28-án.
 - Chrome 149 DevTools WebMCP flag: <https://developer.chrome.com/blog/new-in-devtools-149>, ellenőrizve 2026. augusztus 28-án.
+
+## 2026. augusztus 30. — magyar vertical slice P0 release-előkészítés
+
+- A teljes filmszerű Journey, a visszaválasztás, a megjegyzéses véglegesítés, a külön következményjelenet és a külön Embermérleg-jelenet felhasználói ellenőrzése elfogadott.
+- A SZÍV-ág tesztvideón látható mérlegeltérését domainadat-regresszió okozta, nem UI-hardcode. A jóváhagyott kanonikus delta visszaállt: Kényelem `−1`, Kontroll `+1`, Kapcsolódás `+1`, Szabadság `0`, Felelősség `+2`.
+- Az Embermérleg továbbra is a domain által perzisztált aktuális `session.balance` értékeit rendereli; külön SZÍV-specifikus prezentációs érték nincs.
+- Új UI-regresszió mind az öt SZÍV-tengelyt ellenőrzi az engine → session → UI adatúton.
+- Az Embermérleg címe „A döntés lenyomata” lett.
+- A lokális review MP4 nem release-asset, nem kerül commitba vagy deploymentbe.

@@ -1,6 +1,6 @@
-# Ember maradsz? — WebMCP technikai spike
+# Ember maradsz? — Szív a gépben
 
-Magyar nyelvű, egyszemélyes döntési játék prototípusa. Futura WebMCP-toolokkal mutatja be a dilemmát és tárja fel a következményt, miközben az AGY–KÉZ–SZÍV kijelölés, a reflexió utáni megtartás és a végleges megerősítés kizárólag a játékos webes UI-jában történhet.
+Magyar nyelvű, egyszemélyes döntési játék vertical slice-a. Futura WebMCP-toolokkal mutatja be a dilemmát és tárja fel a következményt, miközben az AGY–KÉZ–SZÍV kijelölés, a reflexió utáni megtartás és a végleges megerősítés kizárólag a játékos webes UI-jában történhet.
 
 ## Élő technikai prototípus
 
@@ -10,7 +10,8 @@ A Vercel deployment a WebMCP klienspróbához szükséges `Origin-Agent-Cluster:
 
 ## Ebben a hackathonverzióban megvalósított scope
 
-- egy ideiglenes magyar „Kérjek bocsánatot helyetted?” dilemma;
+- egy végleges magyar „Kérjek bocsánatot helyetted?” vertical-slice dilemma;
+- filmszerű, hétállomásos Döntési út, ahol a Gépváros maga az interfész, nem egy dashboard háttere;
 - AGY, KÉZ és SZÍV mint három egyenrangú választási irány;
 - kötelező, választásspecifikus reflexiós szakasz;
 - külön `PlayerCommandPort` és `AgentCommandPort`;
@@ -46,7 +47,7 @@ env PATH="/Users/szeifftimea/.cache/codex-runtimes/codex-primary-runtime/depende
 5. A játékos az UI-ban tartja meg és erősíti meg a választását.
 6. A `reveal_confirmed_consequence` csak ezután sikeres, és retry esetén nem alkalmazza újra a mérlegváltozást.
 
-WebMCP nélkül az oldalon megjelenő manuális agentvezérlők ugyanazt az `AgentCommandPort`-ot hívják. Részletes szerződések: [`docs/WEBMCP_TOOLS.md`](docs/WEBMCP_TOOLS.md). Emberi kontroll: [`docs/HUMAN_CONTROL.md`](docs/HUMAN_CONTROL.md).
+WebMCP nélkül a Journey agentlépései ugyanazt az `AgentCommandPort`-ot hívják. A technikai Inspector a normál játékosnézetből rejtve marad, és csak az `?inspector=1` queryvel jelenik meg. Részletes szerződések: [`docs/WEBMCP_TOOLS.md`](docs/WEBMCP_TOOLS.md). Emberi kontroll: [`docs/HUMAN_CONTROL.md`](docs/HUMAN_CONTROL.md).
 
 ## Későbbi termékvízió — nem megvalósított funkciók
 

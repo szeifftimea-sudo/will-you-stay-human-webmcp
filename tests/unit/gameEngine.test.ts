@@ -23,7 +23,7 @@ const LENS_CASES = [
   {
     lens: "heart",
     label: "SZÍV",
-    expectedDelta: { comfort: -1, control: 1, connection: 1, freedom: -1, responsibility: 1 },
+    expectedDelta: { comfort: -1, control: 1, connection: 1, freedom: 0, responsibility: 2 },
   },
 ] satisfies Array<{ lens: Lens; label: string; expectedDelta: BalanceDelta }>;
 
