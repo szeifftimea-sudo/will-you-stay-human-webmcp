@@ -25,6 +25,7 @@ export interface AgentGameView {
 }
 
 export interface AgentQueryPort {
+  getPlayableDilemmaCount(): number;
   getCurrentGameState(sessionId: string): AgentGameView;
 }
 
@@ -32,6 +33,7 @@ export interface UiGameView {
   session: ReturnType<GameEngine["getSnapshot"]>;
   activeDilemma: PublicDilemma | null;
   reflection: ReflectionContent | null;
+  hasNextDilemma: boolean;
 }
 
 const publicDilemma = (engine: GameEngine): PublicDilemma | null => {
@@ -39,6 +41,7 @@ const publicDilemma = (engine: GameEngine): PublicDilemma | null => {
   if (!dilemma) return null;
   return {
     id: dilemma.id,
+    shortTitle: dilemma.shortTitle,
     title: dilemma.title,
     callPrompt: dilemma.callPrompt,
     situation: dilemma.situation,
@@ -57,6 +60,7 @@ const publicDilemma = (engine: GameEngine): PublicDilemma | null => {
 
 export function createAgentQueryPort(engine: GameEngine): AgentQueryPort {
   return {
+    getPlayableDilemmaCount: () => engine.getPlayableDilemmaCount(),
     getCurrentGameState(sessionId) {
       const session = engine.getSnapshot();
       if (!session || session.sessionId !== sessionId) {
@@ -93,5 +97,6 @@ export function getUiGameView(engine: GameEngine): UiGameView {
       session?.presentedReflection && selectedLens
         ? dilemma?.lenses.find(({ lens }) => lens === selectedLens)?.reflection ?? null
         : null,
+    hasNextDilemma: engine.hasNextPlayableDilemma(),
   };
 }

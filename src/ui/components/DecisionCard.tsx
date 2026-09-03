@@ -1,9 +1,13 @@
 import { Brain, Hand, Heart } from "@phosphor-icons/react";
 import type { CSSProperties } from "react";
+import {
+  uiCopy,
+  type LocalizedChoice,
+  type UiLocale,
+} from "../../content/uiCopy";
 import type {
   Consequence,
   Lens,
-  PublicDilemma,
   ReflectionContent,
 } from "../../domain/gameTypes";
 
@@ -14,16 +18,23 @@ const ICONS = {
 } satisfies Record<Lens, typeof Brain>;
 
 interface Props {
-  choice: PublicDilemma["choices"][number];
+  choice: LocalizedChoice;
   selected: boolean;
   subdued: boolean;
   order?: number;
   onSelect(lens: Lens): void;
+  locale: UiLocale;
 }
 
-export function DecisionCard({ choice, selected, subdued, order = 0, onSelect }: Props) {
-  const Icon = ICONS[choice.lens];
-  const accessibleName = `${choice.label} — ${choice.framing}. ${choice.choiceText}${selected ? " Kijelölve." : ""}`;
+export function LensIcon({ lens, size = 38 }: { lens: Lens; size?: number }) {
+  const Icon = ICONS[lens];
+  return <Icon size={size} weight="light" />;
+}
+
+export function DecisionCard({ choice, selected, subdued, order = 0, onSelect, locale }: Props) {
+  const copy = uiCopy[locale];
+  const framingSeparator = /[.!?…]$/.test(choice.framing) ? " " : ". ";
+  const accessibleName = `${choice.label} — ${choice.framing}${framingSeparator}${choice.choiceText}${selected ? ` ${copy.choice.selectedSuffix}` : ""}`;
 
   return (
     <button
@@ -36,11 +47,11 @@ export function DecisionCard({ choice, selected, subdued, order = 0, onSelect }:
     >
       <span className="route-object" aria-hidden="true">
         <span className="route-surface-light" />
-        <span className="route-beacon"><Icon size={38} weight="light" /></span>
+        <span className="route-beacon"><LensIcon lens={choice.lens} /></span>
         <span className="route-label">{choice.label}</span>
         <strong>{choice.framing}</strong>
         <small>{choice.choiceText}</small>
-        {selected && <span className="route-footprint">Te állsz itt</span>}
+        {selected && <span className="route-footprint">{copy.choice.footprint}</span>}
       </span>
       <span className="route-contact" aria-hidden="true" />
     </button>
@@ -49,31 +60,26 @@ export function DecisionCard({ choice, selected, subdued, order = 0, onSelect }:
 
 export type RitualCardState = "selected" | "reflection" | "stamped" | "sealed" | "outcome";
 
-const STATE_LABELS: Record<RitualCardState, string> = {
-  selected: "kijelölve",
-  reflection: "ellenpont feltárva",
-  stamped: "emberileg megtartva",
-  sealed: "végleg megerősítve",
-  outcome: "következmény feltárva",
-};
-
 export function RitualCard({
   choice,
   state,
   reflection,
   consequence,
+  locale,
 }: {
-  choice: PublicDilemma["choices"][number];
+  choice: LocalizedChoice;
   state: RitualCardState;
   reflection?: ReflectionContent | null;
   consequence?: Consequence | null;
+  locale: UiLocale;
 }) {
   const Icon = ICONS[choice.lens];
+  const copy = uiCopy[locale];
 
   return (
     <div
       className={`ritual-card ritual-card-${choice.lens} ritual-card-${state}`}
-      aria-label={`${choice.label} döntési kártya, ${STATE_LABELS[state]}`}
+      aria-label={`${choice.label} ${copy.cards.cardAriaLabel}, ${copy.cards.stateLabels[state]}`}
       data-testid="ritual-card"
     >
       <div className="ritual-card-object">
@@ -83,16 +89,10 @@ export function RitualCard({
           <span className="ritual-card-label">{choice.label}</span>
           <strong>{choice.framing}</strong>
           <small>{choice.choiceText}</small>
-          {(state === "stamped" || state === "sealed") && (
-            <span className="human-seal" aria-hidden="true">
-              <span>{state === "sealed" ? "LEZÁRVA" : "MEGTARTVA"}</span>
-            </span>
-          )}
         </div>
 
         <div className="ritual-card-face ritual-card-back">
           <span className="ritual-card-rim" aria-hidden="true" />
-          <span className="ritual-card-back-kicker">Futura ellenpontja</span>
           <strong>{reflection?.counterargument}</strong>
           <p>{reflection?.blindSpot}</p>
           <blockquote>{reflection?.question}</blockquote>
@@ -100,20 +100,28 @@ export function RitualCard({
 
         <div className="ritual-card-face ritual-card-result">
           <span className="ritual-card-rim" aria-hidden="true" />
-          <span className="ritual-card-back-kicker">A döntés lenyomata · {choice.label}</span>
+          <span className="ritual-card-result-identity">
+            <Icon size={24} weight="light" aria-hidden="true" />
+            <strong>{choice.label}</strong>
+          </span>
           <p>{consequence?.explanation}</p>
           <div className="outcome-leaves">
             <div>
-              <strong>Ezt nyerted</strong>
+              <strong>{copy.outcome.gainLabel}</strong>
               <p>{consequence?.gains.join(" ")}</p>
             </div>
             <div>
-              <strong>Ezt adtad át</strong>
+              <strong>{copy.outcome.costLabel}</strong>
               <p>{consequence?.costs.join(" ")}</p>
             </div>
           </div>
           <blockquote>{consequence?.closingReflection}</blockquote>
         </div>
+        {(state === "stamped" || state === "sealed") && (
+          <span className="human-seal" aria-hidden="true">
+            <span>{state === "sealed" ? copy.cards.sealedSeal : copy.cards.keptSeal}</span>
+          </span>
+        )}
       </div>
       <span className="ritual-card-edge" aria-hidden="true" />
       <span className="ritual-card-shadow" aria-hidden="true" />

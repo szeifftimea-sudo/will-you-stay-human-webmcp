@@ -140,7 +140,7 @@ export function createWebMcpToolDefinitions(
           language: session.language,
           resumed,
           balance: session.balance,
-          playableDilemmaCount: 1,
+          playableDilemmaCount: agentQuery.getPlayableDilemmaCount(),
         });
       },
     ),

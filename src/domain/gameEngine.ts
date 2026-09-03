@@ -63,6 +63,17 @@ export class GameEngine {
     return this.catalog.dilemmas.find(({ id }) => id === this.session?.activeDilemmaId) ?? null;
   }
 
+  getPlayableDilemmaCount(): number {
+    return this.catalog.dilemmas.filter(({ status }) => status === "playable").length;
+  }
+
+  hasNextPlayableDilemma(): boolean {
+    const completed = new Set(this.session?.completedDilemmaIds ?? []);
+    return this.catalog.dilemmas.some(
+      ({ id, status }) => status === "playable" && !completed.has(id),
+    );
+  }
+
   enterMachineCity(): { session: GameSession; resumed: boolean } {
     if (this.session) return { session: clone(this.session), resumed: true };
 
@@ -427,6 +438,7 @@ export class GameEngine {
   private toPublicDilemma(dilemma: Dilemma): PublicDilemma {
     return {
       id: dilemma.id,
+      shortTitle: dilemma.shortTitle,
       title: dilemma.title,
       callPrompt: dilemma.callPrompt,
       situation: dilemma.situation,
@@ -443,4 +455,3 @@ export class GameEngine {
     };
   }
 }
-

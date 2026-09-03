@@ -13,6 +13,17 @@
   --muted: #b8c1bf;
   --coral: #dc765f;
   --line: rgba(160, 205, 207, 0.3);
+  --choice-neutral: #d7e8e7;
+  --choice-highlight: #f4a666;
+  --choice-panel: rgba(2, 12, 16, 0.95);
+  --choice-border: rgba(215, 232, 231, 0.66);
+  --choice-label-font-size: 1.625rem;
+  --choice-title-font-size: 1.25rem;
+  --choice-description-font-size: 1.125rem;
+  --action-primary: #0e7490;
+  --action-primary-hover: #0c6478;
+  --action-primary-active: #155e75;
+  --action-focus: #67e8f9;
 }
 
 * { box-sizing: border-box; }
@@ -39,6 +50,12 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 
 .entry-screen { position: relative; min-height: 100dvh; display: grid; align-items: center; padding: clamp(28px, 5vw, 84px); }
 .entry-copy { width: min(460px, 38vw); animation: materialize 800ms ease both; text-shadow: 0 3px 22px rgba(0,0,0,.88); }
+.language-switcher { position: absolute; z-index: 5; top: clamp(18px,3vw,34px); right: clamp(18px,3vw,34px); display: flex; align-items: center; color: rgba(242,238,229,.5); font-size: .9375rem; letter-spacing: .08em; text-shadow: 0 2px 12px rgba(0,0,0,.9); }
+.language-switcher button { position: relative; min-width: 44px; min-height: 44px; padding: 0 7px; border: 0; color: rgba(242,238,229,.56); background: transparent; font-size: inherit; font-weight: 500; letter-spacing: inherit; transition: color 160ms ease, filter 160ms ease; }
+.language-switcher button[aria-pressed="true"] { color: #fff; font-weight: 600; }
+.language-switcher button[aria-pressed="true"]::after { content: ""; position: absolute; right: 8px; bottom: 7px; left: 8px; height: 1px; background: var(--action-focus); box-shadow: 0 0 7px rgba(103,232,249,.35); }
+.language-switcher button:hover { color: rgba(255,255,255,.86); filter: brightness(1.08); }
+.language-switcher button:focus-visible { outline: 2px solid var(--action-focus); outline-offset: 1px; }
 .brand-overline, .stage-kicker, .balance-kicker, .inspector-kicker { margin: 0; color: var(--cyan); font-size: .72rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
 .entry-copy h1 { margin: 12px 0 6px; font-size: clamp(4.5rem, 7.2vw, 7.3rem); font-weight: 400; letter-spacing: -.055em; line-height: .88; text-wrap: balance; }
 .brand-subtitle { margin: 16px 0 22px; color: var(--copper); font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.65rem, 2.4vw, 2.5rem); }
@@ -46,18 +63,25 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .signal-rule span { position: absolute; left: 50%; top: -4px; width: 8px; height: 8px; border: 1px solid var(--copper); transform: rotate(45deg); background: var(--petrol); }
 .tagline { margin: 34px 0; color: var(--ivory); font-size: clamp(1.05rem,1.4vw,1.38rem); line-height: 1.6; }
 .futura-intro { width: min(100%,350px); margin: 0 0 32px; padding-top: 19px; border-top: 1px solid rgba(104,212,232,.42); }
-.futura-intro span { color: var(--cyan); letter-spacing: .28em; text-transform: uppercase; }
+.futura-intro strong { display: block; color: var(--cyan); font-size: .82rem; letter-spacing: .08em; }
 .futura-intro p { margin: 8px 0 0; color: var(--muted); line-height: 1.55; }
 
-.primary-action { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 13px 22px; border: 1px solid rgba(244,166,102,.92); border-radius: 3px; color: #fff5ec; background: rgba(112,48,24,.9); box-shadow: 0 12px 42px rgba(229,105,37,.28), inset 0 0 18px rgba(255,166,96,.15); font-size: 1.125rem; font-weight: 650; letter-spacing: .01em; transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
-.primary-action:hover { transform: translateY(-3px); background: rgba(145,62,28,.96); box-shadow: 0 16px 48px rgba(229,105,37,.4); }
-.primary-action:active { transform: translateY(0); }
-.entry-action { width: min(100%,450px); min-height: 74px; justify-content: space-between; padding-inline: 30px; font-size: 1.22rem; }
+.primary-action { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 13px 22px; border: 1px solid rgba(103,232,249,.82); border-radius: 3px; color: #fff; background: var(--action-primary); box-shadow: 0 12px 42px rgba(14,116,144,.32), inset 0 0 18px rgba(103,232,249,.12); font-size: 1.125rem; font-weight: 700; letter-spacing: .01em; transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
+.primary-action:hover { transform: translateY(-3px); background: var(--action-primary-hover); box-shadow: 0 16px 48px rgba(12,100,120,.44), inset 0 0 18px rgba(103,232,249,.14); }
+.primary-action:active { transform: translateY(0); background: var(--action-primary-active); }
+.primary-action:focus-visible { outline: 3px solid var(--action-focus); outline-offset: 4px; }
+.entry-action { width: max-content; max-width: 100%; min-height: 74px; justify-content: space-between; padding-inline: 30px; font-size: 1.22rem; }
 
 .futura-status { position: fixed; z-index: 8; top: 26px; right: 34px; display: inline-flex; align-items: center; gap: 9px; color: #b9d9da; font-size: .78rem; letter-spacing: .06em; text-shadow: 0 2px 12px #000; }
 .entry-screen > .futura-status { top: auto; bottom: 30px; right: clamp(24px,5vw,84px); }
 .futura-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 18px 5px rgba(99,196,189,.38); animation: pulse 2.4s ease-in-out infinite; }
 .journey-screen { position: relative; min-height: 100dvh; }
+
+.sound-toggle { position: fixed; z-index: 20; left: 18px; bottom: 16px; width: 46px; height: 46px; display: grid; place-items: center; padding: 0; border: 1px solid rgba(215,232,231,.5); border-radius: 50%; color: #edf5f3; background: rgba(2,12,16,.78); box-shadow: 0 10px 30px rgba(0,0,0,.42), inset 0 0 15px rgba(104,212,232,.04); backdrop-filter: blur(8px); transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease, transform 160ms ease; }
+.sound-toggle:hover { color: #fff; border-color: rgba(103,232,249,.78); background: rgba(5,29,35,.9); transform: translateY(-2px); }
+.sound-toggle:focus-visible { outline: 2px solid var(--action-focus); outline-offset: 4px; }
+.sound-toggle[aria-pressed="false"] { color: rgba(242,238,229,.66); border-color: rgba(242,238,229,.34); }
+.phase-consequence_revealed .sound-toggle, .phase-game_complete .sound-toggle { top: 14px; bottom: auto; }
 
 /* A single event pulse crosses the city when the canonical phase changes. */
 .scene-event { position: fixed; z-index: 3; left: 50%; top: 12vh; width: 2px; height: 76vh; pointer-events: none; background: rgba(104,212,232,.78); box-shadow: 0 0 28px 7px rgba(104,212,232,.5); opacity: 0; transform-origin: center bottom; }
@@ -91,8 +115,44 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .dilemma-arrival-stage .stage-heading h2 { font-size: clamp(2.6rem,4.8vw,5rem); }
 .situation-beats { width: min(720px,90vw); margin: 24px auto 0; display: grid; gap: 12px; padding: 18px 22px; background: linear-gradient(90deg,rgba(2,9,12,.15),rgba(2,9,12,.84) 20%,rgba(2,9,12,.84) 80%,rgba(2,9,12,.15)); }
 .dilemma-arrival-stage .stage-heading .situation-beats p { max-width: 720px; margin: 0; color: rgba(242,246,244,.94); font-size: clamp(1.125rem,1.35vw,1.25rem); line-height: 1.48; }
+.dilemma-arrival-stage .content-notice {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 10px;
+  color: #ffd2b0;
+  background: rgba(2,9,12,.82);
+  box-shadow: inset 3px 0 0 var(--copper);
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.35;
+  text-shadow: 0 2px 12px rgba(0,0,0,.98);
+}
 .dilemma-options-action { position: absolute; z-index: 8; left: 50%; top: 57vh; transform: translateX(-50%); animation: action-arrive 480ms ease-out 520ms both; }
 .dilemma-options-action:hover { transform: translateX(-50%) translateY(-3px); }
+
+.lens-guide-stage { position: absolute; inset: 0; }
+.lens-guide-stage .stage-heading { top: 6vh; }
+.lens-guide-symbols { position: absolute; z-index: 5; top: 28vh; left: 50%; width: min(720px,calc(100vw - 48px)); display: grid; grid-template-columns: repeat(3,1fr); gap: clamp(28px,6vw,72px); transform: translateX(-50%); }
+.lens-guide-symbol { display: flex; flex-direction: column; align-items: center; color: var(--choice-neutral); text-align: center; text-shadow: 0 3px 20px rgba(0,0,0,.96); opacity: 0; animation: transmission-arrive 520ms ease-out var(--guide-delay) both; }
+.lens-guide-symbol strong { margin-top: 14px; color: var(--ivory); font-size: var(--choice-label-font-size); font-weight: 500; letter-spacing: .08em; line-height: 1.15; }
+.lens-guide-symbol p { max-width: 210px; margin: 9px 0 0; color: #e1e9e7; font-size: var(--choice-description-font-size); line-height: 1.35; }
+.lens-guide-action { animation-delay: 920ms; }
+.lens-guide-list { position: absolute; z-index: 5; left: 50%; top: 29vh; width: min(1000px,90vw); display: grid; grid-template-columns: repeat(3,1fr); gap: clamp(14px,2vw,24px); transform: translateX(-50%); }
+.lens-guide-list section { position: relative; min-width: 0; min-height: 230px; padding: 20px; border: 1px solid var(--choice-border); border-radius: 5px; color: var(--choice-neutral); background: var(--choice-panel); box-shadow: 0 22px 40px rgba(0,0,0,.62), inset 0 0 0 1px rgba(242,238,229,.05); text-align: left; text-shadow: 0 3px 20px #000; animation: materialize 520ms ease-out both; }
+.lens-guide-list section:nth-child(2) { animation-delay: 120ms; }
+.lens-guide-list section:nth-child(3) { animation-delay: 240ms; }
+.lens-guide-list section::before { content: ""; position: absolute; left: 18px; right: 18px; top: 12px; height: 1px; background: currentColor; box-shadow: 0 0 18px 2px currentColor; opacity: .3; }
+.lens-guide-list strong { display: block; margin-top: 8px; color: currentColor; font-size: 1.75rem; letter-spacing: .08em; }
+.lens-guide-list span { display: block; margin-top: 7px; color: var(--ivory); font-size: 1.25rem; font-weight: 650; line-height: 1.25; }
+.lens-guide-list p { margin: 10px 0 0; color: #e4ebe9; font-size: 1.125rem; line-height: 1.4; }
+.lens-help { position: absolute; z-index: 9; right: 24px; bottom: 18px; width: min(560px,calc(100vw - 48px)); color: #dce7e4; text-shadow: 0 2px 14px #000; }
+.lens-help summary { width: max-content; margin-left: auto; padding: 9px 12px; border-bottom: 1px solid rgba(104,212,232,.6); color: #dce7e4; cursor: pointer; font-size: .82rem; }
+.lens-help .lens-guide-list.is-compact { position: static; width: 100%; margin-top: 8px; padding: 12px 14px; gap: 14px; transform: none; background: rgba(2,9,12,.96); box-shadow: 0 20px 44px rgba(0,0,0,.64); }
+.lens-help .lens-guide-list.is-compact section { min-height: 0; padding: 13px 12px 12px; animation: none; }
+.lens-help .lens-guide-list.is-compact section::before { top: 7px; right: 10px; left: 10px; }
+.lens-help .lens-guide-list.is-compact strong { font-size: .88rem; }
+.lens-help .lens-guide-list.is-compact span { font-size: .72rem; }
+.lens-help .lens-guide-list.is-compact p { font-size: .68rem; line-height: 1.35; }
 
 .direction-stage { position: absolute; inset: 0; }
 .stage-heading { position: absolute; z-index: 4; top: 6vh; left: 50%; width: min(780px,70vw); text-align: center; transform: translateX(-50%); text-shadow: 0 3px 24px rgba(0,0,0,.95); animation: dilemma-transmission 560ms ease-out both; }
@@ -102,26 +162,27 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 
 /* Three spatial exits. The city roads beneath them carry the affordance. */
 .decision-grid { position: absolute; inset: 0; }
-.route-choice { position: absolute; z-index: 5; width: 232px; min-height: 274px; padding: 0; border: 0; color: var(--ivory); background: transparent; text-align: center; perspective: 900px; opacity: 0; transform-style: preserve-3d; animation: deal-route-object 650ms cubic-bezier(.18,.8,.24,1) var(--deal-delay) both; transition: transform 620ms cubic-bezier(.2,.74,.24,1), opacity 440ms ease, filter 440ms ease; }
-.route-choice-brain { left: 24%; top: 36%; color: #bfe9f4; transform: translateX(-50%); }
-.route-choice-hand { left: 50%; top: 30%; color: #a8e2d8; transform: translateX(-50%); }
-.route-choice-heart { left: 76%; top: 36%; color: #f0ac78; transform: translateX(-50%); }
+.route-choice { position: absolute; z-index: 5; width: 232px; min-height: 274px; padding: 0; border: 0; color: var(--choice-neutral); background: transparent; text-align: center; perspective: 900px; opacity: 0; transform-style: preserve-3d; animation: deal-route-object 650ms cubic-bezier(.18,.8,.24,1) var(--deal-delay) both; transition: color 220ms ease, transform 620ms cubic-bezier(.2,.74,.24,1), opacity 440ms ease, filter 440ms ease; }
+.route-choice-brain { left: 24%; top: 33%; transform: translateX(-50%); }
+.route-choice-hand { left: 50%; top: 33%; transform: translateX(-50%); }
+.route-choice-heart { left: 76%; top: 33%; transform: translateX(-50%); }
 .route-object { position: relative; min-height: 235px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 22px 18px 26px; border: 1px solid currentColor; border-radius: 5px; background: rgba(4,17,21,.92); box-shadow: 0 24px 32px rgba(0,0,0,.62), 0 0 26px rgba(104,212,232,.15), inset 0 0 0 1px rgba(242,238,229,.08), inset 0 18px 28px rgba(255,255,255,.025); transform: rotateX(8deg) translateZ(0); transform-origin: center bottom; transition: transform 360ms cubic-bezier(.2,.75,.2,1), box-shadow 360ms ease, border-color 360ms ease; }
 .route-object::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -9px; height: 8px; border: 1px solid rgba(175,198,198,.34); border-top: 0; background: #02090c; box-shadow: 0 7px 10px rgba(0,0,0,.65); transform: skewX(-8deg); }
 .route-surface-light { position: absolute; left: 13px; right: 13px; top: 13px; height: 1px; background: currentColor; box-shadow: 0 0 18px 3px currentColor; opacity: .42; }
 .route-contact { width: 74%; height: 15px; margin: 11px auto 0; border-radius: 50%; background: rgba(0,0,0,.72); filter: blur(5px); opacity: .82; transition: transform 360ms ease, opacity 360ms ease; }
-.route-choice:hover .route-object, .route-choice:focus-visible .route-object { transform: rotateX(2deg) rotateY(-3deg) translateY(-12px) translateZ(20px); box-shadow: 0 31px 42px rgba(0,0,0,.68), 0 0 38px rgba(104,212,232,.29), inset 0 0 0 1px rgba(242,238,229,.12); }
+.route-choice:hover, .route-choice:focus-visible { color: var(--choice-highlight); }
+.route-choice:hover .route-object, .route-choice:focus-visible .route-object { transform: rotateX(2deg) rotateY(-3deg) translateY(-12px) translateZ(20px); box-shadow: 0 31px 42px rgba(0,0,0,.68), 0 0 38px rgba(244,166,102,.25), inset 0 0 0 1px rgba(242,238,229,.12); }
 .route-choice:hover .route-contact, .route-choice:focus-visible .route-contact { transform: scale(.82); opacity: .5; }
 .route-choice:focus-visible { outline: 0; }
 .route-choice:focus-visible .route-object { outline: 2px solid var(--ivory); outline-offset: 5px; }
 .route-beacon { width: 66px; height: 66px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; background: rgba(2,11,14,.72); box-shadow: 0 0 27px rgba(104,212,232,.24), inset 0 0 15px rgba(104,212,232,.08); }
-.route-choice-heart .route-beacon { box-shadow: 0 0 27px rgba(229,135,67,.28), inset 0 0 15px rgba(229,135,67,.09); }
-.route-label { margin-top: 3px; font-size: 1.78rem; font-weight: 500; letter-spacing: .08em; }
-.route-choice strong { max-width: 190px; font-size: 1.125rem; line-height: 1.25; }
-.route-choice small { display: none; }
+.route-label { margin-top: 3px; font-size: var(--choice-label-font-size); font-weight: 500; line-height: 1.15; letter-spacing: .08em; }
+.route-choice strong { max-width: 190px; font-size: var(--choice-title-font-size); font-weight: 600; line-height: 1.24; }
+.route-choice small { display: block; max-width: 210px; color: #e1e9e7; font-size: var(--choice-description-font-size); font-weight: 400; line-height: 1.3; }
+.direction-stage:not(.direction-stage-selected) .route-choice strong { min-height: 2.48em; display: flex; align-items: center; justify-content: center; }
 .route-choice.is-subdued { opacity: .38; filter: saturate(.42) brightness(.72); transform: translateX(-50%) translateY(24px) scale(.88); }
-.route-choice.is-selected { z-index: 7; left: 50%; top: 30%; color: var(--copper-soft); opacity: 1; transform: translateX(-50%) translateY(-38px) scale(1.1); filter: none; }
-.route-choice.is-selected .route-object { border-color: var(--copper-soft); box-shadow: 0 36px 50px rgba(0,0,0,.68), 0 0 58px 12px rgba(229,135,67,.3), inset 0 0 24px rgba(229,135,67,.13); animation: chosen-object-pulse 620ms ease-out 1; }
+.route-choice.is-selected { z-index: 7; left: 50%; top: 30%; color: var(--choice-highlight); opacity: 1; transform: translateX(-50%) translateY(-38px) scale(1.1); filter: none; }
+.route-choice.is-selected .route-object { border-color: var(--choice-highlight); box-shadow: 0 36px 50px rgba(0,0,0,.68), 0 0 58px 12px rgba(229,135,67,.3), inset 0 0 24px rgba(229,135,67,.13); animation: chosen-object-pulse 620ms ease-out 1; }
 .route-choice.is-selected .route-contact { transform: scale(.7); opacity: .42; }
 .route-footprint { margin-top: 5px; color: var(--copper-soft); font-size: .63rem; letter-spacing: .18em; text-transform: uppercase; }
 .lens-brain .direction-stage-selected .route-choice-hand { left: 25%; }
@@ -150,7 +211,6 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .ritual-card-front { visibility: visible; transform: rotateY(0deg); }
 .ritual-card-back, .ritual-card-result { transform: rotateY(180deg); }
 .ritual-card-icon { width: 82px; height: 82px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; background: rgba(2,10,13,.78); box-shadow: 0 0 28px rgba(104,212,232,.22), inset 0 0 18px rgba(104,212,232,.07); }
-.ritual-card-heart .ritual-card-icon { box-shadow: 0 0 30px rgba(229,135,67,.26), inset 0 0 18px rgba(229,135,67,.08); }
 .ritual-card-label { margin-top: 4px; font-size: 2.35rem; font-weight: 500; letter-spacing: .1em; }
 .ritual-card-face > strong { color: var(--ivory); font-size: 1.02rem; }
 .ritual-card-front small { max-width: 240px; color: rgba(236,241,239,.68); line-height: 1.45; text-align: center; }
@@ -167,9 +227,10 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .ritual-card-reflection::after { content: ""; position: absolute; z-index: 9; left: -18%; right: -18%; top: 45%; height: 2px; background: var(--coral); box-shadow: 0 0 28px 8px rgba(220,118,95,.48); pointer-events: none; animation: card-reveal-cut 720ms ease-out 270ms both; }
 .ritual-actions { z-index: 8; display: flex; align-items: center; min-height: 96px; animation: action-rise 460ms ease-out 720ms both; }
 .decision-action-block { display: grid; grid-template-columns: repeat(2,minmax(220px,auto)); gap: 14px; width: min(690px,92vw); justify-content: center; }
-.secondary-action { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 13px 22px; border: 1px solid rgba(184,205,204,.72); border-radius: 3px; color: #f2eee5; background: rgba(4,17,21,.9); box-shadow: 0 14px 34px rgba(0,0,0,.46), inset 0 0 18px rgba(104,212,232,.055); font-size: 1.125rem; font-weight: 620; line-height: 1.25; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
-.secondary-action:hover { transform: translateY(-3px); border-color: var(--cyan); background: rgba(8,34,41,.96); box-shadow: 0 18px 40px rgba(0,0,0,.52), 0 0 24px rgba(104,212,232,.14); }
-.secondary-action:focus-visible { outline: 2px solid var(--ivory); outline-offset: 5px; border-color: var(--cyan); }
+.secondary-action { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 13px 22px; border: 1px solid rgba(242,238,229,.78); border-radius: 3px; color: #f7f5ef; background: rgba(2,12,16,.9); box-shadow: 0 14px 34px rgba(0,0,0,.46), inset 0 0 18px rgba(104,212,232,.045); font-size: 1.125rem; font-weight: 600; line-height: 1.25; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
+.secondary-action:hover { transform: translateY(-3px); border-color: var(--action-focus); background: rgba(4,22,27,.96); box-shadow: 0 18px 40px rgba(0,0,0,.52), 0 0 24px rgba(103,232,249,.14); }
+.secondary-action:active { transform: translateY(0); background: rgba(2,12,16,.98); }
+.secondary-action:focus-visible { outline: 2px solid var(--action-focus); outline-offset: 5px; border-color: var(--action-focus); background: rgba(2,12,16,.96); }
 
 /* Confirmation is a physical human threshold; the note slides from under the kept card. */
 .confirmation-stage { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(300px,460px) 320px; align-items: center; justify-content: center; gap: clamp(42px,8vw,130px); padding: 8vh 6vw 4vh; }
@@ -185,8 +246,7 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .confirmation-card textarea:focus-visible { border-color: var(--ivory); box-shadow: 0 0 0 3px rgba(229,135,67,.24), 0 18px 42px rgba(0,0,0,.42); }
 .confirmation-actions { display: grid; gap: 10px; margin-top: 18px; }
 .confirmation-actions .primary-action, .confirmation-actions .secondary-action { width: 100%; }
-.confirm-action { background: rgba(126,48,34,.94); border-color: var(--coral); }
-.human-seal { position: absolute; right: 20px; bottom: 24px; width: 94px; height: 94px; display: grid; place-items: center; border: 3px double var(--coral); border-radius: 50%; color: #f0a28f; background: rgba(78,25,18,.28); box-shadow: 0 0 30px rgba(220,118,95,.28); transform: rotate(-11deg); animation: human-stamp 650ms cubic-bezier(.12,.82,.18,1) 650ms both; }
+.human-seal { position: absolute; z-index: 7; right: -18px; top: 18px; width: 78px; height: 78px; display: grid; place-items: center; border: 3px double var(--coral); border-radius: 50%; color: #ffc0af; background: rgba(52,17,14,.94); box-shadow: 0 10px 26px rgba(0,0,0,.68), 0 0 30px rgba(220,118,95,.3); transform: rotate(-11deg); animation: human-stamp 650ms cubic-bezier(.12,.82,.18,1) 650ms both; }
 .human-seal::before { content: ""; position: absolute; inset: 8px; border: 1px dashed currentColor; border-radius: 50%; }
 .human-seal span { font-size: .58rem; font-weight: 800; letter-spacing: .16em; }
 .sealed-stage { justify-content: center; gap: 22px; padding: 5vh 20px; }
@@ -203,7 +263,8 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .ritual-card-outcome .ritual-card-result { visibility: visible; transform: rotateY(0deg); }
 .ritual-card-outcome .ritual-card-face { padding: 34px 46px; }
 .ritual-card-outcome .ritual-card-result { display: flex; color: #d9e5e2; text-align: center; }
-.ritual-card-outcome .ritual-card-back-kicker { color: var(--copper-soft); font-size: .65rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.ritual-card-result-identity { display: inline-flex; align-items: center; gap: 8px; color: var(--copper-soft); }
+.ritual-card-result-identity strong { font-size: .78rem; letter-spacing: .18em; }
 .ritual-card-outcome .ritual-card-result > p { display: none; }
 .outcome-leaves { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 10px 0; text-align: left; }
 .outcome-leaves > div { min-width: 0; padding: 18px 24px; border-left: 3px solid rgba(104,212,232,.6); background: linear-gradient(90deg,rgba(104,212,232,.09),transparent); }
@@ -214,11 +275,6 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .outcome-close-action { position: fixed; z-index: 11; left: 50%; right: auto; bottom: 3vh; transform: translateX(-50%); opacity: 0; animation: outcome-action-arrive-centered 520ms ease-out 1500ms both; }
 .outcome-close-action:hover { transform: translateX(-50%) translateY(-3px); }
 .balance-stage { position: absolute; inset: 0; z-index: 6; }
-.complete-card { left: 50%; top: 6vh; width: min(560px,70vw); text-align: center; transform: translateX(-50%); animation: memory-settle 720ms ease-out both; }
-.complete-card::before { display: none; }
-.complete-card .is-stamped { margin-inline: auto; }
-.complete-card strong { display: block; margin-top: 18px; color: var(--copper-soft); font-family: Georgia, "Times New Roman", serif; font-size: 1.28rem; }
-.complete-card .complete-action { margin: 25px auto 0; }
 
 /* Reveal-only mechanical board rising from the city floor. */
 .human-balance { position: fixed; z-index: 7; left: 50%; bottom: 3.5vh; width: min(880px,78vw); min-height: 410px; transform-origin: center bottom; }
@@ -246,7 +302,7 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .balance-groove { position: absolute; left: 0; right: 0; top: 17px; height: 8px; border: 1px solid rgba(185,171,141,.5); border-radius: 7px; background: #061014; box-shadow: inset 0 3px 5px #000, 0 1px 0 rgba(242,238,229,.13); }
 .balance-zero { position: absolute; left: 50%; top: 12px; width: 2px; height: 18px; background: rgba(242,238,229,.7); box-shadow: 0 0 7px rgba(242,238,229,.25); }
 .balance-marker { position: absolute; left: var(--marker-position); top: 21px; width: 25px; height: 25px; border: 3px solid var(--ivory); border-radius: 50%; transform: translate(-50%,-50%); background: #142328; box-shadow: 0 8px 10px rgba(0,0,0,.75), inset 0 2px 4px rgba(255,255,255,.16); }
-.is-revealing .balance-row.is-changing .balance-marker { left: 50%; animation: marker-slide 680ms cubic-bezier(.2,.72,.2,1) var(--balance-delay) both; }
+.is-revealing .balance-row.is-changing .balance-marker { left: var(--marker-start-position); animation: marker-slide 680ms cubic-bezier(.2,.72,.2,1) var(--balance-delay) both; }
 .balance-marker.negative { border-color: var(--coral); }
 .balance-marker.positive { border-color: var(--teal); }
 .balance-marker.neutral { border-color: rgba(242,238,229,.64); }
@@ -314,7 +370,7 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 @keyframes consequence-release { 0% { opacity: 0; transform: scaleX(.08); } 38% { opacity: 1; } 100% { opacity: 0; transform: scaleX(3.4); } }
 @keyframes city-answer { from { filter: saturate(.55) brightness(.66); } to { filter: saturate(1.35) brightness(1.08); } }
 @keyframes balance-emerge { from { opacity: 0; transform: translateX(-50%) perspective(950px) rotateX(22deg) translateY(170px) scale(.88); } to { opacity: 1; transform: translateX(-50%) perspective(950px) rotateX(4deg) translateY(0) scale(1); } }
-@keyframes marker-slide { from { left: 50%; } to { left: var(--marker-position); } }
+@keyframes marker-slide { from { left: var(--marker-start-position); } to { left: var(--marker-position); } }
 @keyframes marker-impact { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.5); } 35% { opacity: .9; } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.8); } }
 @keyframes delta-appear { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes inspector-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
@@ -333,6 +389,10 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .stage-card { left: 24px; top: 17vh; width: min(430px,calc(100vw - 48px)); }
   .dilemma-arrival-stage .stage-heading { top: 16vh; width: calc(100vw - 40px); }
   .dilemma-options-action { top: 62vh; }
+  .lens-guide-list { width: calc(100vw - 44px); gap: 14px; }
+  .lens-guide-list strong { font-size: 1.625rem; }
+  .lens-guide-list span { font-size: 1.25rem; }
+  .lens-guide-list p { font-size: 1.125rem; }
   .stage-heading { top: 8vh; width: calc(100vw - 36px); }
   .stage-heading p { max-width: 600px; font-size: .76rem; }
   .decision-grid { top: 31vh; bottom: 9vh; display: grid; grid-template-columns: repeat(3,1fr); align-items: center; gap: 8px; padding: 0 12px; }
@@ -340,9 +400,9 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .route-object { min-height: 190px; padding: 16px 7px 21px; }
   .route-choice:hover .route-object, .route-choice:focus-visible .route-object { transform: rotateX(2deg) translateY(-8px); }
   .route-beacon { width: 54px; height: 54px; }
-  .route-label { font-size: 1.25rem; }
-  .route-choice strong { font-size: .74rem; }
-  .route-choice small { display: none; }
+  .route-label { font-size: var(--choice-label-font-size); }
+  .route-choice strong { font-size: var(--choice-title-font-size); }
+  .route-choice small { font-size: var(--choice-description-font-size); line-height: 1.3; }
   .route-choice.is-subdued { transform: translateY(18px) scale(.9); }
   .route-choice.is-selected { left: auto; top: auto; transform: translateY(-22px) scale(1.04); }
   .centered-action { top: auto; bottom: 7vh; }
@@ -354,7 +414,6 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .threshold-signal { left: auto; right: 24px; top: 20px; }
   .ritual-card-outcome { width: min(720px,90vw); height: 320px; }
   .outcome-close-action { top: 45vh; right: 18px; }
-  .complete-card { left: 24px; top: 5vh; width: calc(100vw - 48px); transform: none; }
   .human-balance { width: calc(100vw - 36px); min-height: 320px; bottom: 76px; }
   .human-balance.is-memory { bottom: 4vh; transform: translateX(-50%) perspective(900px) rotateX(3deg) scale(.96); }
   .balance-housing { min-height: 320px; padding: 24px 22px 20px; }
@@ -368,6 +427,8 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .entry-copy { width: 330px; padding: 14px 18px; background: linear-gradient(90deg,rgba(2,9,12,.88),rgba(2,9,12,.56) 78%,transparent); }
   .brand-overline { font-size: .63rem; }
   .entry-copy h1 { margin: 5px 0 0; font-size: 4rem; line-height: .84; }
+  .game-app[lang="en"] .entry-copy { width: 390px; }
+  .game-app[lang="en"] .entry-copy h1 { font-size: 3.25rem; line-height: .9; }
   .brand-subtitle { margin: 8px 0 10px; font-size: 1.42rem; }
   .tagline { margin: 13px 0; font-size: 1rem; line-height: 1.45; }
   .futura-intro { margin-bottom: 13px; padding-top: 10px; font-size: .82rem; }
@@ -383,23 +444,49 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .dilemma-arrival-stage .stage-heading { top: 6vh; width: 740px; }
   .dilemma-arrival-stage .stage-heading h2 { font-size: 2.35rem; }
   .situation-beats { width: 720px; margin-top: 14px; gap: 7px; padding: 13px 26px; }
-  .dilemma-arrival-stage .stage-heading .situation-beats p { font-size: 1.125rem; line-height: 1.36; }
+  .dilemma-arrival-stage .stage-heading .situation-beats p { font-size: 1rem; line-height: 1.36; }
   .dilemma-options-action { top: auto; bottom: 5vh; }
+
+  .lens-guide-list { top: 29vh; width: 758px; gap: 10px; }
+  .lens-guide-list section { min-height: 240px; padding: 16px; }
+  .lens-guide-list section::before { right: 14px; left: 14px; top: 10px; }
+  .lens-guide-list strong { margin-top: 6px; font-size: 1.625rem; }
+  .lens-guide-list span { margin-top: 4px; font-size: 1.25rem; line-height: 1.18; }
+  .lens-guide-list p { margin-top: 6px; font-size: 1.125rem; line-height: 1.28; }
+  .lens-help { right: 12px; bottom: 8px; }
 
   .stage-heading { top: 3vh; width: 740px; }
   .stage-heading h2 { font-size: 2.15rem; }
+  .direction-stage:not(.direction-stage-selected) .stage-heading p { font-size: 1.125rem; line-height: 1.3; }
   .direction-stage:not(.direction-stage-selected) .stage-kicker { color: #e8eeec; font-size: 1.125rem; font-weight: 500; letter-spacing: .01em; text-transform: none; }
   .decision-grid { top: 25vh; bottom: 9vh; gap: 12px; padding: 0 20px; }
-  .route-choice { min-height: 240px; }
-  .route-object { min-height: 218px; padding: 15px 10px 21px; }
-  .route-beacon { width: 52px; height: 52px; }
-  .route-label { font-size: 1.55rem; }
-  .route-choice strong { max-width: 180px; font-size: 1.125rem; }
+  .route-choice { height: 330px; min-height: 330px; }
+  .route-object { height: 330px; min-height: 330px; justify-content: flex-start; padding: 15px 12px 18px; }
+  .route-contact { display: none; }
+  .route-beacon { width: 48px; height: 48px; flex: 0 0 auto; }
+  .route-label { font-size: var(--choice-label-font-size); }
+  .route-choice strong { max-width: 190px; font-size: var(--choice-title-font-size); }
+  .route-choice small { max-width: 210px; font-size: var(--choice-description-font-size); line-height: 1.3; }
   .direction-stage-selected .stage-heading { top: 1.5vh; padding: 10px 30px; }
   .direction-stage-selected .stage-heading p { margin-top: 5px; font-size: 1.125rem; line-height: 1.34; }
   .direction-stage-selected .decision-grid { top: 34vh; bottom: 9vh; }
-  .direction-stage-selected .route-choice { min-height: 190px; }
-  .direction-stage-selected .route-object { min-height: 170px; }
+  .direction-stage-selected .route-choice { height: 182px; min-height: 182px; grid-row: 1; }
+  .direction-stage-selected .route-object { height: 182px; min-height: 182px; justify-content: center; padding: 14px 10px; }
+  .direction-stage-selected .route-beacon { width: 44px; height: 44px; }
+  .direction-stage-selected .route-choice small { display: none; }
+  .direction-stage-selected .route-choice.is-selected { grid-column: 2; }
+  .lens-brain .direction-stage-selected .route-choice-hand,
+  .lens-brain .direction-stage-selected .route-choice-heart,
+  .lens-hand .direction-stage-selected .route-choice-brain,
+  .lens-hand .direction-stage-selected .route-choice-heart,
+  .lens-heart .direction-stage-selected .route-choice-brain,
+  .lens-heart .direction-stage-selected .route-choice-hand { left: auto; }
+  .lens-brain .direction-stage-selected .route-choice-hand,
+  .lens-hand .direction-stage-selected .route-choice-brain,
+  .lens-heart .direction-stage-selected .route-choice-brain { grid-column: 1; }
+  .lens-brain .direction-stage-selected .route-choice-heart,
+  .lens-hand .direction-stage-selected .route-choice-heart,
+  .lens-heart .direction-stage-selected .route-choice-hand { grid-column: 3; }
   .centered-action { bottom: 2.5vh; }
 
   .reflection-stage { display: block; min-height: 100svh; padding: 0; }
@@ -435,6 +522,7 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 
   .outcome-stage { padding-top: 2vh; }
   .outcome-stage > h2 { margin-bottom: 7px; font-size: 2.15rem; }
+  .phase-consequence_revealed .futura-status { top: auto; right: 12px; bottom: 10px; }
   .ritual-card-outcome { width: 740px; height: 340px; }
   .ritual-card-outcome .ritual-card-face { padding: 25px 34px; }
   .outcome-leaves { gap: 14px; margin: 4px 0; }
@@ -451,6 +539,18 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .balance-footer { margin-top: 10px; padding-top: 10px; }
   .human-balance .balance-footer p { font-size: .92rem; }
   .balance-new-round { min-height: 48px; }
+
+  .game-app[lang="en"] .human-balance { min-height: 478px; bottom: 1.5vh; }
+  .game-app[lang="en"] .balance-housing { min-height: 478px; padding: 20px 25px 16px; }
+  .game-app[lang="en"] .human-balance header { align-items: start; gap: 24px; margin-bottom: 12px; padding-bottom: 11px; }
+  .game-app[lang="en"] .human-balance header > div { flex: 0 0 220px; }
+  .game-app[lang="en"] .balance-kicker { font-size: 1.125rem; line-height: 1.25; }
+  .game-app[lang="en"] .human-balance h2 { margin-top: 4px; font-size: 1rem; line-height: 1.3; }
+  .game-app[lang="en"] .balance-note { max-width: 430px; font-size: 1rem; line-height: 1.35; }
+  .game-app[lang="en"] .balance-list { gap: 6px; }
+  .game-app[lang="en"] .balance-row { font-size: .9375rem; }
+  .game-app[lang="en"] .balance-footer { margin-top: 9px; padding-top: 9px; }
+  .game-app[lang="en"] .human-balance .balance-footer p { font-size: 1rem; line-height: 1.35; }
 }
 
 @media (max-width: 560px) {
@@ -464,8 +564,9 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .route-choice { min-height: 190px; }
   .route-object { min-height: 168px; padding-inline: 5px; }
   .route-beacon { width: 46px; height: 46px; }
-  .route-label { font-size: 1.08rem; }
-  .route-choice strong { max-width: 105px; line-height: 1.2; }
+  .route-label { font-size: var(--choice-label-font-size); }
+  .route-choice strong { max-width: 105px; font-size: var(--choice-title-font-size); line-height: 1.2; }
+  .route-choice small { display: none; }
   .centered-action { bottom: 5vh; }
   .lens-brain .direction-stage-selected .route-choice-hand,
   .lens-brain .direction-stage-selected .route-choice-heart,
@@ -477,6 +578,10 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .dilemma-arrival-stage .stage-heading p { max-height: none; margin-top: 18px; font-size: .88rem; }
   .dilemma-options-action { top: auto; right: 18px; bottom: 12vh; left: 18px; width: calc(100vw - 36px); transform: none; }
   .dilemma-options-action:hover { transform: translateY(-3px); }
+  .lens-guide-list { position: relative; left: auto; top: auto; width: auto; grid-template-columns: 1fr; gap: 14px; margin: 24px 20px 0; transform: none; }
+  .lens-guide-list section { padding-top: 10px; }
+  .lens-help { right: 12px; bottom: 8px; width: calc(100vw - 24px); }
+  .lens-help .lens-guide-list.is-compact { grid-template-columns: 1fr; max-height: 55vh; overflow: auto; margin: 0; }
   .ritual-prompt { width: calc(100vw - 30px); }
   .ritual-prompt h2 { font-size: 1.62rem; }
   .ritual-card { width: min(292px,78vw); height: 326px; }
@@ -497,7 +602,7 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .confirmation-stage > .ritual-card .ritual-card-icon { width: 48px; height: 48px; }
   .confirmation-stage > .ritual-card .ritual-card-label { font-size: 1.35rem; }
   .confirmation-stage > .ritual-card small { display: none; }
-  .confirmation-stage > .ritual-card .human-seal { right: 9px; bottom: 14px; width: 64px; height: 64px; }
+  .confirmation-stage > .ritual-card .human-seal { right: -12px; top: 10px; bottom: auto; width: 64px; height: 64px; }
   .confirmation-card { width: min(360px,calc(100vw - 28px)); padding: 23px 20px 19px; }
   .confirmation-card textarea { min-height: 82px; }
   .threshold-signal { right: 12px; font-size: .58rem; transform: none; }
@@ -524,10 +629,6 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .balance-list { gap: 12px; }
   .balance-marker { width: 21px; height: 21px; }
   .human-balance p { margin-top: 13px; font-size: .61rem; }
-  .complete-card { top: 4vh; }
-  .complete-card h2 { margin-block: 4px; }
-  .complete-card strong { margin-top: 8px; }
-  .complete-card .complete-action { margin-top: 12px; }
   .inspector-trigger span { display: none; }
 }
 

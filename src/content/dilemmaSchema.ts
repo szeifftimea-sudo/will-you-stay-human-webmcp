@@ -39,6 +39,7 @@ const dilemmaSchema = z.object({
   version: z.string().min(1),
   status: z.enum(["draft", "playable", "disabled"]),
   order: z.number().int().nonnegative(),
+  shortTitle: z.string().min(1),
   title: z.string().min(1),
   callPrompt: z.string().min(1),
   situation: z.string().min(1),
@@ -57,7 +58,25 @@ export const dilemmaCatalogSchema = z
     dilemmas: z.array(dilemmaSchema).min(1),
   })
   .superRefine((catalog, context) => {
+    const ids = new Set<string>();
+    const orders = new Set<number>();
     for (const [index, dilemma] of catalog.dilemmas.entries()) {
+      if (ids.has(dilemma.id)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["dilemmas", index, "id"],
+          message: "A dilemmaazonosítónak egyedinek kell lennie.",
+        });
+      }
+      ids.add(dilemma.id);
+      if (orders.has(dilemma.order)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["dilemmas", index, "order"],
+          message: "A dilemmasorrendnek egyedinek kell lennie.",
+        });
+      }
+      orders.add(dilemma.order);
       if (dilemma.status !== "playable") continue;
       const lenses = dilemma.lenses.map(({ lens }) => lens);
       if (new Set(lenses).size !== 3 || !["brain", "hand", "heart"].every((lens) => lenses.includes(lens as never))) {
@@ -69,4 +88,3 @@ export const dilemmaCatalogSchema = z
       }
     }
   });
-

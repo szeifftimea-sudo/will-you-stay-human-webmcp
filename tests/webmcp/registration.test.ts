@@ -55,6 +55,9 @@ describe("WebMCP regisztráció", () => {
       ok: true,
       tool: "enter_machine_city",
       phase: "MACHINE_CITY_READY",
+      data: {
+        playableDilemmaCount: 4,
+      },
     });
     expect(engine.getSnapshot()?.phase).toBe("MACHINE_CITY_READY");
   });

@@ -1,33 +1,32 @@
 import { describe, expect, it } from "vitest";
+import { dilemmaCatalog } from "../../src/content/dilemmaCatalog.hu";
 import { apologyDilemma } from "../../src/content/dilemmas/apology.hu";
 import { GameError } from "../../src/domain/gameErrors";
 import {
   ZERO_BALANCE,
-  type BalanceDelta,
+  type Dilemma,
   type DilemmaCatalog,
-  type Lens,
 } from "../../src/domain/gameTypes";
 import { advanceToConfirmedDecision, createTestEngine } from "../../src/test/fixtures";
 
-const LENS_CASES = [
-  {
-    lens: "brain",
-    label: "AGY",
-    expectedDelta: { comfort: 1, control: 1, connection: -1, freedom: 0, responsibility: 0 },
-  },
-  {
-    lens: "hand",
-    label: "KÉZ",
-    expectedDelta: { comfort: 2, control: -1, connection: -1, freedom: 1, responsibility: -1 },
-  },
-  {
-    lens: "heart",
-    label: "SZÍV",
-    expectedDelta: { comfort: -1, control: 1, connection: 1, freedom: 0, responsibility: 2 },
-  },
-] satisfies Array<{ lens: Lens; label: string; expectedDelta: BalanceDelta }>;
-
 const expectNonEmptyText = (value: string) => expect(value.trim().length).toBeGreaterThan(0);
+
+const singleDilemmaCatalog = (dilemma: Dilemma): DilemmaCatalog => ({
+  schemaVersion: 1,
+  contentVersion: `test-${dilemma.id}`,
+  language: "hu",
+  dilemmas: [dilemma],
+});
+
+const BRANCH_CASES = dilemmaCatalog.dilemmas.flatMap((dilemma) =>
+  dilemma.lenses.map((option) => ({
+    dilemma,
+    dilemmaId: dilemma.id,
+    lens: option.lens,
+    label: option.label,
+    expectedDelta: option.consequence.delta,
+  })),
+);
 
 describe("GameEngine", () => {
   it("atomikusan mutatja be a dilemmát és csak utána enged kijelölést", () => {
@@ -70,12 +69,12 @@ describe("GameEngine", () => {
     ).toThrowError(expect.objectContaining({ code: "SELECTION_ID_MISMATCH" }));
   });
 
-  it.each(LENS_CASES)(
-    "$label ág: azonos emberi kontrollfolyam, pontos tartalomkapcsolat és egyszeri hatás",
-    ({ lens, label, expectedDelta }) => {
-      const context = createTestEngine();
+  it.each(BRANCH_CASES)(
+    "$dilemmaId / $label ág: azonos emberi kontrollfolyam, pontos tartalomkapcsolat és egyszeri hatás",
+    ({ dilemma, lens, label, expectedDelta }) => {
+      const context = createTestEngine(singleDilemmaCatalog(dilemma));
       const phases = ["NO_SESSION"];
-      const option = apologyDilemma.lenses.find((candidate) => candidate.lens === lens)!;
+      const option = dilemma.lenses.find((candidate) => candidate.lens === lens)!;
       expect(option.label).toBe(label);
 
       const entered = context.agent.enterMachineCity().session;
@@ -90,7 +89,7 @@ describe("GameEngine", () => {
       phases.push(selected.phase);
       const selectionId = selected.tentativeSelection!.selectionId;
       expect(selected.tentativeSelection).toMatchObject({
-        dilemmaId: apologyDilemma.id,
+        dilemmaId: dilemma.id,
         lens,
         provenance: "PLAYER_UI",
       });
@@ -108,7 +107,7 @@ describe("GameEngine", () => {
       });
       expect(reflected.session.presentedReflection).toMatchObject({
         selectionId,
-        dilemmaId: apologyDilemma.id,
+        dilemmaId: dilemma.id,
         lens,
         provenance: "WEBMCP_AGENT",
       });
@@ -129,7 +128,7 @@ describe("GameEngine", () => {
       phases.push(confirmed.phase);
       const decisionId = confirmed.confirmedDecision!.decisionId;
       expect(confirmed.confirmedDecision).toMatchObject({
-        dilemmaId: apologyDilemma.id,
+        dilemmaId: dilemma.id,
         lens,
         basedOnSelectionId: selectionId,
         basedOnReflectionId: acknowledged.presentedReflection!.reflectionId,
@@ -144,7 +143,7 @@ describe("GameEngine", () => {
       );
       phases.push(revealed.session.phase);
       expect(revealed.payload).toMatchObject({
-        dilemmaId: apologyDilemma.id,
+        dilemmaId: dilemma.id,
         decisionId,
         lens,
         rawDelta: expectedDelta,
@@ -163,7 +162,7 @@ describe("GameEngine", () => {
       expectNonEmptyText(revealed.payload.closingReflection);
       expect(revealed.session.balance).toEqual(expectedDelta);
       expect(revealed.session.revealedOutcome).toMatchObject({
-        dilemmaId: apologyDilemma.id,
+        dilemmaId: dilemma.id,
         decisionId,
         lens,
         effectApplicationKey: decisionId,
@@ -305,7 +304,7 @@ describe("GameEngine", () => {
   });
 
   it("az utolsó feltárt dilemma után külön present_dilemma hívással zár", () => {
-    const context = advanceToConfirmedDecision();
+    const context = advanceToConfirmedDecision(singleDilemmaCatalog(apologyDilemma));
     let session = context.engine.getSnapshot()!;
     context.agent.revealConfirmedConsequence(
       session.sessionId,
@@ -319,5 +318,84 @@ describe("GameEngine", () => {
     expect(completed.gameComplete).toBe(true);
     expect(completed.session.phase).toBe("GAME_COMPLETE");
     expect(completed.session.activeDilemmaId).toBeNull();
+  });
+
+  it("négy dilemát ugyanabban a sessionben, kumulatív mérleggel és reset nélkül visz végig", () => {
+    const context = createTestEngine();
+    const entered = context.agent.enterMachineCity().session;
+    const sessionId = entered.sessionId;
+    const rounds = [
+      {
+        dilemmaId: "apology-delegation",
+        lens: "brain" as const,
+        expectedBalance: { comfort: 1, control: 1, connection: -1, freedom: 0, responsibility: 0 },
+      },
+      {
+        dilemmaId: "homework-delegation",
+        lens: "hand" as const,
+        expectedBalance: { comfort: 2, control: 0, connection: -2, freedom: 1, responsibility: -1 },
+      },
+      {
+        dilemmaId: "interview-shortlist-delegation",
+        lens: "heart" as const,
+        expectedBalance: { comfort: 0, control: 1, connection: -1, freedom: 1, responsibility: 1 },
+      },
+      {
+        dilemmaId: "claim-verification-delegation",
+        lens: "brain" as const,
+        expectedBalance: { comfort: 1, control: 2, connection: -2, freedom: 1, responsibility: 2 },
+      },
+    ];
+
+    let session = entered;
+    for (const [index, round] of rounds.entries()) {
+      const presented = context.agent.presentDilemma(sessionId, session.stateRevision);
+      expect(presented.gameComplete).toBe(false);
+      expect(presented.dilemma?.id).toBe(round.dilemmaId);
+      expect(presented.session.sessionId).toBe(sessionId);
+      expect(presented.session.phase).toBe("AWAITING_HUMAN_SELECTION");
+
+      session = context.player.selectLens(round.lens);
+      const reflected = context.agent.presentChoiceReflection(
+        sessionId,
+        session.tentativeSelection!.selectionId,
+        session.stateRevision,
+      );
+      session = context.player.acknowledgeReflection(
+        reflected.session.presentedReflection!.reflectionId,
+      );
+      session = context.player.confirmDecision();
+      expect(session.balance).toEqual(index === 0 ? ZERO_BALANCE : rounds[index - 1].expectedBalance);
+      const revealed = context.agent.revealConfirmedConsequence(
+        sessionId,
+        session.confirmedDecision!.decisionId,
+        session.stateRevision,
+      );
+      session = revealed.session;
+
+      expect(session.sessionId).toBe(sessionId);
+      expect(session.phase).toBe("CONSEQUENCE_REVEALED");
+      expect(session.balance).toEqual(round.expectedBalance);
+      expect(session.outcomeHistory).toHaveLength(index + 1);
+      expect(session.completedDilemmaIds).toEqual(
+        rounds.slice(0, index + 1).map(({ dilemmaId }) => dilemmaId),
+      );
+      expect(() => context.player.resetGame()).toThrowError(
+        expect.objectContaining({ code: "INVALID_PHASE" }),
+      );
+    }
+
+    const completed = context.agent.presentDilemma(sessionId, session.stateRevision);
+    expect(completed.gameComplete).toBe(true);
+    expect(completed.session.phase).toBe("GAME_COMPLETE");
+    expect(completed.session.sessionId).toBe(sessionId);
+    expect(completed.session.balance).toEqual(rounds.at(-1)!.expectedBalance);
+    expect(completed.session.outcomeHistory).toHaveLength(4);
+    expect(completed.session.completedDilemmaIds).toEqual(
+      rounds.map(({ dilemmaId }) => dilemmaId),
+    );
+
+    expect(() => context.player.resetGame()).not.toThrow();
+    expect(context.engine.getSnapshot()).toBeNull();
   });
 });

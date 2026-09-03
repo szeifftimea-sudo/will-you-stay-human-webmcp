@@ -47,7 +47,7 @@ export function ManualAgentControls({ commands, session, onError }: Props) {
               )
             }
           >
-            Futura ellenpontja
+            Futura kérdez
           </button>
         )}
         {session?.phase === "DECISION_CONFIRMED" && session.confirmedDecision && (
@@ -69,4 +69,3 @@ export function ManualAgentControls({ commands, session, onError }: Props) {
     </section>
   );
 }
-

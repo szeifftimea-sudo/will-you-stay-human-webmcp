@@ -1,23 +1,26 @@
 import type { CSSProperties } from "react";
+import { uiCopy, type UiLocale } from "../../content/uiCopy";
 import type { HumanBalance as Balance } from "../../domain/gameTypes";
-
-const LABELS: Array<[keyof Balance, string]> = [
-  ["comfort", "Kényelem"],
-  ["control", "Kontroll"],
-  ["connection", "Kapcsolódás"],
-  ["freedom", "Szabadság"],
-  ["responsibility", "Felelősség"],
-];
 
 export function HumanBalance({
   balance,
+  previousBalance,
   memory = false,
-  onStartNewRound,
+  onContinue,
+  continueLabel,
+  continueVariant = "primary",
+  locale,
 }: {
   balance: Balance;
+  previousBalance?: Balance;
   memory?: boolean;
-  onStartNewRound?: () => void;
+  onContinue?: () => void;
+  continueLabel?: string;
+  continueVariant?: "primary" | "secondary";
+  locale: UiLocale;
 }) {
+  const copy = uiCopy[locale];
+  const labels = Object.entries(copy.balance.axes) as Array<[keyof Balance, string]>;
   return (
     <section
       className={`human-balance${memory ? " is-memory" : " is-revealing"}`}
@@ -27,16 +30,17 @@ export function HumanBalance({
       <div className="balance-housing">
         <header>
           <div>
-            <span className="balance-kicker">Embermérleg</span>
-            <h2 id="balance-title">A döntés lenyomata</h2>
+            <span className="balance-kicker">{copy.balance.kicker}</span>
+            <h2 id="balance-title">{copy.balance.heading}</h2>
           </div>
-          <span className="balance-note">Nem pontszám.</span>
+          <span className="balance-note">{copy.balance.note}</span>
         </header>
 
         <div className="balance-list">
-          {LABELS.map(([key, label], index) => {
+          {labels.map(([key, label], index) => {
             const value = balance[key];
-            const changed = value !== 0;
+            const previousValue = previousBalance?.[key] ?? value;
+            const changed = previousValue !== value;
             return (
               <div
                 className={`balance-row${changed ? " is-changing" : " is-static"}`}
@@ -44,6 +48,7 @@ export function HumanBalance({
                 style={{
                   "--balance-delay": `${3000 + index * 210}ms`,
                   "--delta-delay": `${3700 + index * 210}ms`,
+                  "--marker-start-position": `${((previousValue + 2) / 4) * 100}%`,
                   "--marker-position": `${((value + 2) / 4) * 100}%`,
                 } as CSSProperties}
               >
@@ -62,7 +67,9 @@ export function HumanBalance({
                   {changed && <span className="balance-impact" aria-hidden="true" />}
                 </div>
                 <strong className="balance-delta">
-                  {changed ? `0 → ${value > 0 ? `+${value}` : value}` : ""}
+                  {changed
+                    ? `${previousValue > 0 ? `+${previousValue}` : previousValue} → ${value > 0 ? `+${value}` : value}`
+                    : ""}
                 </strong>
               </div>
             );
@@ -70,10 +77,14 @@ export function HumanBalance({
         </div>
 
         <footer className="balance-footer">
-          <p>A szavaid nálad maradtak. A határ azonban elmozdult.</p>
-          {onStartNewRound && (
-            <button className="primary-action balance-new-round" type="button" onClick={onStartNewRound}>
-              Új döntési kört kezdek
+          <p>
+            {memory
+              ? copy.balance.gameComplete
+              : copy.balance.roundMemory}
+          </p>
+          {onContinue && continueLabel && (
+            <button className={`${continueVariant}-action balance-new-round`} type="button" onClick={onContinue}>
+              {continueLabel}
             </button>
           )}
         </footer>

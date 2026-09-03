@@ -54,6 +54,7 @@ export interface Dilemma {
   version: string;
   status: "draft" | "playable" | "disabled";
   order: number;
+  shortTitle: string;
   title: string;
   callPrompt: string;
   situation: string;
@@ -162,6 +163,7 @@ export interface GameSession {
 
 export interface PublicDilemma {
   id: string;
+  shortTitle: string;
   title: string;
   callPrompt: string;
   situation: string;
@@ -187,4 +189,3 @@ export const ZERO_BALANCE: HumanBalance = {
   freedom: 0,
   responsibility: 0,
 };
-

@@ -7,16 +7,36 @@ import {
   NotePencil,
   SealCheck,
   SlidersHorizontal,
+  SpeakerHigh,
+  SpeakerSlash,
   Sparkle,
 } from "@phosphor-icons/react";
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import type { Lens, PublicDilemma } from "../domain/gameTypes";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from "react";
+import {
+  localizeConsequence,
+  localizeDilemma,
+  localizeReflection,
+  translateErrorMessage,
+  uiCopy,
+  type LocalizedDilemma,
+  type UiCopy,
+  type UiLocale,
+} from "../content/uiCopy";
+import type { Lens } from "../domain/gameTypes";
 import { registerWebMcpTools, type WebMcpRegistrationStatus } from "../infrastructure/webmcp/registerTools";
-import { DecisionCard, RitualCard } from "../ui/components/DecisionCard";
+import { DecisionCard, LensIcon, RitualCard } from "../ui/components/DecisionCard";
 import { DemoInspector } from "../ui/components/DemoInspector";
 import { HumanBalance } from "../ui/components/HumanBalance";
 import { getActiveJourneyStep } from "../ui/components/JourneyMap";
 import { useGameView } from "../ui/hooks/useGameView";
+import {
+  loadPresentationLocale,
+  savePresentationLocale,
+} from "../ui/presentationLocale";
+import {
+  createRitualSoundPort,
+  type RitualSoundPort,
+} from "../ui/audio/ritualSound";
 import type { AppServices } from "./bootstrap";
 
 const INITIAL_STATUS: WebMcpRegistrationStatus = {
@@ -25,44 +45,32 @@ const INITIAL_STATUS: WebMcpRegistrationStatus = {
   message: "WebMCP-képesség ellenőrzése…",
 };
 
-const LENS_NAMES: Record<Lens, string> = {
-  brain: "AGY",
-  hand: "KÉZ",
-  heart: "SZÍV",
-};
+const BALANCE_AXIS_ORDER = [
+  "comfort",
+  "control",
+  "connection",
+  "freedom",
+  "responsibility",
+] as const;
 
-const SELECTION_REACTIONS: Record<Lens, { title: string; body: string }> = {
-  brain: {
-    title: "AGY-at választottál.",
-    body: "Futura vázlatot készít, de te szerkeszted és küldöd el. Mielőtt döntesz, nézd meg, mit kockáztatsz vele.",
-  },
-  hand: {
-    title: "KÉZ-et választottál.",
-    body: "Futura megírja és elküldi a bocsánatkérést. Mielőtt döntesz, nézd meg, mit adsz át vele együtt.",
-  },
-  heart: {
-    title: "SZÍV-et választottál.",
-    body: "Te írod és küldöd el; Futura csak kérdez. Mielőtt döntesz, nézd meg, mit nem garantál a saját hangod.",
-  },
-};
-
-const CONFIRMATION_SUMMARIES: Record<Lens, string> = {
-  brain: "AGY – Futura vázlatot készít, de te szerkeszted és küldöd el.",
-  hand: "KÉZ – Futura megírja és elküldi helyetted.",
-  heart: "SZÍV – Te írod és küldöd; Futura csak kérdez.",
-};
-
-export function App({ services }: { services: AppServices }) {
+export function App({ services, sound }: { services: AppServices; sound?: RitualSoundPort }) {
   const view = useGameView(services.engine);
+  const [locale, setLocale] = useState<UiLocale>(loadPresentationLocale);
   const [registration, setRegistration] = useState(INITIAL_STATUS);
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [error, setError] = useState("");
   const [reasoning, setReasoning] = useState("");
-  const [awaitingStage, setAwaitingStage] = useState<"dilemma" | "choices">("dilemma");
+  const [awaitingStage, setAwaitingStage] = useState<"dilemma" | "guide" | "choices">("dilemma");
+  const [lensGuideAcknowledged, setLensGuideAcknowledged] = useState(false);
   const [reconsidering, setReconsidering] = useState(false);
   const [outcomeStage, setOutcomeStage] = useState<"consequence" | "balance">("consequence");
+  const [soundMuted, setSoundMuted] = useState(false);
   const gameAppRef = useRef<HTMLElement>(null);
   const stageHeadingRef = useRef<HTMLHeadingElement>(null);
+  const soundRef = useRef<RitualSoundPort | null>(null);
+  if (!soundRef.current) soundRef.current = sound ?? createRitualSoundPort();
+  const ritualSound = soundRef.current;
+  const copy = uiCopy[locale];
 
   useEffect(() => {
     let controller: AbortController | null = null;
@@ -74,17 +82,43 @@ export function App({ services }: { services: AppServices }) {
     return () => controller?.abort();
   }, [services.webMcpTools]);
 
+  useEffect(() => () => ritualSound.dispose(), [ritualSound]);
+
   const session = view.session;
   const phase = session?.phase ?? "NO_SESSION";
   const selectedLens = session?.tentativeSelection?.lens ?? null;
-  const selectedChoice = useMemo(
-    () => view.activeDilemma?.choices.find(({ lens }) => lens === selectedLens) ?? null,
-    [selectedLens, view.activeDilemma],
+  const activeDilemma = useMemo(
+    () => view.activeDilemma ? localizeDilemma(view.activeDilemma, locale) : null,
+    [locale, view.activeDilemma],
   );
-  const selectedLabel = selectedLens ? LENS_NAMES[selectedLens] : null;
+  const selectedChoice = useMemo(
+    () => activeDilemma?.choices.find(({ lens }) => lens === selectedLens) ?? null,
+    [activeDilemma, selectedLens],
+  );
+  const localizedReflection = useMemo(
+    () => view.reflection && view.activeDilemma && selectedLens
+      ? localizeReflection(view.activeDilemma.id, selectedLens, view.reflection, locale)
+      : null,
+    [locale, selectedLens, view.activeDilemma, view.reflection],
+  );
+  const localizedConsequence = useMemo(
+    () => session?.revealedOutcome
+      ? localizeConsequence(
+          session.revealedOutcome.dilemmaId,
+          session.revealedOutcome.lens,
+          session.revealedOutcome.consequence,
+          locale,
+        )
+      : null,
+    [locale, session?.revealedOutcome],
+  );
+  const selectedLabel = selectedLens ? copy.cards.lenses[selectedLens].label : null;
+  const selectionFeedback = selectedLens
+    ? copy.choice.feedback[selectedLens]
+    : copy.guide.heading;
   const keepDirectionLabel = selectedLens && selectedLabel
-    ? `Megtartom ${selectedLens === "brain" ? "az" : "a"} ${selectedLabel} irányt`
-    : "Megtartom ezt az irányt";
+    ? copy.counterpoint.keep[selectedLens]
+    : copy.counterpoint.keepFallback;
   const activeStep = getActiveJourneyStep(phase);
   const inspectorEnabled = new URLSearchParams(window.location.search).has("inspector");
 
@@ -104,57 +138,112 @@ export function App({ services }: { services: AppServices }) {
     if (phase !== "CONSEQUENCE_REVEALED") setOutcomeStage("consequence");
   }, [phase, session?.activeDilemmaId]);
 
-  const run = (action: () => unknown) => {
+  const run = (action: () => unknown): boolean => {
     try {
       action();
       setError("");
+      return true;
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Ismeretlen játékmenet-hiba.");
+      setError(caught instanceof Error
+        ? translateErrorMessage(caught.message, locale)
+        : copy.app.unknownError);
+      return false;
     }
   };
 
-  const choose = (lens: Lens) => run(() => services.playerCommands.selectLens(lens));
-  const enterMachineCity = () => run(() => services.agentCommands.enterMachineCity());
+  const choose = (lens: Lens) => {
+    if (run(() => services.playerCommands.selectLens(lens))) ritualSound.play("selection");
+  };
+  const enterMachineCity = () => {
+    if (run(() => services.agentCommands.enterMachineCity())) ritualSound.play("futura-call");
+  };
   const presentDilemma = () => {
     if (!session) return;
-    run(() => services.agentCommands.presentDilemma(session.sessionId, session.stateRevision));
+    if (run(() =>
+      services.agentCommands.presentDilemma(session.sessionId, session.stateRevision),
+    )) ritualSound.play("futura-question");
   };
   const presentReflection = () => {
     if (!session?.tentativeSelection) return;
-    run(() =>
+    if (run(() =>
       services.agentCommands.presentChoiceReflection(
         session.sessionId,
         session.tentativeSelection!.selectionId,
         session.stateRevision,
       ),
-    );
+    )) ritualSound.play("counterpoint");
   };
   const acknowledgeReflection = () => {
     if (!session?.presentedReflection) return;
-    run(() => services.playerCommands.acknowledgeReflection(session.presentedReflection!.reflectionId));
+    if (run(() => services.playerCommands.acknowledgeReflection(session.presentedReflection!.reflectionId))) {
+      ritualSound.play("retention");
+    }
   };
-  const confirmDecision = () => run(() => services.playerCommands.confirmDecision(reasoning));
-  const resetGame = () => run(() => services.playerCommands.resetGame());
+  const confirmDecision = () => {
+    if (run(() => services.playerCommands.confirmDecision(reasoning))) ritualSound.play("confirmation");
+  };
   const revealConsequence = () => {
     if (!session?.confirmedDecision) return;
-    run(() =>
+    if (run(() =>
       services.agentCommands.revealConfirmedConsequence(
         session.sessionId,
         session.confirmedDecision!.decisionId,
         session.stateRevision,
       ),
-    );
+    )) ritualSound.play("consequence");
   };
-  const beginNewDemoRound = () => {
+  const continueJourney = () => {
     if (!session) return;
     run(() => {
-      // A single-dilemma slice az existing GAME_COMPLETE transitionön keresztül zár,
-      // majd a meglévő player reset parancsot használja. Új domainátmenet nem jön létre.
       services.agentCommands.presentDilemma(session.sessionId, session.stateRevision);
-      services.playerCommands.resetGame();
       setOutcomeStage("consequence");
       setReasoning("");
+      setReconsidering(false);
     });
+  };
+  const showChoiceStage = () => {
+    if (session?.completedDilemmaIds.length === 0 && !lensGuideAcknowledged) {
+      setAwaitingStage("guide");
+      return;
+    }
+    ritualSound.play("cards-dealt");
+    setAwaitingStage("choices");
+  };
+  const acknowledgeLensGuide = () => {
+    ritualSound.play("cards-dealt");
+    setLensGuideAcknowledged(true);
+    setAwaitingStage("choices");
+  };
+  const reconsiderDirection = () => {
+    ritualSound.play("cards-dealt");
+    setReconsidering(true);
+  };
+  const showBalance = () => {
+    if (!session?.revealedOutcome) return;
+    const changedBalanceAxes = BALANCE_AXIS_ORDER.flatMap((axis, index) =>
+      session.balance[axis] === session.revealedOutcome!.balanceBefore[axis] ? [] : [index],
+    );
+    ritualSound.play("balance", { changedBalanceAxes });
+    setOutcomeStage("balance");
+  };
+  const toggleSound = () => {
+    const nextMuted = !soundMuted;
+    setSoundMuted(nextMuted);
+    ritualSound.setMuted(nextMuted);
+    if (!nextMuted) ritualSound.play("unmute");
+  };
+  const restartGame = () => {
+    run(() => {
+      services.playerCommands.resetGame();
+      setLensGuideAcknowledged(false);
+      setOutcomeStage("consequence");
+      setReasoning("");
+      setReconsidering(false);
+    });
+  };
+  const selectLocale = (nextLocale: UiLocale) => {
+    setLocale(nextLocale);
+    savePresentationLocale(nextLocale);
   };
 
   const isLanding = phase === "NO_SESSION";
@@ -163,7 +252,8 @@ export function App({ services }: { services: AppServices }) {
     <main
       ref={gameAppRef}
       className={`game-app ${isLanding ? "game-app-entry" : `game-app-journey stage-${activeStep} phase-${phase.toLowerCase()} lens-${selectedLens ?? "none"}`}`}
-      aria-label="Ember maradsz? — Szív a gépben"
+      aria-label={copy.app.ariaLabel}
+      lang={locale}
     >
       <output hidden data-testid="webmcp-status">{registration.message} {registration.registeredTools.join(" · ")}</output>
       <output hidden data-testid="game-phase">{phase}</output>
@@ -171,110 +261,125 @@ export function App({ services }: { services: AppServices }) {
 
       {isLanding ? (
         <section className="entry-screen" aria-labelledby="entry-title">
+          <div className="language-switcher" role="group" aria-label={copy.language.selectorLabel}>
+            <button type="button" aria-label={copy.language.huLabel} aria-pressed={locale === "hu"} onClick={() => selectLocale("hu")}>HU</button>
+            <span aria-hidden="true">·</span>
+            <button type="button" aria-label={copy.language.enLabel} aria-pressed={locale === "en"} onClick={() => selectLocale("en")}>EN</button>
+          </div>
           <div className="entry-copy">
-            <p className="brand-overline">Interaktív döntésjáték</p>
-            <h1 id="entry-title" ref={stageHeadingRef} tabIndex={-1}>Ember<br />maradsz?</h1>
-            <p className="brand-subtitle">Szív a gépben</p>
-            <div className="signal-rule" aria-hidden="true"><span /></div>
-            <p className="tagline">A gép javasol. Te döntesz.<br />A mérleg emlékszik.</p>
-
-            <div className="futura-intro">
-              <span>Futura</span>
-              <p>A Gépváros készen áll.<br />A döntés irányát csak te jelölheted ki.</p>
-            </div>
+            <h1 id="entry-title" ref={stageHeadingRef} tabIndex={-1}>{copy.landing.title}</h1>
+            <p className="brand-subtitle">{copy.landing.subtitle}</p>
+            <p className="tagline">{copy.landing.entryTagline}</p>
 
             <button className="primary-action entry-action" type="button" onClick={enterMachineCity}>
-              Belépek a Gépvárosba <ArrowRight size={25} aria-hidden="true" />
+              {copy.landing.enter} <ArrowRight size={25} aria-hidden="true" />
             </button>
           </div>
         </section>
       ) : session ? (
         <div className="journey-screen">
-          <FuturaStatus />
+          <FuturaStatus copy={copy} />
           <div className={`scene-event scene-event-${activeStep}`} key={phase} aria-hidden="true" />
           {phase === "REFLECTION_PRESENTED" && !reconsidering && <div className="route-disturbance" aria-hidden="true" />}
 
           <section className="stage" aria-live="polite">
             {phase === "MACHINE_CITY_READY" && (
               <div className="stage-card signal-card">
-                <span className="stage-kicker"><Broadcast size={17} aria-hidden="true" /> Futura kapcsolódva</span>
-                <h2 ref={stageHeadingRef} tabIndex={-1}>Hoztam neked egy kérdést.</h2>
-                <p>Megmutathatom a lehetőségeket és a következményeket. A határt azonban csak te húzhatod meg.</p>
+                <h2 ref={stageHeadingRef} tabIndex={-1}>{copy.futura.heading}</h2>
+                <p>{copy.futura.body}</p>
                 <button className="primary-action" type="button" onClick={presentDilemma}>
-                  Mutasd a kérdést <ArrowRight size={21} aria-hidden="true" />
+                  {copy.futura.showQuestion} <ArrowRight size={21} aria-hidden="true" />
                 </button>
               </div>
             )}
 
-            {phase === "AWAITING_HUMAN_SELECTION" && view.activeDilemma && awaitingStage === "dilemma" && (
+            {phase === "AWAITING_HUMAN_SELECTION" && activeDilemma && awaitingStage === "dilemma" && (
               <div className="dilemma-arrival-stage">
                 <header className="stage-heading">
-                  <span className="stage-kicker">Dilemma érkezett a Gépvárosból</span>
-                  <h2 ref={stageHeadingRef} tabIndex={-1}>{view.activeDilemma.title}</h2>
+                  <span className="stage-kicker">{copy.dilemma.arrival}</span>
+                  <h2 ref={stageHeadingRef} tabIndex={-1}>{activeDilemma.title}</h2>
                   <div className="situation-beats">
-                    <p>Megbántottál valakit, de azóta nem válaszoltál.</p>
-                    <p>Futura ismeri a beszélgetés előzményeit, és felajánlja, hogy megírja – akár el is küldi – helyetted a bocsánatkérést.</p>
+                    {toSituationBeats(activeDilemma.situation).map((beat) => (
+                      <p key={beat}>{beat}</p>
+                    ))}
                   </div>
+                  {activeDilemma.contentNotice && (
+                    <p className="content-notice">{copy.dilemma.topicPrefix} {activeDilemma.contentNotice}</p>
+                  )}
                 </header>
-                <button className="primary-action dilemma-options-action" type="button" onClick={() => setAwaitingStage("choices")}>
-                  Megnézem a lehetőségeket <ArrowRight size={21} aria-hidden="true" />
+                <button className="primary-action dilemma-options-action" type="button" onClick={showChoiceStage}>
+                  {copy.dilemma.showOptions} <ArrowRight size={21} aria-hidden="true" />
                 </button>
               </div>
             )}
 
-            {phase === "AWAITING_HUMAN_SELECTION" && view.activeDilemma && awaitingStage === "choices" && (
-              <DirectionChoiceScene dilemma={view.activeDilemma} onSelect={choose} headingRef={stageHeadingRef} />
+            {phase === "AWAITING_HUMAN_SELECTION" && awaitingStage === "guide" && (
+              <LensGuideScene copy={copy} headingRef={stageHeadingRef} onContinue={acknowledgeLensGuide} />
             )}
 
-            {reconsidering && ["REFLECTION_PRESENTED", "READY_FOR_CONFIRMATION"].includes(phase) && view.activeDilemma && (
+            {phase === "AWAITING_HUMAN_SELECTION" && activeDilemma && awaitingStage === "choices" && (
               <DirectionChoiceScene
-                dilemma={view.activeDilemma}
+                copy={copy}
+                dilemma={activeDilemma}
+                locale={locale}
+                onSelect={choose}
+                headingRef={stageHeadingRef}
+                showHelp={session.completedDilemmaIds.length > 0}
+              />
+            )}
+
+            {reconsidering && ["REFLECTION_PRESENTED", "READY_FOR_CONFIRMATION"].includes(phase) && activeDilemma && (
+              <DirectionChoiceScene
+                copy={copy}
+                dilemma={activeDilemma}
+                locale={locale}
                 onSelect={choose}
                 headingRef={stageHeadingRef}
                 returning
               />
             )}
 
-            {phase === "TENTATIVE_SELECTION_RECORDED" && view.activeDilemma && (
+            {phase === "TENTATIVE_SELECTION_RECORDED" && activeDilemma && (
               <div className="direction-stage direction-stage-selected">
                 <header className="stage-heading">
-                  <span className="stage-kicker">Kijelölt irány · még nem végleges</span>
-                  <h2 ref={stageHeadingRef} tabIndex={-1}>{selectedLens ? SELECTION_REACTIONS[selectedLens].title : ""}</h2>
-                  <p>{selectedLens ? SELECTION_REACTIONS[selectedLens].body : ""}</p>
+                  <span className="stage-kicker">{copy.choice.selectedKicker}</span>
+                  <h2 ref={stageHeadingRef} tabIndex={-1}>{selectionFeedback}</h2>
+                  <p>{copy.choice.selectedBody}</p>
                 </header>
-                <div className="decision-grid" role="group" aria-label="Kijelölt döntési irány módosítása">
-                  {view.activeDilemma.choices.map((choice) => (
+                <div className="decision-grid" role="group" aria-label={copy.choice.selectedGroupLabel}>
+                  {activeDilemma.choices.map((choice) => (
                     <DecisionCard
                       key={choice.lens}
                       choice={choice}
                       selected={choice.lens === selectedLens}
                       subdued={choice.lens !== selectedLens}
-                      order={view.activeDilemma!.choices.findIndex(({ lens }) => lens === choice.lens)}
+                      order={activeDilemma.choices.findIndex(({ lens }) => lens === choice.lens)}
                       onSelect={choose}
+                      locale={locale}
                     />
                   ))}
                 </div>
                 <button className="primary-action centered-action" type="button" onClick={presentReflection}>
-                  Megfordítom a kártyát <Sparkle size={20} aria-hidden="true" />
+                  {copy.choice.showCounterpoint} <Sparkle size={20} aria-hidden="true" />
                 </button>
               </div>
             )}
 
-            {phase === "REFLECTION_PRESENTED" && view.reflection && !reconsidering && (
+            {phase === "REFLECTION_PRESENTED" && localizedReflection && !reconsidering && (
               <div className="reflection-stage">
                 <header className="ritual-prompt">
-                  <span className="stage-kicker">Futura ellenpontja</span>
-                  <h2 id="reflection-title" ref={stageHeadingRef} tabIndex={-1}>Maradsz ennél az iránynál?</h2>
+                  <span className="stage-kicker">{copy.counterpoint.kicker}</span>
+                  <h2 id="reflection-title" ref={stageHeadingRef} tabIndex={-1}>{copy.counterpoint.heading}</h2>
                 </header>
                 {selectedChoice && (
-                  <RitualCard choice={selectedChoice} state="reflection" reflection={view.reflection} />
+                  <RitualCard choice={selectedChoice} state="reflection" reflection={localizedReflection} locale={locale} />
                 )}
-                <div className="ritual-actions decision-action-block" aria-label="Döntés az ellenpont után">
+                <div className="ritual-actions decision-action-block" aria-label={copy.counterpoint.actionsLabel}>
                   <button className="primary-action" type="button" onClick={acknowledgeReflection}>
                     {keepDirectionLabel} <SealCheck size={20} aria-hidden="true" />
                   </button>
-                  <button className="secondary-action" type="button" onClick={() => setReconsidering(true)}>
-                    <ArrowLeft size={20} aria-hidden="true" /> Másik irányt választok
+                  <button className="secondary-action" type="button" onClick={reconsiderDirection}>
+                    <ArrowLeft size={20} aria-hidden="true" /> {copy.counterpoint.reconsider}
                   </button>
                 </div>
               </div>
@@ -284,29 +389,28 @@ export function App({ services }: { services: AppServices }) {
               <div className="confirmation-stage">
                 <div className="threshold-signal" aria-hidden="true">
                   <Broadcast size={22} weight="light" />
-                  <span>Futura itt megáll</span>
+                  <span>{copy.confirmation.threshold}</span>
                 </div>
-                {selectedChoice && <RitualCard choice={selectedChoice} state="stamped" />}
+                {selectedChoice && <RitualCard choice={selectedChoice} state="stamped" locale={locale} />}
                 <article className="confirmation-card note-slip" aria-labelledby="confirmation-title">
-                  <span className="stage-kicker"><NotePencil size={17} aria-hidden="true" /> Végleges emberi küszöb</span>
-                  <h2 id="confirmation-title" ref={stageHeadingRef} tabIndex={-1}>Te mondod ki a végső szót.</h2>
-                  <p className="confirmation-summary">{selectedLens ? CONFIRMATION_SUMMARIES[selectedLens] : ""}</p>
+                  <span className="stage-kicker"><NotePencil size={17} aria-hidden="true" /> {copy.confirmation.kicker}</span>
+                  <h2 id="confirmation-title" ref={stageHeadingRef} tabIndex={-1}>{copy.confirmation.heading}</h2>
                   <label htmlFor="decision-reasoning">
-                    Mit fogsz mindenképp a saját szavaiddal megírni? <span>(nem kötelező)</span>
+                    {copy.confirmation.reasonLabel} <span>{copy.confirmation.reasonOptional}</span>
                   </label>
                   <textarea
                     id="decision-reasoning"
                     maxLength={500}
                     value={reasoning}
                     onChange={(event) => setReasoning(event.target.value)}
-                    aria-label="Mit fogsz mindenképp a saját szavaiddal megírni? Nem kötelező."
+                    aria-label={copy.confirmation.reasonAriaLabel}
                   />
-                  <div className="confirmation-actions" aria-label="Végleges emberi döntés">
+                  <div className="confirmation-actions" aria-label={copy.confirmation.actionsLabel}>
                     <button className="primary-action confirm-action" type="button" onClick={confirmDecision}>
-                      Vállalom ezt a döntést <Fingerprint size={20} aria-hidden="true" />
+                      {copy.confirmation.confirm} <Fingerprint size={20} aria-hidden="true" />
                     </button>
-                    <button className="secondary-action" type="button" onClick={() => setReconsidering(true)}>
-                      <ArrowLeft size={20} aria-hidden="true" /> Másik irányt választok
+                    <button className="secondary-action" type="button" onClick={reconsiderDirection}>
+                      <ArrowLeft size={20} aria-hidden="true" /> {copy.counterpoint.reconsider}
                     </button>
                   </div>
                 </article>
@@ -316,58 +420,75 @@ export function App({ services }: { services: AppServices }) {
             {phase === "DECISION_CONFIRMED" && (
               <div className="sealed-stage">
                 <header className="ritual-prompt">
-                  <span className="stage-kicker">Emberi döntés rögzítve</span>
-                  <h2 ref={stageHeadingRef} tabIndex={-1}>{selectedLabel ? `${selectedLabel} irányt választottad.` : "A döntésed rögzítve."}</h2>
-                  <p>A végső szó nálad marad. A következmény még rejtve van.</p>
+                  <span className="stage-kicker">{copy.sealed.kicker}</span>
+                  <h2 ref={stageHeadingRef} tabIndex={-1}>{selectionFeedback}</h2>
+                  <p>{copy.sealed.body}</p>
                 </header>
-                {selectedChoice && <RitualCard choice={selectedChoice} state="sealed" />}
+                {selectedChoice && <RitualCard choice={selectedChoice} state="sealed" locale={locale} />}
                 <button className="primary-action sealed-reveal-action" type="button" onClick={revealConsequence}>
-                  Felfedem a lenyomatot <Eye size={21} aria-hidden="true" />
+                  {copy.sealed.reveal} <Eye size={21} aria-hidden="true" />
                 </button>
               </div>
             )}
 
             {phase === "CONSEQUENCE_REVEALED" && session.revealedOutcome && outcomeStage === "consequence" && (
               <div className="outcome-stage" aria-labelledby="outcome-title">
-                <h2 id="outcome-title" ref={stageHeadingRef} tabIndex={-1}>Ezt nyerted. Ezt adtad át.</h2>
-                {selectedChoice && (
+                <h2 id="outcome-title" ref={stageHeadingRef} tabIndex={-1}>{copy.outcome.heading}</h2>
+                {selectedChoice && localizedConsequence && (
                   <RitualCard
                     choice={selectedChoice}
                     state="outcome"
-                    consequence={session.revealedOutcome.consequence}
+                    consequence={localizedConsequence}
+                    locale={locale}
                   />
                 )}
-                <button className="primary-action outcome-close-action" type="button" onClick={() => setOutcomeStage("balance")}>
-                  Megnézem a döntés lenyomatát <ArrowRight size={20} aria-hidden="true" />
+                <button className="primary-action outcome-close-action" type="button" onClick={showBalance}>
+                  {copy.outcome.showBalance} <ArrowRight size={20} aria-hidden="true" />
                 </button>
               </div>
             )}
 
             {phase === "CONSEQUENCE_REVEALED" && session.revealedOutcome && outcomeStage === "balance" && (
               <div className="balance-stage" aria-live="polite">
-                <HumanBalance balance={session.balance} onStartNewRound={beginNewDemoRound} />
+                <HumanBalance
+                  balance={session.balance}
+                  previousBalance={session.revealedOutcome.balanceBefore}
+                  onContinue={continueJourney}
+                  continueLabel={view.hasNextDilemma ? copy.balance.nextQuestion : copy.balance.endGame}
+                  continueVariant={view.hasNextDilemma ? "primary" : "secondary"}
+                  locale={locale}
+                />
               </div>
             )}
 
-            {phase === "GAME_COMPLETE" && (
-              <div className="stage-card complete-card">
-                <span className="decision-seal is-stamped" aria-hidden="true"><Fingerprint size={54} weight="thin" /></span>
-                <span className="stage-kicker">A döntésed nyomot hagyott</span>
-                <h2 ref={stageHeadingRef} tabIndex={-1}>A kör véget ért</h2>
-                <p>Ez nem pontszám. Ez a döntésed lenyomata.</p>
-                <strong>A mérleg emlékszik.</strong>
-                <button className="primary-action complete-action" type="button" onClick={resetGame}>
-                  Új döntési kört kezdek <ArrowRight size={18} aria-hidden="true" />
-                </button>
-              </div>
-            )}
           </section>
 
-          {session.phase === "GAME_COMPLETE" && <HumanBalance balance={session.balance} memory />}
+          {session.phase === "GAME_COMPLETE" && (
+            <HumanBalance
+              balance={session.balance}
+              memory
+              onContinue={restartGame}
+              continueLabel={copy.balance.restart}
+              locale={locale}
+            />
+          )}
         </div>
       ) : null}
 
       {error && <p className="error-toast" role="alert">{error}</p>}
+
+      <button
+        className="sound-toggle"
+        type="button"
+        aria-label={soundMuted ? copy.sound.unmute : copy.sound.mute}
+        aria-pressed={!soundMuted}
+        title={soundMuted ? copy.sound.unmute : copy.sound.mute}
+        onClick={toggleSound}
+      >
+        {soundMuted
+          ? <SpeakerSlash size={22} weight="regular" aria-hidden="true" />
+          : <SpeakerHigh size={22} weight="regular" aria-hidden="true" />}
+      </button>
 
       {inspectorEnabled && (
         <>
@@ -388,34 +509,40 @@ export function App({ services }: { services: AppServices }) {
   );
 }
 
-function FuturaStatus() {
+function FuturaStatus({ copy }: { copy: UiCopy }) {
   return (
-    <div className="futura-status" aria-label="Futura kapcsolódási állapota">
+    <div className="futura-status" aria-label={copy.futura.statusAriaLabel}>
       <span className="futura-pulse" aria-hidden="true" />
-      <span>FUTURA KAPCSOLÓDVA</span>
+      <span>{copy.futura.status}</span>
     </div>
   );
 }
 
 function DirectionChoiceScene({
+  copy,
   dilemma,
+  locale,
   onSelect,
   headingRef,
   returning = false,
+  showHelp = false,
 }: {
-  dilemma: PublicDilemma;
+  copy: UiCopy;
+  dilemma: LocalizedDilemma;
+  locale: UiLocale;
   onSelect(lens: Lens): void;
   headingRef: RefObject<HTMLHeadingElement | null>;
   returning?: boolean;
+  showHelp?: boolean;
 }) {
   return (
     <div className={`direction-stage${returning ? " direction-stage-returning" : ""}`}>
       <header className="stage-heading">
-        <span className="stage-kicker">{returning ? "Új irányhoz új Ellenpont érkezik" : "Bocsánatkérés egy megbántott embernek"}</span>
-        <h2 ref={headingRef} tabIndex={-1}>Mit bíznál Futurára?</h2>
-        {returning && <p>Választhatsz másik határt. A korábbi reflexió érvényét veszti.</p>}
+        <span className="stage-kicker">{dilemma.shortTitle}</span>
+        <h2 ref={headingRef} tabIndex={-1}>{copy.choice.heading}</h2>
+        <p>{dilemma.centralTension}</p>
       </header>
-      <div className="decision-grid" role="group" aria-label="Mit bíznál Futurára? Válassz egy döntési irányt.">
+      <div className="decision-grid" role="group" aria-label={copy.choice.groupLabel}>
         {dilemma.choices.map((choice, order) => (
           <DecisionCard
             key={choice.lens}
@@ -424,9 +551,83 @@ function DirectionChoiceScene({
             subdued={false}
             order={order}
             onSelect={onSelect}
+            locale={locale}
           />
         ))}
       </div>
+      {showHelp && !returning && (
+        <details className="lens-help">
+          <summary>{copy.choice.help}</summary>
+          <LensGuideContent copy={copy} compact />
+        </details>
+      )}
     </div>
   );
+}
+
+function LensGuideScene({
+  copy,
+  headingRef,
+  onContinue,
+}: {
+  copy: UiCopy;
+  headingRef: RefObject<HTMLHeadingElement | null>;
+  onContinue(): void;
+}) {
+  const guideItems = (["brain", "hand", "heart"] as const).map((lens, order) => ({
+    lens,
+    order,
+    label: copy.cards.lenses[lens].label,
+    text: copy.guide.lenses[lens],
+  }));
+
+  return (
+    <div className="lens-guide-stage">
+      <header className="stage-heading">
+        <h2 ref={headingRef} tabIndex={-1}>{copy.guide.heading}</h2>
+      </header>
+      <div className="lens-guide-symbols" role="list" aria-label={copy.guide.heading}>
+        {guideItems.map((item) => (
+          <section
+            key={item.lens}
+            className="lens-guide-symbol"
+            role="listitem"
+            aria-label={`${item.label} — ${item.text}`}
+            style={{ "--guide-delay": `${240 + item.order * 170}ms` } as CSSProperties}
+          >
+            <span className="route-beacon" aria-hidden="true"><LensIcon lens={item.lens} /></span>
+            <strong>{item.label}</strong>
+            <p>{item.text}</p>
+          </section>
+        ))}
+      </div>
+      <button className="primary-action centered-action lens-guide-action" type="button" onClick={onContinue}>
+        {copy.guide.continue} <ArrowRight size={21} aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
+function LensGuideContent({ copy, compact = false }: { copy: UiCopy; compact?: boolean }) {
+  const lensGuide = (["brain", "hand", "heart"] as const).map((lens) => ({
+    lens,
+    ...copy.cards.lenses[lens],
+  }));
+  return (
+    <div className={`lens-guide-list${compact ? " is-compact" : ""}`}>
+      {lensGuide.map((item) => (
+        <section key={item.lens} aria-label={`${item.label}: ${item.framing}`}>
+          <strong>{item.label}</strong>
+          <span>{item.framing}</span>
+          <p>{item.choiceText}</p>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function toSituationBeats(situation: string): string[] {
+  const sentences = situation.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((sentence) => sentence.trim()) ?? [];
+  if (sentences.length < 2) return [situation];
+  return [sentences[0], sentences.slice(1).join(" ")];
 }

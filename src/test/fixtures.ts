@@ -23,8 +23,8 @@ export function createTestEngine(catalog: DilemmaCatalog = dilemmaCatalog) {
   };
 }
 
-export function advanceToConfirmedDecision() {
-  const context = createTestEngine();
+export function advanceToConfirmedDecision(catalog: DilemmaCatalog = dilemmaCatalog) {
+  const context = createTestEngine(catalog);
   const entered = context.agent.enterMachineCity().session;
   context.agent.presentDilemma(entered.sessionId, entered.stateRevision);
   context.player.selectLens("brain");
@@ -39,4 +39,3 @@ export function advanceToConfirmedDecision() {
   context.player.confirmDecision("A végső kontrollt magamnál tartom.");
   return context;
 }
-

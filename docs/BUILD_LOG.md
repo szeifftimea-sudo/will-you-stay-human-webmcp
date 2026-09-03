@@ -2,7 +2,7 @@
 
 ## 2026. augusztus 27. — technikai spike indulása
 
-- Munkakönyvtár: `/Users/szeifftimea/Documents/Ember_Maradsz_WebMCP_Koncepcio`
+- Munkakönyvtár: a repository gyökérkönyvtára
 - Operációs környezet: macOS, Europe/Budapest időzóna.
 - Codex csomagolt Node.js: `v24.19.0`.
 - Codex csomagolt pnpm: `11.19.0`.
