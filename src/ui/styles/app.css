@@ -110,8 +110,8 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .stage-card .primary-action { margin-top: 14px; }
 .signal-card { top: 27vh; }
 
-.dilemma-arrival-stage { position: absolute; inset: 0; }
-.dilemma-arrival-stage .stage-heading { top: 18vh; width: min(820px,78vw); }
+.dilemma-arrival-stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; gap: clamp(20px,3vh,34px); overflow-y: auto; padding: clamp(100px,16vh,190px) 24px 64px; }
+.dilemma-arrival-stage .stage-heading { position: relative; top: auto; left: auto; width: min(820px,78vw); transform: none; animation: dilemma-flow-arrive 560ms ease-out both; }
 .dilemma-arrival-stage .stage-heading h2 { font-size: clamp(2.6rem,4.8vw,5rem); }
 .situation-beats { width: min(720px,90vw); margin: 24px auto 0; display: grid; gap: 12px; padding: 18px 22px; background: linear-gradient(90deg,rgba(2,9,12,.15),rgba(2,9,12,.84) 20%,rgba(2,9,12,.84) 80%,rgba(2,9,12,.15)); }
 .dilemma-arrival-stage .stage-heading .situation-beats p { max-width: 720px; margin: 0; color: rgba(242,246,244,.94); font-size: clamp(1.125rem,1.35vw,1.25rem); line-height: 1.48; }
@@ -127,8 +127,8 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   line-height: 1.35;
   text-shadow: 0 2px 12px rgba(0,0,0,.98);
 }
-.dilemma-options-action { position: absolute; z-index: 8; left: 50%; top: 57vh; transform: translateX(-50%); animation: action-arrive 480ms ease-out 520ms both; }
-.dilemma-options-action:hover { transform: translateX(-50%) translateY(-3px); }
+.dilemma-options-action { position: relative; z-index: 8; top: auto; right: auto; bottom: auto; left: auto; flex: 0 0 auto; transform: none; animation: outcome-action-arrive 480ms ease-out 520ms both; }
+.dilemma-options-action:hover { transform: translateY(-3px); }
 
 .lens-guide-stage { position: absolute; inset: 0; }
 .lens-guide-stage .stage-heading { top: 6vh; }
@@ -178,6 +178,7 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .route-beacon { width: 66px; height: 66px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; background: rgba(2,11,14,.72); box-shadow: 0 0 27px rgba(104,212,232,.24), inset 0 0 15px rgba(104,212,232,.08); }
 .route-label { margin-top: 3px; font-size: var(--choice-label-font-size); font-weight: 500; line-height: 1.15; letter-spacing: .08em; }
 .route-choice strong { max-width: 190px; font-size: var(--choice-title-font-size); font-weight: 600; line-height: 1.24; }
+.game-app[lang="en"] .route-choice-brain strong { max-width: 125px; }
 .route-choice small { display: block; max-width: 210px; color: #e1e9e7; font-size: var(--choice-description-font-size); font-weight: 400; line-height: 1.3; }
 .direction-stage:not(.direction-stage-selected) .route-choice strong { min-height: 2.48em; display: flex; align-items: center; justify-content: center; }
 .route-choice.is-subdued { opacity: .38; filter: saturate(.42) brightness(.72); transform: translateX(-50%) translateY(24px) scale(.88); }
@@ -255,8 +256,8 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .sealed-reveal-action { opacity: 0; animation: action-rise 480ms ease-out 960ms both; }
 
 /* Reveal reopens the same card; the mechanical balance follows only after a human-paced CTA. */
-.outcome-stage { justify-content: flex-start; padding-top: 4vh; }
-.outcome-stage > h2 { z-index: 8; margin: 0 0 16px; font-size: clamp(2rem,3vw,3rem); opacity: 0; animation: consequence-copy 520ms ease-out 500ms both; }
+.outcome-stage { justify-content: center; gap: clamp(12px,2vh,22px); padding: 24px; }
+.outcome-stage > h2 { z-index: 8; margin: 0; font-size: clamp(2rem,3vw,3rem); opacity: 0; animation: consequence-copy 520ms ease-out 500ms both; }
 .ritual-card-outcome { width: min(840px,84vw); height: 390px; }
 .ritual-card-outcome .ritual-card-object { animation: outcome-card-open 980ms cubic-bezier(.16,.82,.18,1) 260ms both; }
 .ritual-card-outcome .ritual-card-front, .ritual-card-outcome .ritual-card-back { visibility: hidden; }
@@ -272,13 +273,15 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 .outcome-leaves strong { color: var(--copper-soft); font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; }
 .outcome-leaves p { margin: 10px 0 0; color: #edf1ef; font-size: 1.125rem; line-height: 1.48; }
 .ritual-card-outcome .ritual-card-result blockquote { margin-top: 8px; padding-block: 9px; text-align: left; font-size: 1.125rem; }
-.outcome-close-action { position: fixed; z-index: 11; left: 50%; right: auto; bottom: 3vh; transform: translateX(-50%); opacity: 0; animation: outcome-action-arrive-centered 520ms ease-out 1500ms both; }
-.outcome-close-action:hover { transform: translateX(-50%) translateY(-3px); }
-.balance-stage { position: absolute; inset: 0; z-index: 6; }
+.outcome-close-action { position: relative; z-index: 11; top: auto; right: auto; bottom: auto; left: auto; flex: 0 0 auto; transform: none; opacity: 0; animation: outcome-action-arrive 520ms ease-out 1500ms both; }
+.outcome-close-action:hover { transform: translateY(-3px); }
+.balance-stage { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; padding: 16px 24px; }
 
 /* Reveal-only mechanical board rising from the city floor. */
 .human-balance { position: fixed; z-index: 7; left: 50%; bottom: 3.5vh; width: min(880px,78vw); min-height: 410px; transform-origin: center bottom; }
 .human-balance.is-revealing { opacity: 0; animation: balance-emerge 1050ms cubic-bezier(.16,.8,.2,1) 1900ms both; }
+.balance-stage .human-balance { position: relative; left: auto; bottom: auto; transform-origin: center; }
+.balance-stage .human-balance.is-revealing { animation-name: balance-emerge-centered; }
 .human-balance.is-memory { bottom: 4vh; transform: translateX(-50%) perspective(950px) rotateX(4deg) scale(.94); }
 .balance-housing { position: relative; min-height: 410px; padding: 28px 36px 24px; border: 1px solid rgba(220,177,116,.82); border-radius: 7px; background: rgba(3,13,16,.97); box-shadow: 0 38px 70px rgba(0,0,0,.72), 0 8px 0 #02080a, 0 11px 0 rgba(125,85,50,.56), inset 0 0 0 2px rgba(242,238,229,.05), inset 0 25px 34px rgba(229,135,67,.045); }
 .balance-housing::before { content: ""; position: absolute; left: 18px; right: 18px; top: 14px; height: 1px; background: rgba(244,166,102,.56); box-shadow: 0 0 16px 2px rgba(229,135,67,.18); }
@@ -342,6 +345,7 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 @keyframes pulse { 0%,100% { opacity: .58; transform: scale(.82); } 50% { opacity: 1; transform: scale(1.08); } }
 @keyframes transmission-arrive { from { opacity: 0; transform: translateX(-38px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes dilemma-transmission { from { opacity: 0; transform: translate(-50%,-18px); letter-spacing: .04em; } to { opacity: 1; transform: translate(-50%,0); letter-spacing: normal; } }
+@keyframes dilemma-flow-arrive { from { opacity: 0; transform: translateY(-18px); letter-spacing: .04em; } to { opacity: 1; transform: translateY(0); letter-spacing: normal; } }
 @keyframes deal-route-object { from { opacity: 0; transform: translateX(-50%) translateY(-52px) scale(.82); } to { opacity: 1; } }
 @keyframes chosen-object-pulse { 0% { filter: brightness(1); } 46% { filter: brightness(1.55); } 100% { filter: brightness(1); } }
 @keyframes action-arrive { from { opacity: 0; transform: translate(-50%,18px); } to { opacity: 1; transform: translate(-50%,0); } }
@@ -370,6 +374,7 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 @keyframes consequence-release { 0% { opacity: 0; transform: scaleX(.08); } 38% { opacity: 1; } 100% { opacity: 0; transform: scaleX(3.4); } }
 @keyframes city-answer { from { filter: saturate(.55) brightness(.66); } to { filter: saturate(1.35) brightness(1.08); } }
 @keyframes balance-emerge { from { opacity: 0; transform: translateX(-50%) perspective(950px) rotateX(22deg) translateY(170px) scale(.88); } to { opacity: 1; transform: translateX(-50%) perspective(950px) rotateX(4deg) translateY(0) scale(1); } }
+@keyframes balance-emerge-centered { from { opacity: 0; transform: perspective(950px) rotateX(22deg) translateY(120px) scale(.88); } to { opacity: 1; transform: perspective(950px) rotateX(4deg) translateY(0) scale(1); } }
 @keyframes marker-slide { from { left: var(--marker-start-position); } to { left: var(--marker-position); } }
 @keyframes marker-impact { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.5); } 35% { opacity: .9; } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.8); } }
 @keyframes delta-appear { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
@@ -387,8 +392,9 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .scene-event { height: 68vh; }
   .stage { min-height: 100svh; }
   .stage-card { left: 24px; top: 17vh; width: min(430px,calc(100vw - 48px)); }
-  .dilemma-arrival-stage .stage-heading { top: 16vh; width: calc(100vw - 40px); }
-  .dilemma-options-action { top: 62vh; }
+  .dilemma-arrival-stage { padding-inline: 20px; }
+  .dilemma-arrival-stage .stage-heading { top: auto; width: calc(100vw - 40px); }
+  .dilemma-options-action { top: auto; }
   .lens-guide-list { width: calc(100vw - 44px); gap: 14px; }
   .lens-guide-list strong { font-size: 1.625rem; }
   .lens-guide-list span { font-size: 1.25rem; }
@@ -413,8 +419,9 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .confirmation-stage { grid-template-columns: minmax(280px,440px) 280px; gap: 34px; padding-inline: 28px; }
   .threshold-signal { left: auto; right: 24px; top: 20px; }
   .ritual-card-outcome { width: min(720px,90vw); height: 320px; }
-  .outcome-close-action { top: 45vh; right: 18px; }
+  .outcome-close-action { top: auto; right: auto; bottom: auto; }
   .human-balance { width: calc(100vw - 36px); min-height: 320px; bottom: 76px; }
+  .balance-stage .human-balance { bottom: auto; }
   .human-balance.is-memory { bottom: 4vh; transform: translateX(-50%) perspective(900px) rotateX(3deg) scale(.96); }
   .balance-housing { min-height: 320px; padding: 24px 22px 20px; }
   .balance-row { grid-template-columns: 10px 96px 1fr 38px; gap: 9px; }
@@ -441,11 +448,12 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .stage-card p { margin: 12px 0; font-size: 1.125rem; line-height: 1.45; }
   .stage-card .primary-action { margin-top: 7px; }
 
-  .dilemma-arrival-stage .stage-heading { top: 6vh; width: 740px; }
+  .dilemma-arrival-stage { justify-content: center; gap: 14px; padding: 28px 20px 24px; overflow-y: auto; }
+  .dilemma-arrival-stage .stage-heading { top: auto; width: 740px; }
   .dilemma-arrival-stage .stage-heading h2 { font-size: 2.35rem; }
   .situation-beats { width: 720px; margin-top: 14px; gap: 7px; padding: 13px 26px; }
   .dilemma-arrival-stage .stage-heading .situation-beats p { font-size: 1rem; line-height: 1.36; }
-  .dilemma-options-action { top: auto; bottom: 5vh; }
+  .dilemma-options-action { top: auto; bottom: auto; }
 
   .lens-guide-list { top: 29vh; width: 758px; gap: 10px; }
   .lens-guide-list section { min-height: 240px; padding: 16px; }
@@ -520,17 +528,19 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .sealed-stage .ritual-card-icon { width: 54px; height: 54px; }
   .sealed-stage .ritual-card-label { font-size: 1.55rem; }
 
-  .outcome-stage { padding-top: 2vh; }
-  .outcome-stage > h2 { margin-bottom: 7px; font-size: 2.15rem; }
-  .phase-consequence_revealed .futura-status { top: auto; right: 12px; bottom: 10px; }
+  .outcome-stage { gap: 10px; padding: 18px 24px; }
+  .outcome-stage > h2 { margin-bottom: 0; font-size: 2.15rem; }
+  .phase-consequence_revealed .futura-status { top: 10px; right: 12px; bottom: auto; }
   .ritual-card-outcome { width: 740px; height: 340px; }
   .ritual-card-outcome .ritual-card-face { padding: 25px 34px; }
   .outcome-leaves { gap: 14px; margin: 4px 0; }
   .outcome-leaves > div { padding: 13px 19px; }
   .outcome-leaves p, .ritual-card-outcome .ritual-card-result blockquote { font-size: 1.125rem; line-height: 1.38; }
-  .outcome-close-action { top: auto; right: auto; bottom: 2vh; }
+  .outcome-close-action { top: auto; right: auto; bottom: auto; }
 
   .human-balance { width: 744px; min-height: 454px; bottom: 2vh; }
+  .balance-stage { padding: 12px 18px; }
+  .balance-stage .human-balance { bottom: auto; }
   .balance-housing { min-height: 454px; padding: 20px 25px 18px; }
   .human-balance header { margin-bottom: 12px; padding-bottom: 10px; }
   .balance-list { gap: 8px; }
@@ -541,6 +551,7 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .balance-new-round { min-height: 48px; }
 
   .game-app[lang="en"] .human-balance { min-height: 478px; bottom: 1.5vh; }
+  .game-app[lang="en"] .balance-stage .human-balance { bottom: auto; }
   .game-app[lang="en"] .balance-housing { min-height: 478px; padding: 20px 25px 16px; }
   .game-app[lang="en"] .human-balance header { align-items: start; gap: 24px; margin-bottom: 12px; padding-bottom: 11px; }
   .game-app[lang="en"] .human-balance header > div { flex: 0 0 220px; }
@@ -573,10 +584,10 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .lens-heart .direction-stage-selected .route-choice-brain,
   .lens-heart .direction-stage-selected .route-choice-hand { left: auto; }
   .reflection-stage { min-height: 100svh; padding: 8vh 12px 2vh; }
-  .dilemma-arrival-stage .stage-heading { top: 13vh; }
+  .dilemma-arrival-stage .stage-heading { top: auto; }
   .dilemma-arrival-stage .stage-heading h2 { font-size: clamp(2.25rem,10vw,3.25rem); }
   .dilemma-arrival-stage .stage-heading p { max-height: none; margin-top: 18px; font-size: .88rem; }
-  .dilemma-options-action { top: auto; right: 18px; bottom: 12vh; left: 18px; width: calc(100vw - 36px); transform: none; }
+  .dilemma-options-action { top: auto; right: auto; bottom: auto; left: auto; width: calc(100vw - 36px); transform: none; }
   .dilemma-options-action:hover { transform: translateY(-3px); }
   .lens-guide-list { position: relative; left: auto; top: auto; width: auto; grid-template-columns: 1fr; gap: 14px; margin: 24px 20px 0; transform: none; }
   .lens-guide-list section { padding-top: 10px; }
@@ -611,7 +622,7 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .journey-screen > .futura-status > span:last-child { display: none; }
   .sealed-stage { justify-content: flex-start; gap: 14px; padding-top: 6vh; }
   .sealed-stage .ritual-card { height: 330px; }
-  .outcome-stage { padding-top: 2vh; }
+  .outcome-stage { padding: 14px 12px; }
   .outcome-stage > h2 { margin-bottom: 6px; font-size: 1.45rem; }
   .ritual-card-outcome { width: calc(100vw - 24px); height: 310px; }
   .ritual-card-outcome .ritual-card-face { padding: 20px 17px; }
@@ -619,8 +630,9 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
   .outcome-leaves > div { padding: 5px 12px; }
   .outcome-leaves li { font-size: .67rem; }
   .ritual-card-outcome .ritual-card-result blockquote { font-size: .76rem; }
-  .outcome-close-action { top: auto; right: auto; bottom: 2vh; }
+  .outcome-close-action { top: auto; right: auto; bottom: auto; }
   .human-balance { width: calc(100vw - 28px); min-height: 316px; bottom: 74px; }
+  .balance-stage .human-balance { bottom: auto; }
   .balance-housing { min-height: 316px; padding: 22px 16px 18px; }
   .human-balance header { margin-bottom: 16px; }
   .human-balance h2 { font-size: .72rem; }
