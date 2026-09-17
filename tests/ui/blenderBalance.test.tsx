@@ -102,7 +102,9 @@ describe("optional Blender instrument on the original domain-driven balance", ()
     const link = within(instrument).getByRole("link", { name: copy.balance.physicalCompanion });
     const primary = within(instrument).getByRole("button", { name: copy.balance.nextQuestion });
     expect(primary).toHaveClass("primary-action");
+    expect(primary).toBeVisible();
     expect(link).toHaveClass("secondary-action");
+    expect(link).toBeVisible();
     expect(link).toHaveAttribute("href", PRODUCT_FROM_BALANCE);
     expect(link).not.toHaveAttribute("target");
     expect(link.closest(".balance-housing")).toBeNull();
@@ -118,6 +120,8 @@ describe("optional Blender instrument on the original domain-driven balance", ()
     window.history.replaceState(null, "", RETURN_TO_BALANCE);
     const restored = render(<App services={services} sound={createSoundSpy()} balanceDepth={DecorativeBalanceDepth} />);
     expectDomainValues(before!.balance, "en", before!.revealedOutcome!.balanceBefore);
+    expect(screen.getByRole("button", { name: copy.balance.nextQuestion })).toBeVisible();
+    expect(screen.getByRole("link", { name: copy.balance.physicalCompanion })).toBeVisible();
     expect(screen.queryByRole("button", { name: copy.outcome.showBalance })).not.toBeInTheDocument();
     expect(services.engine.getSnapshot()).toEqual(before);
     restored.unmount();
@@ -413,7 +417,7 @@ describe("optional Blender instrument on the original domain-driven balance", ()
 
   it("retains cumulative balance and history across all four rounds and the final memory", () => {
     const services = createAppServices(new MemoryGameRepository());
-    render(<App services={services} sound={createSoundSpy()} balanceDepth={DecorativeBalanceDepth} />);
+    const mounted = render(<App services={services} sound={createSoundSpy()} balanceDepth={DecorativeBalanceDepth} />);
     enterChoices();
     const sessionId = services.engine.getSnapshot()!.sessionId;
     const route: Lens[] = ["brain", "hand", "hand", "heart"];
@@ -444,15 +448,26 @@ describe("optional Blender instrument on the original domain-driven balance", ()
     expect(screen.getByTestId("human-balance")).toHaveClass("is-memory");
     expect(screen.getAllByTestId("balance-model-layer")).toHaveLength(1);
     const finalInstrument = screen.getByTestId("human-balance");
+    const restart = within(finalInstrument).getByRole("button", { name: uiCopy.en.balance.restart });
+    expect(restart).toHaveClass("primary-action");
+    expect(restart).toBeVisible();
     const companion = within(finalInstrument).getByRole("link", { name: uiCopy.en.balance.physicalCompanion });
     expect(companion).toHaveClass("secondary-action");
+    expect(companion).toBeVisible();
     expect(companion).toHaveAttribute("href", PRODUCT_FROM_BALANCE);
     const finalSnapshot = structuredClone(complete);
     companion.addEventListener("click", (event) => event.preventDefault(), { once: true });
     fireEvent.click(companion);
     expect(services.engine.getSnapshot()).toEqual(finalSnapshot);
+    mounted.unmount();
+    window.history.replaceState(null, "", RETURN_TO_BALANCE);
+    const restored = render(<App services={services} sound={createSoundSpy()} balanceDepth={DecorativeBalanceDepth} />);
+    expect(screen.getByRole("button", { name: uiCopy.en.balance.restart })).toBeVisible();
+    expect(screen.getByRole("link", { name: uiCopy.en.balance.physicalCompanion })).toHaveAttribute("href", PRODUCT_FROM_BALANCE);
+    expect(services.engine.getSnapshot()).toEqual(finalSnapshot);
     click(uiCopy.en.balance.restart);
     expect(screen.getByRole("heading", { name: uiCopy.en.landing.title })).toBeVisible();
     expectNoModel();
+    restored.unmount();
   });
 });

@@ -7,14 +7,17 @@
   animation-name: balance-result-arrive;
 }
 .balance-result-transition .is-revealing .balance-footer {
-  animation: balance-result-actions 360ms ease-out 4860ms both;
+  /* Keep both approved result actions discoverable while the markers settle.
+     The previous delayed hidden state made the intermediate CTA appear absent
+     in short captures and on compact viewports. */
+  animation: balance-result-actions 360ms ease-out 2600ms both;
 }
 @keyframes balance-result-arrive {
   from { opacity: 0; transform: perspective(950px) rotateX(4deg) translateY(10px); }
   to { opacity: 1; transform: perspective(950px) rotateX(4deg) translateY(0); }
 }
 @keyframes balance-result-actions {
-  from { opacity: 0; visibility: hidden; }
+  from { opacity: .72; visibility: visible; transform: translateY(5px); }
   to { opacity: 1; visibility: visible; }
 }
 @media (prefers-reduced-motion: reduce) {
