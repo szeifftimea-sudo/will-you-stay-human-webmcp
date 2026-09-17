@@ -1,6 +1,15 @@
 import type { GameSession } from "../domain/gameTypes";
 import { LocalStorageGameRepository } from "../infrastructure/storage/localStorageRepo";
 
+/** Read-only presentation snapshot. Keep Three.js out of the HTML entry chunk. */
+export function readProductBalance(): GameSession["balance"] | null {
+  try {
+    const balance = new LocalStorageGameRepository(window.localStorage).load()?.balance;
+    if (!balance || Object.values(balance).some(value => !Number.isFinite(value) || value < -2 || value > 2)) return null;
+    return { ...balance };
+  } catch { return null; }
+}
+
 // Tab-local presentation bookmark, never part of the game session or tool contract.
 export const PRODUCT_RETURN_KEY = "ember-maradsz:product-return:v1";
 export const PRODUCT_FROM_BALANCE = "/product?from=human-balance";

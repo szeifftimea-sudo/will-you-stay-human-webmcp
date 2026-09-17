@@ -6,12 +6,13 @@ import fit from "../../docs/evidence/product-reveal/packaging-fit.json";
 import measured from "../../docs/evidence/phase3-product-depth/human-balance-asset-report.json";
 import { advanceToConfirmedDecision } from "../../src/test/fixtures";
 import { LocalStorageGameRepository, STORAGE_KEY } from "../../src/infrastructure/storage/localStorageRepo";
-import { hasBalanceReturn, rememberBalanceReturn, productReturnsToBalance, shouldRestoreBalance, PRODUCT_FROM_BALANCE, RETURN_TO_BALANCE, PRODUCT_RETURN_KEY } from "../../src/ui/productReturn";
+import { hasBalanceReturn, readProductBalance, rememberBalanceReturn, productReturnsToBalance, shouldRestoreBalance, PRODUCT_FROM_BALANCE, RETURN_TO_BALANCE, PRODUCT_RETURN_KEY } from "../../src/ui/productReturn";
 
 const renderer = vi.hoisted(() => ({create:vi.fn(),go:vi.fn(),dispose:vi.fn(),settled:()=>{}}));
 vi.mock("../../src/ui/productReveal/revealRenderer",()=>({createRevealRenderer:renderer.create}));
 beforeEach(()=> {
   sessionStorage.clear();
+  localStorage.clear();
   window.history.replaceState(null, "", "/product");
   renderer.create.mockReset();renderer.go.mockReset();renderer.dispose.mockReset();
   renderer.create.mockImplementation(async (_host:HTMLElement,settled:()=>void)=>{
@@ -93,6 +94,7 @@ describe("separate product reveal",()=> {
     const writes = vi.spyOn(Storage.prototype, "setItem");
     render(<ProductReveal />);
     await reachFinal();
+    expect(renderer.create).toHaveBeenCalledWith(expect.any(HTMLElement), expect.any(Function), session.balance);
     expect(screen.getByRole("link", { name: /Return to the Human Balance/ })).toHaveAttribute("href", RETURN_TO_BALANCE);
     expect(screen.queryByRole("link", { name: /Enter the game/ })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Replay reveal" }));
@@ -127,6 +129,30 @@ describe("separate product reveal",()=> {
     expect(hasBalanceReturn(session)).toBe(false);
     sessionStorage.clear();
     expect(hasBalanceReturn(session)).toBe(false);
+  });
+  it("reads the actual persisted balance, not the latest delta, without writing game state", () => {
+    const context = advanceToConfirmedDecision();
+    let session = context.engine.getSnapshot()!;
+    context.agent.revealConfirmedConsequence(session.sessionId, session.confirmedDecision!.decisionId, session.stateRevision);
+    session = context.engine.getSnapshot()!;
+    context.agent.presentDilemma(session.sessionId, session.stateRevision);
+    context.player.selectLens("hand");
+    session = context.engine.getSnapshot()!;
+    context.agent.presentChoiceReflection(session.sessionId, session.tentativeSelection!.selectionId, session.stateRevision);
+    context.player.acknowledgeReflection(context.engine.getSnapshot()!.presentedReflection!.reflectionId);
+    context.player.confirmDecision();
+    session = context.engine.getSnapshot()!;
+    context.agent.revealConfirmedConsequence(session.sessionId, session.confirmedDecision!.decisionId, session.stateRevision);
+    session = context.engine.getSnapshot()!;
+    expect(session.outcomeHistory).toHaveLength(2);
+    new LocalStorageGameRepository(localStorage).save(session);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    expect(readProductBalance()).toEqual(session.balance);
+    expect(localStorage.getItem(STORAGE_KEY)).toBe(raw);
+    localStorage.setItem(STORAGE_KEY, "invalid");
+    expect(readProductBalance()).toBeNull();
+    localStorage.clear();
+    expect(readProductBalance()).toBeNull();
   });
   it("reports a loading failure visibly and offers no fake 3D substitute",async()=> {
     renderer.create.mockRejectedValueOnce(new Error("WebGL unavailable"));

@@ -5,6 +5,9 @@ import { clamp01, ease, revealClipTime, revealPose, type RevealStep } from "./re
 import { reviewShot, PRODUCT_SHOTS } from "./revealShots";
 import { createMachineCity } from "./machineCity";
 import { fitProductFrame } from "./revealFraming";
+import type { HumanBalance } from "../../domain/gameTypes";
+import { createProductBalanceProjection } from "./productBalance";
+import { productCameraDistanceScale } from "./cityFraming";
 
 function required(root: T.Object3D, name: string) {
   const object = root.getObjectByName(name);
@@ -12,7 +15,7 @@ function required(root: T.Object3D, name: string) {
   return object;
 }
 
-export async function createRevealRenderer(host: HTMLElement, onSettled: () => void) {
+export async function createRevealRenderer(host: HTMLElement, onSettled: () => void, balance: HumanBalance | null = null) {
   const shot = reviewShot(window.location.search);
   const scene = new T.Scene();
   scene.background = new T.Color("#061014");
@@ -83,8 +86,21 @@ export async function createRevealRenderer(host: HTMLElement, onSettled: () => v
   function resize() {
     const {width,height} = host.getBoundingClientRect();
     renderer.setSize(width,height,false); camera.aspect = width/Math.max(1,height); camera.updateProjectionMatrix();
+    if (!loaded) paintLoadingCity(performance.now());
   }
   observer.observe(host); resize();
+  // The procedural city needs no downloaded product asset. Draw it now,
+  // rather than leaving the screen black while the 4.4 MB GLB loads.
+  function paintLoadingCity(now: number) {
+    if (disposed || loaded) return;
+    const glide = motion.matches ? 0 : ease((now - settledTime) / 4500);
+    camera.position.set(11 - glide * 1.4, -25 + glide * 1.8, 13);
+    camera.lookAt(0, 25, 9);
+    renderer.render(scene, camera);
+    host.dataset.cityReady = "true";
+  }
+  cancelAnimationFrame(frame);
+  paintLoadingCity(performance.now());
   const loader = new GLTFLoader();
   let asset;
   try {
@@ -95,6 +111,7 @@ export async function createRevealRenderer(host: HTMLElement, onSettled: () => v
   if (asset.animations.length !== 1) { cleanup(); throw new Error("Blender product reveal clip missing"); }
   const product = required(asset.scene,"RevealPackaging");
   const rig = required(asset.scene,"ProductRevealRig");
+  const projectBalance = createProductBalanceProjection(asset.scene, balance);
   mixer = new T.AnimationMixer(asset.scene);
   const action = mixer.clipAction(asset.animations[0]);
   action.setLoop(T.LoopOnce,1); action.clampWhenFinished=true; action.play();
@@ -182,6 +199,7 @@ export async function createRevealRenderer(host: HTMLElement, onSettled: () => v
     // Camera and lighting are presentation-only; there is no domain state here.
     action.paused=false;
     mixer!.setTime(revealClipTime(position));
+    projectBalance(position);
     const next=views.findIndex(view=>view.pose>position);
     const index=next<0?views.length-2:Math.max(0,next-1);
     const a=views[index], b=views[index+1], blend=ease((position-a.pose)/(b.pose-a.pose));
@@ -192,7 +210,7 @@ export async function createRevealRenderer(host: HTMLElement, onSettled: () => v
       camera.position.y+=drift*(position===0?1.8:.35);
     }
     if(shot) {camera.position.set(...shot.camera);focus.set(...shot.look);}
-    if(camera.aspect<1.55) camera.position.sub(focus).multiplyScalar(1.55/camera.aspect).add(focus);
+    camera.position.sub(focus).multiplyScalar(productCameraDistanceScale(camera.aspect, position)).add(focus);
     camera.lookAt(focus);
     camera.updateProjectionMatrix();
     city.visible=position<.98;
@@ -224,7 +242,8 @@ export async function createRevealRenderer(host: HTMLElement, onSettled: () => v
     paint(); if(moving || (!shot&&!motion.matches&&drift<1)) requestRender();
   }
   function requestRender() { if(!frame&&!disposed) frame=requestAnimationFrame(tick); }
-  loaded = true; settledTime=performance.now(); paint(); requestRender();
+  loaded = true; cancelAnimationFrame(frame); frame = 0;
+  settledTime=performance.now(); paint(); requestRender();
   return {
     go(step: RevealStep) {
       target=step; startPosition=position;startTime=performance.now();settledTime=startTime;drift=0;

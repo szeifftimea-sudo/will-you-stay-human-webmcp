@@ -1,4 +1,4 @@
-.product-reveal { position: relative; isolation: isolate; min-height: 512px; height: 100dvh; overflow: hidden; background: #061014; color: #f2eee5; }
+.product-reveal { --product-amber: #f4a666; position: relative; isolation: isolate; min-height: 512px; height: 100dvh; overflow: hidden; background: #061014; color: #f2eee5; }
 .product-reveal__canvas { position: absolute; inset: 0; z-index: -1; }
 .product-reveal__canvas canvas { display: block; width: 100%; height: 100%; }
 .product-reveal [hidden] { display: none !important; }
@@ -15,13 +15,13 @@
 .product-reveal[aria-busy="true"] .product-reveal__copy { opacity: 0; visibility: hidden; }
 .product-reveal[aria-busy="true"] .product-reveal__header { visibility: hidden; }
 .product-reveal[aria-busy="true"] .product-reveal__controls { visibility: hidden; }
-.product-reveal__eyebrow { margin: 0 0 12px; color: #f4a666; font-size: 12px; letter-spacing: .19em; font-weight: 700; }
+.product-reveal__eyebrow { margin: 0 0 12px; color: var(--product-amber); font-size: 12px; letter-spacing: .19em; font-weight: 700; }
 .product-reveal__copy h1 { margin: 0; font-size: clamp(32px,4.5vw,60px); font-weight: 500; letter-spacing: -.04em; line-height: 1.04; text-wrap: balance; }
 .product-reveal__description { max-width: 370px; margin: 18px 0 0; font-size: 18px; line-height: 1.45; color: #d1dee0; }
 .product-reveal__controls { position: absolute; left: 6%; right: 6%; bottom: 30px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
 .product-reveal__controls .primary-action { text-decoration: none; min-height: 48px; font-size: 18px; }
-.product-reveal__controls .primary-action { background: #0c2830; border-color: #3c8797; box-shadow: none; padding-inline: 20px; }
-.product-reveal__controls .primary-action:hover { background: #103943; }
+.product-reveal__controls .primary-action { background: var(--product-amber); border-color: var(--product-amber); color: #061014; box-shadow: none; padding-inline: 20px; }
+.product-reveal__controls .primary-action:hover { background: #ffb97b; border-color: #ffb97b; }
 .product-reveal__controls button:disabled { opacity: .58; cursor: wait; transform: none; }
 .product-reveal__replay { border: 0; border-bottom: 1px solid #637d82; background: transparent; color: #d3e2e3; font: inherit; min-height: 44px; padding: 8px 0; font-size: 15px; }
 .product-reveal__replay:focus-visible { outline: 2px solid #67e8f9; outline-offset: 5px; }

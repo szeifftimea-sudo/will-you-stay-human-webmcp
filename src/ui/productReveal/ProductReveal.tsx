@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { REVEAL_COPY, type RevealStep } from "./revealSequence";
 import "./productReveal.css";
 import { reviewShot } from "./revealShots";
-import { productReturnsToBalance, RETURN_TO_BALANCE } from "../productReturn";
+import { productReturnsToBalance, readProductBalance, RETURN_TO_BALANCE } from "../productReturn";
 
 export function ProductReveal() {
   const shot = reviewShot(window.location.search);
@@ -13,17 +13,18 @@ export function ProductReveal() {
   const [moving, setMoving] = useState(false);
   const [quiet, setQuiet] = useState(false);
   const [error, setError] = useState(false);
+  const [balance] = useState(readProductBalance);
   useEffect(() => {
     let cancelled = false;
     const element = host.current!;
     import("./revealRenderer").then(({ createRevealRenderer }) => createRevealRenderer(element, () => {
       if (!cancelled) setMoving(false);
-    })).then((renderer) => {
+    }, balance)).then((renderer) => {
       if (cancelled) renderer.dispose();
       else { controller.current = renderer; setReady(true); }
     }).catch(() => { if (!cancelled) setError(true); });
     return () => { cancelled = true; controller.current?.dispose(); controller.current = null; };
-  }, []);
+  }, [balance]);
   useEffect(() => {
     if (step !== 2 || moving || !quiet) return;
     const timer = window.setTimeout(() => setQuiet(false), 1500);

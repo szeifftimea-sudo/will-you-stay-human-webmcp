@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { revealClipTime } from "../../src/ui/productReveal/revealSequence";
 import { PRODUCT_SHOTS, reviewShot } from "../../src/ui/productReveal/revealShots";
+import { AnimationClip, AnimationMixer, Group, LoopOnce, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from "three";
+import { createProductBalanceProjection, PRODUCT_BALANCE_AXES, PRODUCT_RAIL_STEP } from "../../src/ui/productReveal/productBalance";
 
 // Check the actual shipped clip, not just the authoring report or a mocked renderer.
 const { readFileSync } = await vi.importActual<{readFileSync(path:string):Uint8Array}>("node:fs");
@@ -26,6 +28,37 @@ function track(name: string, path: string) {
 }
 
 describe("Blender-authored product reveal",()=> {
+  it("places real GLB marker groups on the engraved values after the actual shipped clip", () => {
+    const nodes = gltf.nodes.map((node: {name: string; translation?: number[]; rotation?: number[]; scale?: number[]}) => {
+      const group = new Group(); group.name = node.name;
+      if (node.translation) group.position.fromArray(node.translation);
+      if (node.rotation) group.quaternion.fromArray(node.rotation);
+      if (node.scale) group.scale.fromArray(node.scale);
+      return group;
+    });
+    gltf.nodes.forEach((node: {children?: number[]}, index: number) => node.children?.forEach(child => nodes[index].add(nodes[child])));
+    const root = new Group(); gltf.scenes[gltf.scene ?? 0].nodes.forEach((index: number) => root.add(nodes[index]));
+    const tracks = animation.channels.map((channel: {target: {node: number; path: string}; sampler: number}) => {
+      const sampler = animation.samplers[channel.sampler];
+      const property = {translation:"position",rotation:"quaternion",scale:"scale"}[channel.target.path]!;
+      const Track = property === "quaternion" ? QuaternionKeyframeTrack : VectorKeyframeTrack;
+      return new Track(`${nodes[channel.target.node].name}.${property}`, values(sampler.input).flat(), values(sampler.output).flat());
+    });
+    const balance = {comfort:1,control:1,connection:-1,freedom:0,responsibility:0};
+    const project = createProductBalanceProjection(root, balance);
+    const mixer = new AnimationMixer(root);
+    const action = mixer.clipAction(new AnimationClip("actual GLB clip", 6, tracks));
+    action.setLoop(LoopOnce, 1); action.clampWhenFinished = true; action.play();
+    mixer.setTime(6); project(3); root.updateMatrixWorld(true);
+    PRODUCT_BALANCE_AXES.forEach(axis => {
+      const marker = root.getObjectByName(`ResultOffset_${axis}`)!.getWorldPosition(new Vector3());
+      const zero = root.getObjectByName(`Zero_${axis}`)!.getWorldPosition(new Vector3());
+      expect(marker.x - zero.x).toBeCloseTo(balance[axis] * PRODUCT_RAIL_STEP, 5);
+    });
+    const zero = gltf.nodes.find((node: {name: string}) => node.name === "ScaleConvenience0");
+    const one = gltf.nodes.find((node: {name: string}) => node.name === "ScaleConvenience+1");
+    expect(one.translation[0] - zero.translation[0]).toBeCloseTo(PRODUCT_RAIL_STEP, 5);
+  });
   it("exports manufactured packaging details and a textured PBR finish",()=> {
     const names=gltf.nodes.map((n:{name:string})=>n.name);
     for(const name of ["LidWrappedEdge","CoverOuterFoil","CoverInnerFoil","CitySpinePrint","CityTopEndPrint","BaseWrapSeam","LiftingRibbon","FoldedRearCityPrint"]) expect(names).toContain(name);
