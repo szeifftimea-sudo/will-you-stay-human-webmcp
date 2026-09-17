@@ -20,7 +20,7 @@ The approved spatial game and separate product reveal have explicit public entry
 - **[Play the spatial game](https://will-you-stay-human.vercel.app/play)** — Machine City intro through the domain-driven Human Balance result.
 - **[Explore the tabletop concept](https://will-you-stay-human.vercel.app/product)** — box, interior, folded Human Balance and unfolding reveal; **Enter the game** continues to `/play`.
 
-Both routes are live production entry points and have been QA-checked. The original `/` entry remains available. Use `/play` and `/product` as the direct Product Hunt destinations, without developer query parameters.
+Both routes are live production entry points and have been QA-checked. The public root `/` canonicalizes to `/play`; use `/play` and `/product` as the direct Product Hunt destinations, without developer query parameters.
 
 The box, foldable Human Balance and five markers are a **physical companion concept/prototype**, not a manufactured or manufacturing-validated product. Fit checks and Blender animations demonstrate the concept, not production tolerances, durability, safety certification or availability for purchase.
 

@@ -382,3 +382,14 @@ A localhost valós runtime-kapu lezárult; további kézi hívás nem szüksége
 
 - A `README.md` nem tartalmaz pending deployment/pre-production állítást, `YOUTUBE_DEMO_URL` helyőrzőt vagy elavult hackathon-only pozicionálást.
 - A README a lifestyle closure / bedside kísérletet kizárja a launch scope-ból; az nem jelenik meg jóváhagyott launch assetként.
+
+## Production routing és Human Balance CTA-regresszió QA — 2026. szeptember 18.
+
+- Ellenőrzött routing-fix commit: `7ffb58261a046b115a08b921e0ab5edbec10e5d5`.
+- A kanonikus játékpresentation a `/play`; a publikus root `/` kliensoldali `history.replaceState` átirányítással `/play`-re kanonikalizál. A `/product` külön product-reveal route marad.
+- Friss production-tab QA: a `https://will-you-stay-human.vercel.app/` megnyitása után az URL `/play`-re váltott, és a V2 spatial presentation töltődött be.
+- Intermediate Human Balance állapotban a várt CTA-k megjelentek: **`Bring on the next question`** (primary) és **`Explore the tabletop concept`** (secondary).
+- A negyedik dilemma utáni, még lezárás előtti mérlegállapotban a várt CTA-k megjelentek: **`End the game`** (primary) és **`Explore the tabletop concept`** (secondary).
+- A `GAME_COMPLETE` Human Balance állapotban a várt CTA-k megjelentek: **`Start a new game`** (primary) és **`Explore the tabletop concept`** (secondary).
+- Az intermediate Human Balance → `/product?from=human-balance` → `/play?view=human-balance` roundtrip productionben ellenőrizve lett; a session, revision és balance változatlanul megmaradt. A final return útvonal ugyanazt a presentation/state-preservation szerződést használja.
+- A közvetlen `/product` route továbbra is elérhető és `HTTP/2 200` választ ad. A routing- és CTA-javítás presentation/navigation szintű volt; domainlogikát, balance-számítást vagy WebMCP-szerződést nem módosított.
