@@ -70,7 +70,7 @@ export function HumanBalance({
           })}
         </div>
   );
-  const showCompanion = Boolean(Depth) && !memory;
+  const showCompanion = Boolean(Depth);
   const continueButton = onContinue && continueLabel && (
     <button className={`${continueVariant}-action balance-new-round`} type="button" onClick={onContinue}>
       {continueLabel}

@@ -436,6 +436,8 @@ export function App({ services, sound, choiceDepth: ChoiceDepth, balanceDepth, b
               depth={balanceDepth}
               balance={session.balance}
               memory
+              companionHref={PRODUCT_FROM_BALANCE}
+              onVisitCompanion={() => rememberBalanceReturn(session)}
               onContinue={restartGame}
               continueLabel={copy.balance.restart}
               locale={locale}

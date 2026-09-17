@@ -16,7 +16,7 @@ export const PRODUCT_FROM_BALANCE = "/product?from=human-balance";
 export const RETURN_TO_BALANCE = "/play?view=human-balance";
 
 export function rememberBalanceReturn(session: GameSession): void {
-  if (session.phase !== "CONSEQUENCE_REVEALED" || !session.revealedOutcome) return;
+  if (!["CONSEQUENCE_REVEALED", "GAME_COMPLETE"].includes(session.phase) || !session.revealedOutcome) return;
   try {
     window.sessionStorage.setItem(PRODUCT_RETURN_KEY, JSON.stringify({
       sessionId: session.sessionId,
@@ -27,7 +27,7 @@ export function rememberBalanceReturn(session: GameSession): void {
 }
 
 export function hasBalanceReturn(session: GameSession | null): boolean {
-  if (session?.phase !== "CONSEQUENCE_REVEALED" || !session.revealedOutcome) return false;
+  if (!session || !["CONSEQUENCE_REVEALED", "GAME_COMPLETE"].includes(session.phase) || !session.revealedOutcome) return false;
   try {
     const saved = JSON.parse(window.sessionStorage.getItem(PRODUCT_RETURN_KEY) ?? "null");
     return Boolean(saved && saved.sessionId === session.sessionId

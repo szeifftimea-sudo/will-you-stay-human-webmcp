@@ -525,7 +525,7 @@ const enCopy: TranslationShape<typeof huCopy> = {
     roundMemory: "Your choices left a mark. The Balance remembers.",
     gameComplete: "The game is over. In four situations, you decided how much to entrust to the Machine.",
     nextQuestion: "Bring on the next question",
-    physicalCompanion: "Meet the physical companion",
+    physicalCompanion: "Explore the tabletop concept",
     endGame: "End the game",
     restart: "Start a new game",
   },

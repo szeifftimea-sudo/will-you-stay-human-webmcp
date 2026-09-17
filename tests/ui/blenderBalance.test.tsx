@@ -99,7 +99,7 @@ describe("optional Blender instrument on the original domain-driven balance", ()
     click(copy.outcome.showBalance);
     const before = structuredClone(services.engine.getSnapshot());
     const instrument = screen.getByTestId("human-balance");
-    const link = within(instrument).getByRole("link", { name: "Meet the physical companion" });
+    const link = within(instrument).getByRole("link", { name: copy.balance.physicalCompanion });
     const primary = within(instrument).getByRole("button", { name: copy.balance.nextQuestion });
     expect(primary).toHaveClass("primary-action");
     expect(link).toHaveClass("secondary-action");
@@ -443,6 +443,14 @@ describe("optional Blender instrument on the original domain-driven balance", ()
     expectDomainValues(complete.balance);
     expect(screen.getByTestId("human-balance")).toHaveClass("is-memory");
     expect(screen.getAllByTestId("balance-model-layer")).toHaveLength(1);
+    const finalInstrument = screen.getByTestId("human-balance");
+    const companion = within(finalInstrument).getByRole("link", { name: uiCopy.en.balance.physicalCompanion });
+    expect(companion).toHaveClass("secondary-action");
+    expect(companion).toHaveAttribute("href", PRODUCT_FROM_BALANCE);
+    const finalSnapshot = structuredClone(complete);
+    companion.addEventListener("click", (event) => event.preventDefault(), { once: true });
+    fireEvent.click(companion);
+    expect(services.engine.getSnapshot()).toEqual(finalSnapshot);
     click(uiCopy.en.balance.restart);
     expect(screen.getByRole("heading", { name: uiCopy.en.landing.title })).toBeVisible();
     expectNoModel();
