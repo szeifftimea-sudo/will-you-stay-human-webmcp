@@ -66,18 +66,27 @@ export function HumanBalance({
           })}
         </div>
   );
+  const showCompanion = Boolean(Depth) && !memory;
+  const continueButton = onContinue && continueLabel && (
+    <button className={`${continueVariant}-action balance-new-round`} type="button" onClick={onContinue}>
+      {continueLabel}
+    </button>
+  );
   const footer = (
-        <footer className="balance-footer">
+        <footer className={`balance-footer${showCompanion ? " has-companion-link" : ""}`}>
           <p>
             {memory
               ? copy.balance.gameComplete
               : copy.balance.roundMemory}
           </p>
-          {onContinue && continueLabel && (
-            <button className={`${continueVariant}-action balance-new-round`} type="button" onClick={onContinue}>
-              {continueLabel}
-            </button>
-          )}
+          {showCompanion ? (
+            <div className="balance-result-actions">
+              {continueButton}
+              <a className="secondary-action balance-companion-link" href="/product">
+                {copy.balance.physicalCompanion}
+              </a>
+            </div>
+          ) : continueButton}
         </footer>
   );
   return (

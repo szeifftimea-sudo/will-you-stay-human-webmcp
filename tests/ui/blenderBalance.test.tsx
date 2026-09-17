@@ -85,6 +85,39 @@ describe("optional Blender instrument on the original domain-driven balance", ()
     localStorage.setItem(UI_LOCALE_STORAGE_KEY, "en");
   });
 
+  it("offers companion navigation only from the spatial result without mutating the session", () => {
+    const services = createAppServices(new MemoryGameRepository());
+    const copy = uiCopy.en;
+    render(<App services={services} sound={createSoundSpy()} balanceDepth={DecorativeBalanceDepth} />);
+    expect(screen.queryByRole("link", { name: copy.balance.physicalCompanion })).not.toBeInTheDocument();
+    enterChoices();
+    reveal("brain");
+    expect(screen.queryByRole("link", { name: copy.balance.physicalCompanion })).not.toBeInTheDocument();
+    click(copy.outcome.showBalance);
+    const before = structuredClone(services.engine.getSnapshot());
+    const instrument = screen.getByTestId("human-balance");
+    const link = within(instrument).getByRole("link", { name: "Meet the physical companion" });
+    const primary = within(instrument).getByRole("button", { name: copy.balance.nextQuestion });
+    expect(primary).toHaveClass("primary-action");
+    expect(link).toHaveClass("secondary-action");
+    expect(link).toHaveAttribute("href", "/product");
+    expect(link).not.toHaveAttribute("target");
+    expect(link.closest(".balance-housing")).toBeNull();
+    expect(link.closest(".balance-footer")).not.toBeNull();
+    link.focus();
+    expect(link).toHaveFocus();
+    // JSDOM cannot navigate documents. Cancel only the browser default here;
+    // any React/game handler would still run and be caught by the snapshot.
+    link.addEventListener("click", event => event.preventDefault(), { once: true });
+    fireEvent.click(link);
+    expect(services.engine.getSnapshot()).toEqual(before);
+  });
+
+  it("does not add companion navigation to the original non-spatial result", () => {
+    render(<HumanBalance balance={ZERO_BALANCE} locale="en" />);
+    expect(screen.queryByRole("link", { name: uiCopy.en.balance.physicalCompanion })).not.toBeInTheDocument();
+  });
+
   it("leaves the original App and its balance free of the optional model", () => {
     const services = createAppServices(new MemoryGameRepository());
     render(<App services={services} sound={createSoundSpy()} />);
