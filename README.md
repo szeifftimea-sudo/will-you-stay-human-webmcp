@@ -1,27 +1,26 @@
 # Will You Stay Human? — Heart in the Machine
 
-**A Metropolis-inspired moral decision game where a human decides how much authority to give an AI agent—and the architecture enforces that boundary.**
+**An online decision game about AI delegation where a human decides how much authority to give an AI agent—and the architecture enforces that boundary.**
 
 Futura performs real, stateful work inside the live game: it enters Machine City, presents dilemmas, reveals reflections tied to the player’s current selection, reads structured state, and uncovers the consequences of confirmed decisions. But it cannot choose MIND, HAND, or HEART, acknowledge its own reflection, or confirm a moral decision.
 
 The product does what it argues: the Machine may assist and act, but the boundary of delegation remains human.
 
-This hackathon build is a working single-player vertical slice with four playable dilemmas, persistent multi-round state, five registered WebMCP tools, and an English–Hungarian interface that defaults to English.
+The live product is a working single-player vertical slice with four playable dilemmas, persistent multi-round state, five registered WebMCP tools, and an English–Hungarian interface that defaults to English.
 
 | Submission link | Status |
 |---|---|
 | Live app | [https://will-you-stay-human.vercel.app](https://will-you-stay-human.vercel.app) |
 | Public source repository | [https://github.com/szeifftimea-sudo/will-you-stay-human-webmcp](https://github.com/szeifftimea-sudo/will-you-stay-human-webmcp) |
-| Public demo video | **Pending YouTube upload** — `YOUTUBE_DEMO_URL` |
 
 ## Spatial release checkpoint
 
 The approved spatial game and separate product reveal have explicit public entry points:
 
 - **[Play the spatial game](https://will-you-stay-human.vercel.app/play)** — Machine City intro through the domain-driven Human Balance result.
-- **[Meet the physical companion](https://will-you-stay-human.vercel.app/product)** — box, interior, folded Human Balance and unfolding reveal; **Enter the game** continues to `/play`.
+- **[Explore the tabletop concept](https://will-you-stay-human.vercel.app/product)** — box, interior, folded Human Balance and unfolding reveal; **Enter the game** continues to `/play`.
 
-These routes are prepared in this checkpoint; production publication and live QA are pending deployment approval. The original `/` entry remains available. Use `/play` and `/product` as the direct Product Hunt destinations, without developer query parameters.
+Both routes are live production entry points and have been QA-checked. The original `/` entry remains available. Use `/play` and `/product` as the direct Product Hunt destinations, without developer query parameters.
 
 The box, foldable Human Balance and five markers are a **physical companion concept/prototype**, not a manufactured or manufacturing-validated product. Fit checks and Blender animations demonstrate the concept, not production tolerances, durability, safety certification or availability for purchase.
 
@@ -45,6 +44,24 @@ The current journey applies that question to four dilemmas, in a fixed order:
 4. deciding whether a fast-spreading claim is true.
 
 All four are playable in one session. Decisions, revealed outcomes, and the Human Balance accumulate across rounds. A reset is available only after the fourth dilemma reaches `GAME_COMPLETE`.
+
+## Astra-assisted V2 — concrete results
+
+The original product thesis, V1 core logic, and WebMCP architecture existed before Astra. GPT-6 Astra was used in Codex to take that existing direction further in V2, especially through spatial and 3D product work.
+
+The V2 work created or advanced these editable Blender sources:
+
+- `assets/blender/machine-city-landing.blend`
+- `assets/blender/machine-city-landing-depth.blend`
+- `assets/blender/human-balance.blend`
+- `assets/blender/companion-product-box.blend`
+- `assets/blender/product-reveal-animated.blend`
+
+This included the 3D Machine City, spatial landing and presentation, the Human Balance model, the physical companion box and foldable-balance concept, product-reveal animation, Blender camera/light/depth/material work, procedural authoring scripts, browser-ready GLB exports, React/Three.js integration, and iterative implementation, visual review, and testing of `/play` and `/product`.
+
+The hybrid/tabletop direction was already part of the product vision. Astra helped turn that direction into editable 3D assets, a spatial web experience, and an iteratively tested V2 implementation; it did not define the product thesis or autonomously design the product. Product direction, the MIND–HAND–HEART model, the meaning of the five Human Balance dimensions, the human–agent authority boundary, visual accept/reject decisions, priorities, and final UX decisions remained human-owned.
+
+The launch scope contains the approved `/play` journey, the `/product` box-to-unfold reveal, and their source assets. Rejected review experiments—including the lifestyle closure and bedside scene—are excluded from the launch product and remain post-launch ideas only.
 
 ## Human Balance
 
@@ -239,11 +256,14 @@ Implemented in this repository:
 - restrained procedural Web Audio event cues, mute control, keyboard focus handling, and reduced-motion support;
 - automated unit, content, WebMCP, boundary, sound, and UI regression tests.
 
-## Future vision — not implemented
+## Current tabletop concept and future vision
 
-The following ideas are product directions only. They are not part of the current hackathon build:
+The current release includes a **3D tabletop companion concept/prototype**: the box, foldable Human Balance and five markers shown in the separate `/product` reveal. It is not for sale and has not been validated for manufacturing.
 
-- a manufactured hybrid tabletop edition (the digital companion concept/prototype is included in this checkpoint);
+The following ideas are future product directions only. They are not implemented:
+
+- manufacturing validation, a commercial SKU, and a final physical product;
+- family variants and QR/Companion Mode;
 - multiplayer sessions;
 - downloadable thematic and age-specific dilemma packs;
 - continuously expandable online content;
