@@ -9,7 +9,7 @@ pnpm build
 
 A tesztcsomag lefedi a domainátmeneteket, az egyszeri következményalkalmazást, a zárt tool-sémákat, a Player/Agent határt, a regisztrációt és a tool által okozott React UI-változást.
 
-Legutóbbi teljes futás: 2026. augusztus 30. — 4 tesztfájl, 18/18 sikeres teszt; production build sikeres, 4602 modul transzformálva; `git diff --check` hibamentes.
+Legutóbbi teljes futás: 2026. szeptember 17. — 25 tesztfájl, 209/209 sikeres teszt; production build **PASS**; `git diff --check` **PASS**. A build ismert, nem blokkoló Three.js chunk-warningot jelez.
 
 ## Manuális kliensmátrix
 
@@ -357,3 +357,28 @@ A localhost valós runtime-kapu lezárult; további kézi hívás nem szüksége
 - A read-only lekérés után a UI változatlan maradt. Az agent nem hozott létre játékosi kijelölést vagy megerősítést; a smoke az emberi kontrollpontnál véget ért.
 - A teljes reveal-flow nem része ennek a production smoke-nak; azt a localhost Chrome-evidence és az automatizált regresszió bizonyítja.
 - Részletes környezet, hívások és képi hashlista: [`evidence/PRODUCTION_RELEASE_2026-08-30.md`](evidence/PRODUCTION_RELEASE_2026-08-30.md).
+
+## Aktuális dokumentációs release és production smoke — 2026. szeptember 17.
+
+- Release commit: `c748e973f35ef95871c92723ed2d47bc0c1c7412`.
+- Teljes automatizált futás: **25 tesztfájl, 209/209 sikeres teszt**.
+- Production build: **PASS**.
+- `git diff --check`: **PASS**.
+- Vercel production deployment: **READY**; kanonikus URL: <https://will-you-stay-human.vercel.app>.
+- `/play` és `/product`: `HTTP/2 200`.
+- Production headerek: `Origin-Agent-Cluster: ?1`, `Permissions-Policy: tools=(self)`.
+- A `machine-city-landing.glb`, `human-balance.glb` és `product-reveal-animated.glb` production útvonalai `HTTP/2 200` választ adtak.
+- A live `assets/index-CWDlUfBX.js` bundle SHA-256 értéke megegyezik a lokális `dist/assets/index-CWDlUfBX.js` SHA-256 értékével: `39c958dddb17bf73ed4e432eb0f3463aef68c2395b94342f29a3af85355f1b58`.
+- Ez a dokumentációs release nem módosította az alkalmazáslogikát vagy az UI-bundle-t.
+- A build ismert, **nem blokkoló** Three.js chunk-warningot jelez: a külön `three.module` chunk körülbelül 631 kB minifikált méretű.
+
+### WebMCP production státusz
+
+- A meglévő Chrome 152 evidence a `WebMCPTesting` és `DevToolsWebMCPSupport` flagekkel 5/5 regisztrált tool discoveryjét igazolja.
+- A meglévő production Chrome smoke a publikus HTTPS originen a discoveryt és három, szerződéshelyes toolhívást igazolja: `enter_machine_city`, `present_dilemma`, `get_current_game_state`.
+- A teljes ChatGPT in-app browseres agent invocation továbbra sincs teljesen végigbizonyítva: az elérhető Site-tools capability hiánya miatt ugyanabban az in-app browser sessionben a teljes agent → tool → UI folyamat nem zárható le. Ez nyitott bizonyítási korlát, nem sikeres end-to-end állítás.
+
+### Aktuális dokumentációs ellenőrzés
+
+- A `README.md` nem tartalmaz pending deployment/pre-production állítást, `YOUTUBE_DEMO_URL` helyőrzőt vagy elavult hackathon-only pozicionálást.
+- A README a lifestyle closure / bedside kísérletet kizárja a launch scope-ból; az nem jelenik meg jóváhagyott launch assetként.
