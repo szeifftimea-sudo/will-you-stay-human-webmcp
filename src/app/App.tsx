@@ -38,6 +38,7 @@ import {
 } from "../ui/audio/ritualSound";
 import type { AppServices } from "./bootstrap";
 import { LandingCity } from "../ui/landing/LandingCity";
+import { PRODUCT_FROM_BALANCE, rememberBalanceReturn, shouldRestoreBalance } from "../ui/productReturn";
 
 const INITIAL_STATUS: WebMcpRegistrationStatus = {
   mode: "registering",
@@ -73,7 +74,9 @@ export function App({ services, sound, choiceDepth: ChoiceDepth, balanceDepth, b
   const [awaitingStage, setAwaitingStage] = useState<"dilemma" | "guide" | "choices">("dilemma");
   const [lensGuideAcknowledged, setLensGuideAcknowledged] = useState(false);
   const [reconsidering, setReconsidering] = useState(false);
-  const [outcomeStage, setOutcomeStage] = useState<"consequence" | "balance">("consequence");
+  const [outcomeStage, setOutcomeStage] = useState<"consequence" | "balance">(
+    () => shouldRestoreBalance(view.session) ? "balance" : "consequence",
+  );
   const locale = balanceDepth && balanceLocale && (
     view.session?.phase === "GAME_COMPLETE"
     || (view.session?.phase === "CONSEQUENCE_REVEALED" && outcomeStage === "balance")
@@ -416,6 +419,8 @@ export function App({ services, sound, choiceDepth: ChoiceDepth, balanceDepth, b
                   depth={balanceDepth}
                   balance={session.balance}
                   previousBalance={session.revealedOutcome.balanceBefore}
+                  companionHref={PRODUCT_FROM_BALANCE}
+                  onVisitCompanion={() => rememberBalanceReturn(session)}
                   onContinue={continueJourney}
                   continueLabel={view.hasNextDilemma ? copy.balance.nextQuestion : copy.balance.endGame}
                   continueVariant={view.hasNextDilemma ? "primary" : "secondary"}

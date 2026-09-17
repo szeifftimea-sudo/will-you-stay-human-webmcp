@@ -11,6 +11,8 @@ export function HumanBalance({
   continueVariant = "primary",
   locale,
   depth: Depth,
+  companionHref = "/product",
+  onVisitCompanion,
 }: {
   balance: Balance;
   previousBalance?: Balance;
@@ -20,6 +22,8 @@ export function HumanBalance({
   continueVariant?: "primary" | "secondary";
   locale: UiLocale;
   depth?: ComponentType;
+  companionHref?: string;
+  onVisitCompanion?: () => void;
 }) {
   const copy = uiCopy[locale];
   const labels = Object.entries(copy.balance.axes) as Array<[keyof Balance, string]>;
@@ -82,7 +86,7 @@ export function HumanBalance({
           {showCompanion ? (
             <div className="balance-result-actions">
               {continueButton}
-              <a className="secondary-action balance-companion-link" href="/product">
+              <a className="secondary-action balance-companion-link" href={companionHref} onClick={onVisitCompanion}>
                 {copy.balance.physicalCompanion}
               </a>
             </div>

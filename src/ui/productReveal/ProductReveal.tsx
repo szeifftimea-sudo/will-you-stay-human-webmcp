@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { REVEAL_COPY, type RevealStep } from "./revealSequence";
 import "./productReveal.css";
 import { reviewShot } from "./revealShots";
+import { productReturnsToBalance, RETURN_TO_BALANCE } from "../productReturn";
 
 export function ProductReveal() {
   const shot = reviewShot(window.location.search);
@@ -33,9 +34,11 @@ export function ProductReveal() {
     setMoving(true); setStep(next); controller.current?.go(next);
   };
   const copy = REVEAL_COPY[step];
+  const returnToBalance = productReturnsToBalance();
+  const finalAction = returnToBalance ? "Return to the Human Balance" : copy.action;
   return <main className="product-reveal" lang="en" data-reveal-step={step} data-review-shot={shot ? "true" : undefined} aria-busy={moving}>
     <div className="product-reveal__canvas" ref={host} aria-hidden="true" />
-    <header className="product-reveal__header" hidden={quiet}><span>WILL YOU STAY HUMAN?</span><span>Physical companion to the online experience</span></header>
+    <header className="product-reveal__header" hidden={quiet}><span>WILL YOU STAY HUMAN?</span><span>The tabletop companion to the online decision game</span></header>
     {shot && <p className="product-reveal__shot-title">{shot.title}</p>}
     <section className="product-reveal__copy" aria-live="polite" aria-hidden={quiet || moving} style={{ visibility: quiet ? "hidden" : undefined }}>
       <p className="product-reveal__eyebrow">{copy.eyebrow}</p>
@@ -46,9 +49,9 @@ export function ProductReveal() {
       {error ? <p role="alert">The 3D preview could not load. Please reload this page to try again.</p>
         : !ready ? <p role="status">Preparing the companion…</p>
         : step < 3 ? <button className="primary-action" disabled={moving} onClick={() => go((step + 1) as RevealStep)}>{copy.action}<span aria-hidden="true">→</span></button>
-        : moving ? <button className="primary-action" disabled>{copy.action}<span aria-hidden="true">→</span></button>
-        : <a className="primary-action" href="/play">{copy.action}<span aria-hidden="true">→</span></a>}
-      {ready && step > 0 && <button className="product-reveal__replay" disabled={moving} onClick={() => go(0)}>Replay reveal</button>}
+        : moving ? <button className="primary-action" disabled>{finalAction}<span aria-hidden="true">→</span></button>
+        : <a className="primary-action" href={returnToBalance ? RETURN_TO_BALANCE : "/play"}>{finalAction}<span aria-hidden="true">→</span></a>}
+      {ready && step === 3 && <button className="product-reveal__replay" disabled={moving} onClick={() => go(0)}>Replay reveal</button>}
       {step === 3 && <p className="product-reveal__dimensions">Convenience · Control · Connection · Freedom · Responsibility</p>}
     </footer>
   </main>;

@@ -1,9 +1,9 @@
 /** Presentation choreography only. No session, commands, decisions or balance math. */
 export type RevealStep = 0 | 1 | 2 | 3;
 export const REVEAL_COPY = [
-  { eyebrow: "HEART IN THE MACHINE", title: "From Machine City. Into your hands.", description: "Turn your digital choices into something you can touch.", action: "Meet the Human Balance" },
-  { eyebrow: "THE PHYSICAL COMPANION", title: "Your choices, packed into one object.", description: "A foldable Human Balance and five markers — designed to carry your decisions beyond the screen.", action: "Open the box" },
-  { eyebrow: "MADE TO UNFOLD", title: "Built to unfold. Made to stay with you.", description: "Inside: the foldable Human Balance and five markers for the choices you make online.", action: "Unfold the Human Balance" },
+  { eyebrow: "HEART IN THE MACHINE", title: "From Machine City. Into your hands.", description: "Turn your digital choices into something you can touch.", action: "Discover the tabletop edition" },
+  { eyebrow: "THE TABLETOP EDITION", title: "A world, held in one box.", description: "A foldable Human Balance and five markers bring your online decisions into the physical world.", action: "Open the box" },
+  { eyebrow: "MADE TO UNFOLD", title: "Built to unfold. Made to stay with you.", description: "Inside: the foldable Human Balance and five markers that carry your choices beyond the screen.", action: "Unfold the Human Balance" },
   { eyebrow: "HUMAN BALANCE", title: "Your choices. Made tangible.", description: "Five dimensions track what you kept — and what you handed to the Machine.", action: "Enter the game" },
 ] as const;
 export const clamp01 = (value: number) => Math.min(1, Math.max(0, value));

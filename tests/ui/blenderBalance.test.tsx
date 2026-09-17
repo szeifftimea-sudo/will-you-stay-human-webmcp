@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../src/app/App";
 import { createAppServices, type AppServices } from "../../src/app/bootstrap";
 import { dilemmaCatalog } from "../../src/content/dilemmaCatalog.hu";
@@ -9,6 +9,7 @@ import { MemoryGameRepository } from "../../src/infrastructure/storage/gameRepos
 import type { RitualSoundPort } from "../../src/ui/audio/ritualSound";
 import { HumanBalance } from "../../src/ui/components/HumanBalance";
 import { UI_LOCALE_STORAGE_KEY } from "../../src/ui/presentationLocale";
+import { PRODUCT_FROM_BALANCE, RETURN_TO_BALANCE } from "../../src/ui/productReturn";
 
 // Only the decorative model is replaced. The original App, HTML balance and game engine run normally.
 function DecorativeBalanceDepth(props: Record<string, unknown>) {
@@ -83,12 +84,14 @@ function expectUnconfirmed(services: AppServices) {
 describe("optional Blender instrument on the original domain-driven balance", () => {
   beforeEach(() => {
     localStorage.setItem(UI_LOCALE_STORAGE_KEY, "en");
+    sessionStorage.clear();
   });
+  afterEach(() => { window.history.replaceState(null, "", "/"); sessionStorage.clear(); });
 
   it("offers companion navigation only from the spatial result without mutating the session", () => {
     const services = createAppServices(new MemoryGameRepository());
     const copy = uiCopy.en;
-    render(<App services={services} sound={createSoundSpy()} balanceDepth={DecorativeBalanceDepth} />);
+    const mounted = render(<App services={services} sound={createSoundSpy()} balanceDepth={DecorativeBalanceDepth} />);
     expect(screen.queryByRole("link", { name: copy.balance.physicalCompanion })).not.toBeInTheDocument();
     enterChoices();
     reveal("brain");
@@ -100,7 +103,7 @@ describe("optional Blender instrument on the original domain-driven balance", ()
     const primary = within(instrument).getByRole("button", { name: copy.balance.nextQuestion });
     expect(primary).toHaveClass("primary-action");
     expect(link).toHaveClass("secondary-action");
-    expect(link).toHaveAttribute("href", "/product");
+    expect(link).toHaveAttribute("href", PRODUCT_FROM_BALANCE);
     expect(link).not.toHaveAttribute("target");
     expect(link.closest(".balance-housing")).toBeNull();
     expect(link.closest(".balance-footer")).not.toBeNull();
@@ -110,6 +113,17 @@ describe("optional Blender instrument on the original domain-driven balance", ()
     // any React/game handler would still run and be caught by the snapshot.
     link.addEventListener("click", event => event.preventDefault(), { once: true });
     fireEvent.click(link);
+    expect(services.engine.getSnapshot()).toEqual(before);
+    mounted.unmount();
+    window.history.replaceState(null, "", RETURN_TO_BALANCE);
+    const restored = render(<App services={services} sound={createSoundSpy()} balanceDepth={DecorativeBalanceDepth} />);
+    expectDomainValues(before!.balance, "en", before!.revealedOutcome!.balanceBefore);
+    expect(screen.queryByRole("button", { name: copy.outcome.showBalance })).not.toBeInTheDocument();
+    expect(services.engine.getSnapshot()).toEqual(before);
+    restored.unmount();
+    // Refreshing this presentation return route also stays on the result.
+    render(<App services={services} sound={createSoundSpy()} balanceDepth={DecorativeBalanceDepth} />);
+    expectDomainValues(before!.balance, "en", before!.revealedOutcome!.balanceBefore);
     expect(services.engine.getSnapshot()).toEqual(before);
   });
 
