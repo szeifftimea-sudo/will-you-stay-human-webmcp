@@ -5,5 +5,6 @@ export function presentationRoute(pathname: string, search: string) {
   if (path === "/product" || query.get("product") === "reveal") return "product";
   if (path === "/play" || query.get("tabletop") === "cards") return "spatial";
   if (query.get("tabletop") === "1") return "prototype";
+  if (path === "/") return "spatial";
   return "original";
 }

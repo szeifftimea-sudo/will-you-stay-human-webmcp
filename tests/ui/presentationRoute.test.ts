@@ -10,7 +10,7 @@ describe("public presentation routes", () => {
     ["/", "?tabletop=cards", "spatial"],
     ["/", "?product=reveal", "product"],
     ["/", "?tabletop=1", "prototype"],
-    ["/", "", "original"],
+    ["/", "", "spatial"],
   ])("resolves %s%s without changing the original entry", (path, search, expected) => {
     expect(presentationRoute(path, search)).toBe(expected);
   });
