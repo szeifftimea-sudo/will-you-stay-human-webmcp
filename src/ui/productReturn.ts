@@ -16,24 +16,28 @@ export const PRODUCT_FROM_BALANCE = "/product?from=human-balance";
 export const RETURN_TO_BALANCE = "/play?view=human-balance";
 
 export function rememberBalanceReturn(session: GameSession): void {
-  if (!["CONSEQUENCE_REVEALED", "GAME_COMPLETE"].includes(session.phase) || !session.revealedOutcome) return;
+  if (!["CONSEQUENCE_REVEALED", "GAME_COMPLETE"].includes(session.phase)) return;
+  const outcome = session.revealedOutcome ?? session.outcomeHistory.at(-1);
+  if (!outcome) return;
   try {
     window.sessionStorage.setItem(PRODUCT_RETURN_KEY, JSON.stringify({
       sessionId: session.sessionId,
       revision: session.stateRevision,
-      decisionId: session.revealedOutcome.decisionId,
+      decisionId: outcome.decisionId,
     }));
   } catch { /* Unavailable presentation storage must not affect the game. */ }
 }
 
 export function hasBalanceReturn(session: GameSession | null): boolean {
-  if (!session || !["CONSEQUENCE_REVEALED", "GAME_COMPLETE"].includes(session.phase) || !session.revealedOutcome) return false;
+  if (!session || !["CONSEQUENCE_REVEALED", "GAME_COMPLETE"].includes(session.phase)) return false;
+  const decisionId = session.revealedOutcome?.decisionId ?? session.outcomeHistory.at(-1)?.decisionId;
+  if (!decisionId) return false;
   try {
     const saved = JSON.parse(window.sessionStorage.getItem(PRODUCT_RETURN_KEY) ?? "null");
     return Boolean(saved && saved.sessionId === session.sessionId
       && saved.revision === session.stateRevision
-      && saved.decisionId === session.revealedOutcome.decisionId
-      && saved.decisionId === session.confirmedDecision?.decisionId);
+      && saved.decisionId === decisionId
+      && (session.phase === "GAME_COMPLETE" || saved.decisionId === session.confirmedDecision?.decisionId));
   } catch { return false; }
 }
 

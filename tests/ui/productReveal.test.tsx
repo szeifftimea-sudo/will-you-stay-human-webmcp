@@ -125,7 +125,13 @@ describe("separate product reveal",()=> {
     expect(hasBalanceReturn({ ...session, phase: "READY_FOR_CONFIRMATION" })).toBe(false);
     expect(hasBalanceReturn({ ...session, revealedOutcome: { ...session.revealedOutcome!, decisionId: "other" } })).toBe(false);
     expect(hasBalanceReturn(null)).toBe(false);
-    const complete = { ...session, phase: "GAME_COMPLETE" as const };
+    const complete = {
+      ...session,
+      phase: "GAME_COMPLETE" as const,
+      stateRevision: session.stateRevision + 1,
+      confirmedDecision: null,
+      revealedOutcome: null,
+    };
     new LocalStorageGameRepository(localStorage).save(complete);
     rememberBalanceReturn(complete);
     window.history.replaceState(null, "", PRODUCT_FROM_BALANCE);
