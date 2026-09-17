@@ -1,0 +1,234 @@
+{
+  "asset": "Human Balance / Embermérleg",
+  "authoringTool": "5.2.2 LTS",
+  "recipe": "scripts/blender/build_human_balance.py",
+  "revision": "phase3-single-leaf-title-product-depth",
+  "source": "assets/blender/human-balance.blend",
+  "export": "public/models/human-balance.glb",
+  "sourceBytes": 782571,
+  "glbBytes": 1163816,
+  "sourceSha256": "d2f08f138f635f8f5fa1ca796e16a88541c81145281dd3af0ea96e9685a7e124",
+  "glbSha256": "f50d8ed0912f6c45516fa657467e302bb8c02655868e70731edec346b9a75acb",
+  "geometry": {
+    "meshObjects": 159,
+    "evaluatedVertices": 9660,
+    "evaluatedTriangles": 17760
+  },
+  "halfHousingBodyBlenderDimensions": [
+    4.982,
+    4.5,
+    0.32
+  ],
+  "housingBlenderBounds": {
+    "min": [
+      -5.0,
+      -2.25,
+      -0.28300002217292786
+    ],
+    "max": [
+      5.0,
+      2.25,
+      0.1979999989271164
+    ],
+    "dimensions": [
+      10.0,
+      4.5,
+      0.48100002110004425
+    ]
+  },
+  "assetBlenderBounds": {
+    "min": [
+      -5.0,
+      -2.25,
+      -0.28300002217292786
+    ],
+    "max": [
+      5.0,
+      2.25,
+      0.1979999989271164
+    ],
+    "dimensions": [
+      10.0,
+      4.5,
+      0.48100002110004425
+    ]
+  },
+  "faceAxes": {
+    "blender": "XY; outward +Z",
+    "gltf": "XZ; outward +Y"
+  },
+  "gltfAxisConversion": "Blender (x,y,z) -> glTF (x,z,-y)",
+  "railRangeBlenderX": [
+    -2.5,
+    3.0
+  ],
+  "zeroBlenderX": 0.25,
+  "foldGapBlender": 0.036,
+  "railGapBlender": 0.08,
+  "axes": [
+    {
+      "axis": "comfort",
+      "blenderRowY": 1.15,
+      "gltfRowZ": -1.15,
+      "rail": "Rail_comfort",
+      "railHalves": [
+        "RailLeft_comfort",
+        "RailRight_comfort"
+      ],
+      "labelPlaque": "Label_comfort",
+      "marker": "Marker_comfort",
+      "zero": "Zero_comfort"
+    },
+    {
+      "axis": "control",
+      "blenderRowY": 0.575,
+      "gltfRowZ": -0.575,
+      "rail": "Rail_control",
+      "railHalves": [
+        "RailLeft_control",
+        "RailRight_control"
+      ],
+      "labelPlaque": "Label_control",
+      "marker": "Marker_control",
+      "zero": "Zero_control"
+    },
+    {
+      "axis": "connection",
+      "blenderRowY": 0.0,
+      "gltfRowZ": -0.0,
+      "rail": "Rail_connection",
+      "railHalves": [
+        "RailLeft_connection",
+        "RailRight_connection"
+      ],
+      "labelPlaque": "Label_connection",
+      "marker": "Marker_connection",
+      "zero": "Zero_connection"
+    },
+    {
+      "axis": "freedom",
+      "blenderRowY": -0.575,
+      "gltfRowZ": 0.575,
+      "rail": "Rail_freedom",
+      "railHalves": [
+        "RailLeft_freedom",
+        "RailRight_freedom"
+      ],
+      "labelPlaque": "Label_freedom",
+      "marker": "Marker_freedom",
+      "zero": "Zero_freedom"
+    },
+    {
+      "axis": "responsibility",
+      "blenderRowY": -1.15,
+      "gltfRowZ": 1.15,
+      "rail": "Rail_responsibility",
+      "railHalves": [
+        "RailLeft_responsibility",
+        "RailRight_responsibility"
+      ],
+      "labelPlaque": "Label_responsibility",
+      "marker": "Marker_responsibility",
+      "zero": "Zero_responsibility"
+    }
+  ],
+  "materialPaletteSource": "src/ui/styles/app.css",
+  "paletteSrgb": {
+    "petrol": "#061014",
+    "petrol_deep": "#02090c",
+    "cyan": "#68d4e8",
+    "neutral": "#d7e8e7",
+    "amber": "#f4a666",
+    "ivory": "#f2eee5",
+    "muted": "#b8c1bf"
+  },
+  "cityPrint": {
+    "source": "assets/textures/human-balance-city-print.png",
+    "sha256": "f29b7b1d52a674c71499a6930ca3746581b844c77afa5ba1e90892a4910d1035",
+    "bytes": 587471,
+    "dimensions": [
+      960,
+      480
+    ],
+    "material": "Face_CityPrint",
+    "embeddedFormat": "PNG",
+    "blenderUV": "U=(worldX+5)/10; V=(worldY+2.25)/4.5; +Y is image top",
+    "owners": [
+      "HousingFaceLeft",
+      "HousingFaceRight"
+    ]
+  },
+  "exportFeatures": {
+    "textures": 1,
+    "cameras": 0,
+    "lights": 0,
+    "animations": 0,
+    "externalDecoders": 0
+  },
+  "operations": [
+    "Modeled two independent 0.32-deep graphite panels with a real central fold gap, machined beveled sidewalls, thin face skins and recessed backplates.",
+    "Built three small interleaved hollow-knuckle hinges and pins with editable FoldLeft/FoldRight pivots.",
+    "Split each of the five physical rails at the fold, retaining separate RailLeft_axis and RailRight_axis groups without any bridging geometry.",
+    "Placed one continuous title plaque entirely on the left leaf, clear of the hinge; retained cyan-left/amber-right perimeter inlays without baked text.",
+    "Added restrained double corner returns, interrupted dot/trace bands and title-flank circuit motifs in the safe perimeter channels, batched into one mesh per half with the existing accent materials.",
+    "Subtracted two real keyhole hanging pockets through discrete rear mounting plates and into the case using editable Boolean modifiers.",
+    "Added four shallow rear wall spacers; manufacturing cutters remain source-only, outside the GLB selection.",
+    "Modeled five separate shallow three-dimensional troughs with dark floors, fine graphite lips and cyan/amber inlays; no fixed face cavities conflict with the responsive HTML-driven rail positions.",
+    "Modeled five independent low-profile cyan circular sliders with fine amber rims, without dark knobs or grips.",
+    "Added five ivory zero-index rings and five separate low hexagonal label plaques, without baked text or numeric labels.",
+    "Assigned reusable graphite PBR finishes and existing Machine City cyan/amber/ivory accent colors.",
+    "Mapped one continuous dark city illustration over only the two face skins, packed it into the editable Blender file, and embedded its PNG in the self-contained GLB.",
+    "Saved editable blockout, material-stage and final Blender sources.",
+    "Exported selected geometry as self-contained GLB; modifiers applied only on export."
+  ],
+  "scope": "Geometry and materials only; no score, domain state or interaction logic.",
+  "foldingVerification": {
+    "pivotBlender": [
+      0,
+      0,
+      0.17
+    ],
+    "rotationAxisBlender": "Y",
+    "closedRotationDegrees": {
+      "FoldLeft": 90,
+      "FoldRight": -90
+    },
+    "sampledCrossHalfSurfaceChecks": [
+      {
+        "degreesPerHalf": 0,
+        "crossHalfTriangleIntersections": 0
+      },
+      {
+        "degreesPerHalf": 30,
+        "crossHalfTriangleIntersections": 0
+      },
+      {
+        "degreesPerHalf": 60,
+        "crossHalfTriangleIntersections": 0
+      },
+      {
+        "degreesPerHalf": 90,
+        "crossHalfTriangleIntersections": 0
+      }
+    ],
+    "closedInnerSurfaceClearance": 0.07849978655576706,
+    "closedBlenderBounds": {
+      "min": [
+        -0.45299988985061646,
+        -2.25,
+        0.1420000046491623
+      ],
+      "max": [
+        0.45299988985061646,
+        2.25,
+        5.170000076293945
+      ],
+      "dimensions": [
+        0.9059997797012329,
+        4.5,
+        5.028000071644783
+      ]
+    },
+    "limitations": "Surface-intersection checks at four poses and closed clearance; not a manufacturing, load-bearing or continuous swept-volume certification."
+  }
+}

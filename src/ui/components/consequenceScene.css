@@ -1,0 +1,53 @@
+/* Narrative resolution only; balance and all earlier stations stay untouched. */
+.game-app:has(.consequence-resolution-scene) { height: 100dvh; }
+.game-app-journey:has(.consequence-resolution-scene)::before {
+  filter: brightness(.28) saturate(.65) blur(1px);
+}
+.consequence-resolution-scene {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: safe center; gap: 20px;
+  padding: 64px 28px 32px; overflow-y: auto;
+}
+.consequence-resolution {
+  width: min(100%, 820px); flex-shrink: 0; padding: 28px 32px;
+  border: 1px solid #77969980; border-radius: 8px;
+  background: linear-gradient(145deg, #152b32f5, #071116f5 75%);
+  box-shadow: inset 0 1px 0 #bedfe81c, 0 16px 42px #0006;
+  animation: consequence-resolution-arrive .45s ease-out both;
+}
+.consequence-record { display: flex; align-items: center; justify-content: space-between; gap: 18px; color: #b5c9ca; font-size: 14px; line-height: 1.4; }
+.consequence-direction { display: inline-flex; align-items: center; gap: 10px; color: #e9a052; }
+.consequence-direction strong { font-size: 18px; letter-spacing: .06em; }
+.consequence-resolution h2 { margin: 16px 0 24px; font-size: 32px; line-height: 1.2; color: #f4f1e9; font-weight: 600; }
+.consequence-resolution h2:focus { outline: none; }
+.consequence-tradeoff { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.consequence-tradeoff > section { padding: 0 0 0 16px; border-left: 2px solid #70b9c3; }
+.consequence-tradeoff > section + section { border-left-color: #e9a052; }
+.consequence-tradeoff h3 { margin: 0 0 12px; font-size: 18px; font-weight: 600; line-height: 1.35; color: #aedce0; }
+.consequence-tradeoff > section + section h3 { color: #f0c99a; }
+.consequence-tradeoff p { margin: 0; font-size: 20px; line-height: 1.45; color: #e8ece8; }
+.consequence-tradeoff p + p { margin-top: 10px; }
+.consequence-open-question { margin: 24px 0 0; padding: 20px 0 0; border: 0; border-top: 1px solid #77969945; font-size: 22px; line-height: 1.4; font-weight: 500; color: #f3e4ce; }
+.game-app .consequence-balance-action { position: relative; inset: auto; transform: none; animation: none; margin: 0; flex-shrink: 0; font-size: 18px; min-height: 48px; }
+@keyframes consequence-resolution-arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+@media (min-width: 601px) and (max-height: 620px) {
+  .consequence-resolution-scene { padding: 44px 28px 22px; gap: 16px; }
+  .consequence-resolution { padding: 22px 26px; }
+  .consequence-resolution h2 { font-size: 28px; margin: 12px 0 20px; }
+  .consequence-tradeoff { gap: 24px; }
+  .consequence-tradeoff h3 { margin-bottom: 10px; }
+  .consequence-tradeoff p { font-size: 18px; line-height: 1.45; }
+  .consequence-open-question { margin-top: 20px; padding-top: 16px; font-size: 21px; }
+}
+@media (max-width: 600px) {
+  .consequence-resolution-scene { padding: 64px 20px 28px; gap: 18px; }
+  .consequence-resolution { padding: 24px 20px; }
+  .consequence-resolution h2 { font-size: 28px; }
+  .consequence-record { align-items: flex-start; }
+  .consequence-record > span:last-child { text-align: right; }
+  .consequence-tradeoff { grid-template-columns: 1fr; gap: 24px; }
+  .consequence-tradeoff p { font-size: 18px; }
+  .consequence-open-question { font-size: 20px; }
+  .game-app .consequence-balance-action { width: 100%; white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) { .consequence-resolution { animation: none; } }

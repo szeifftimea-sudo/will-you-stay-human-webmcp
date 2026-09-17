@@ -1,0 +1,198 @@
+/* Reference-led product presentation, only while the opt-in Blender balance
+   is mounted. The original city, balance and all other scenes are untouched. */
+.game-app:has(.human-balance.is-foldable) { background: #060c10; }
+.game-app:has(.human-balance.is-foldable)::before {
+  background: #060c10 url("/assets/machine-city-journey.png") center / cover no-repeat;
+  opacity: .12;
+  filter: blur(8px) saturate(.55);
+  transform: none;
+  animation: none;
+}
+.game-app:has(.human-balance.is-foldable)::after { box-shadow: none; }
+.game-app:has(.human-balance.is-foldable) .futura-status { color: #b8d7db; text-shadow: none; }
+.game-app:has(.human-balance.is-foldable) .balance-stage { padding: 48px 24px 30px; }
+.balance-model-layer,
+.balance-model-canvas {
+  position: absolute;
+  inset: -48px;
+  z-index: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+.balance-model-canvas { display: block; }
+.balance-housing:has(> .balance-model-layer) {
+  --balance-lens: 1800px;
+  --balance-view-x: 28deg;
+  --balance-view-y: -9deg;
+  --balance-view-z: 0deg;
+  z-index: 1;
+  transform-origin: center;
+}
+.balance-housing.has-balance-model {
+  transform: perspective(var(--balance-lens)) rotateX(var(--balance-view-x)) rotateY(var(--balance-view-y)) rotateZ(var(--balance-view-z));
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.balance-housing.has-balance-model::before { display: none; }
+.balance-housing.has-balance-model > :not(.balance-model-layer) { position: relative; z-index: 1; }
+.balance-housing.has-balance-model .balance-groove,
+.balance-housing.has-balance-model .balance-zero,
+.balance-housing.has-balance-model .balance-marker,
+.balance-housing.has-balance-model .balance-impact { visibility: hidden; }
+.balance-housing.has-balance-model .balance-product-title,
+.balance-housing.has-balance-model .balance-list { opacity: var(--balance-content-opacity, 1); }
+.balance-housing.has-balance-model .balance-row.is-changing[data-model-focus="true"] .balance-label {
+  text-shadow: 0 0 9px rgb(104 212 232 / .48);
+}
+.balance-housing.has-balance-model .balance-label { transition: text-shadow 140ms ease-out; }
+
+.game-app .human-balance.is-foldable { width: min(920px, calc(100vw - 80px)); min-height: 0; }
+.game-app .human-balance.is-foldable.is-revealing {
+  /* The real leaves perform the opening. Keep the original 1900ms delay and
+     1050ms native clock, but never raise/rotate the header and footer with it. */
+  animation-name: balance-emerge-spatial;
+  animation-timing-function: ease-out;
+  transform: none;
+}
+@keyframes balance-emerge-spatial {
+  from { opacity: 0; }
+  25%, to { opacity: 1; }
+}
+.game-app .human-balance.is-foldable.is-memory {
+  position: relative;
+  margin: max(60px, calc((100dvh - 530px) / 2)) auto 30px;
+  left: auto;
+  bottom: auto;
+  transform: none;
+}
+.game-app .human-balance.is-foldable .balance-context {
+  display: block;
+  margin: 0 auto 26px;
+  text-align: center;
+  max-width: 720px;
+  padding: 0;
+  border: 0;
+}
+.game-app .human-balance.is-foldable .balance-context h2 {
+  margin: 0 0 6px;
+  color: #f2eee5;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 600;
+  text-shadow: none;
+}
+.game-app .human-balance.is-foldable .balance-context .balance-note {
+  display: block;
+  max-width: none;
+  color: #bdcbcd;
+  font-size: 16px;
+  line-height: 1.45;
+}
+.balance-object-stage {
+  position: relative;
+  isolation: isolate;
+  transform: scale(var(--balance-push, 1));
+  transform-origin: center;
+}
+.game-app .human-balance.is-foldable .balance-housing { min-height: 0; padding: 20px 36px 32px; }
+.game-app .human-balance.is-foldable .balance-product-title {
+  display: block;
+  width: 50%;
+  transform: translateX(-18px);
+  text-align: center;
+  margin: 0 0 26px;
+  padding: 0;
+  border: 0;
+}
+.game-app .human-balance.is-foldable .balance-product-title .balance-kicker {
+  position: relative;
+  top: -8px;
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: .13em;
+  font-weight: 600;
+  color: #f2eee5;
+}
+.game-app .human-balance.is-foldable .balance-list { gap: 14px; }
+.game-app .human-balance.is-foldable .balance-row {
+  grid-template-columns: 156px minmax(0, 1fr) 62px;
+  gap: 24px;
+  font-size: 16px;
+}
+.game-app .is-foldable .balance-axis { display: none; }
+.game-app .is-foldable .balance-label {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 31px;
+  margin-top: 8px;
+  letter-spacing: .015em;
+  font-weight: 600;
+  color: #f2eee5;
+}
+.game-app .human-balance.is-foldable .balance-track { height: 40px; }
+.game-app .is-foldable .balance-stop {
+  top: -2px;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: #e4e9e8;
+  transform: translateX(-50%);
+}
+.game-app .is-foldable .balance-stop-minus-one { left: 25%; }
+.game-app .is-foldable .balance-stop-plus-one { left: 75%; }
+.game-app .is-foldable .balance-stop-plus { right: auto; left: 100%; }
+.game-app .is-foldable .balance-groove { top: 21px; height: 9px; }
+.game-app .is-foldable .balance-zero { top: 19px; width: 13px; height: 13px; transform: translateX(-50%); }
+.game-app .is-foldable .balance-marker { top: 25.5px; width: 24px; height: 24px; border-color: #68d4e8; background: #36b9cd; }
+.game-app .is-foldable .balance-delta { margin-top: 8px; font-size: 14px; color: #f2eee5; }
+.game-app .human-balance.is-foldable > .balance-footer {
+  position: relative;
+  z-index: 2;
+  margin-top: 28px;
+  padding: 0 8px;
+  border: 0;
+  gap: 24px;
+}
+.game-app .human-balance.is-foldable > .balance-footer p {
+  max-width: 470px;
+  color: #bdcbcd;
+  font-size: 16px;
+  line-height: 1.4;
+  text-shadow: none;
+}
+.game-app .human-balance.is-foldable .balance-new-round { box-shadow: 0 5px 12px rgba(16,35,41,.16); }
+
+@media (min-width: 700px) and (max-height: 650px), (min-width: 700px) and (max-width: 980px) {
+  .game-app .human-balance.is-foldable { width: min(760px, calc(100vw - 64px)); }
+  .game-app .human-balance.is-foldable .balance-context { margin-bottom: 18px; }
+  .game-app .human-balance.is-foldable .balance-context h2 { font-size: 18px; margin-bottom: 4px; }
+  .game-app .human-balance.is-foldable .balance-context .balance-note { font-size: 15px; line-height: 1.4; max-width: 650px; margin: auto; }
+  .game-app .human-balance.is-foldable .balance-housing { padding: 15px 26px 22px; }
+  .game-app .human-balance.is-foldable .balance-product-title { margin-bottom: 16px; transform: translateX(-13px); }
+  .game-app .human-balance.is-foldable .balance-product-title .balance-kicker { font-size: 20px; top: -6px; }
+  .game-app .human-balance.is-foldable .balance-row { grid-template-columns: 132px minmax(0, 1fr) 54px; gap: 18px; font-size: 15px; }
+  .game-app .human-balance.is-foldable .balance-list { gap: 10px; }
+  .game-app .human-balance.is-foldable .balance-track { height: 36px; }
+  .game-app .human-balance.is-foldable .balance-label { min-height: 26px; }
+  .game-app .human-balance.is-foldable > .balance-footer { margin-top: 23px; gap: 16px; }
+  .game-app .human-balance.is-foldable > .balance-footer p { max-width: 390px; font-size: 15px; }
+}
+@media (max-width: 699px) {
+  .game-app:has(.human-balance.is-foldable) .balance-stage { padding: 66px 16px 80px; position: relative; }
+  .game-app .human-balance.is-foldable { width: calc(100vw - 32px); }
+  .balance-housing:has(> .balance-model-layer) { --balance-view-x: 3deg; }
+  .game-app .human-balance.is-foldable .balance-context { margin-bottom: 22px; }
+  .game-app .human-balance.is-foldable .balance-housing { padding: 17px 15px 25px; }
+  .game-app .human-balance.is-foldable .balance-product-title { margin-bottom: 24px; transform: translateX(-7.5px); }
+  .game-app .human-balance.is-foldable .balance-product-title .balance-kicker { font-size: 18px; }
+  .game-app .human-balance.is-foldable .balance-row { grid-template-columns: 1fr 50px; column-gap: 18px; row-gap: 5px; font-size: 15px; }
+  .game-app .is-foldable .balance-label { grid-column: 1 / -1; justify-self: start; width: 144px; margin-top: 0; }
+  .game-app .human-balance.is-foldable .balance-list { gap: 16px; }
+  .game-app .human-balance.is-foldable > .balance-footer { flex-direction: column; gap: 15px; text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .balance-object-stage { transform: none; }
+  .balance-housing.has-balance-model .balance-label { transition: none; text-shadow: none; }
+}

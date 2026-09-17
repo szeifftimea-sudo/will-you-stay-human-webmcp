@@ -1,0 +1,64 @@
+/* Atmosphere belongs to the opt-in spatial presentation, never to domain state.
+   Existing App phase classes and the actually mounted balance select the scene:
+   city invitation -> quiet decisions -> product reveal -> final wall display. */
+.spatial-journey .game-app { background-color: #060c10; }
+.spatial-journey .game-app::before {
+  transition: opacity 650ms ease, filter 650ms ease,
+    transform 720ms cubic-bezier(.2,.72,.25,1), background-position 720ms ease;
+}
+
+/* Preserve the original, expansive portal and the city's invitation. */
+.spatial-journey .game-app-entry::before { opacity: 1; }
+.spatial-journey .game-app-journey.phase-machine_city_ready::before {
+  opacity: .92;
+  filter: saturate(.9) brightness(.92);
+}
+
+/* Decisions keep the same city and human silhouette, at a supporting volume.
+   No new overlay covers the accessible text or changes the card styling. */
+.spatial-journey .game-app-journey::before {
+  opacity: .4;
+  filter: saturate(.65) brightness(.78);
+}
+.spatial-journey .game-app-journey::after {
+  box-shadow: inset 0 0 160px 32px rgba(1, 6, 8, .52);
+}
+
+/* The consequence keeps its existing event; the product that follows is calm. */
+.spatial-journey .game-app:has(.human-balance.is-foldable)::before {
+  background: #060c10 url("/assets/machine-city-journey.png") center / cover no-repeat;
+  opacity: .14;
+  filter: blur(8px) saturate(.55);
+  transform: none;
+  animation: none;
+}
+.spatial-journey .game-app:has(.human-balance.is-foldable)::after {
+  box-shadow: inset 0 0 150px 28px rgba(1, 6, 8, .28);
+}
+
+/* Existing completion, not an extra step: the same live object becomes a quiet
+   wall-mounted keepsake. The image contains only the architectural environment. */
+.spatial-journey .game-app.phase-game_complete:has(.human-balance.is-foldable)::before {
+  background-image: url("/assets/machine-city-wall.jpg");
+  opacity: .72;
+  filter: saturate(.6) brightness(.72);
+  background-position: center;
+}
+.spatial-journey .phase-game_complete:has(.is-foldable) .journey-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 54px 24px 28px;
+}
+.spatial-journey .phase-game_complete:has(.is-foldable) .stage { min-height: 0; }
+.spatial-journey .phase-game_complete .human-balance.is-foldable.is-memory {
+  margin: 0 auto;
+}
+.spatial-journey .phase-game_complete .balance-housing:has(> .balance-model-layer) {
+  --balance-view-x: 3deg;
+  --balance-view-y: -1deg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spatial-journey .game-app::before { transition: opacity 120ms linear; }
+}

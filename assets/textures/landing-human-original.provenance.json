@@ -1,0 +1,18 @@
+{
+  "asset": "public/assets/landing-human-original.png",
+  "source": "public/assets/machine-city-journey.png",
+  "sourceSha256": "bccb5d2c5e7a7517d53fe78b1fcbdfa184abd49e89f0d38aa1c0f876fbe48645",
+  "crop": [
+    700,
+    585,
+    830,
+    930
+  ],
+  "size": [
+    130,
+    345
+  ],
+  "method": "Manually traced, supersampled alpha mask; no generation, RGB modification or rescaling of source pixels.",
+  "verification": "All output RGB pixels equal the corresponding source crop exactly. Only alpha was added.",
+  "assetSha256": "46582007d2e773807b0b289a151b038ceb1e512b92ceb28cf23b6bc984c0f5b2"
+}

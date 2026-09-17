@@ -1,0 +1,66 @@
+/* Phase 1–2 sandbox styles: never target the original game view. */
+.tabletop-app {
+  background: #0e191d;
+  color: #f2f4ed;
+  height: 100dvh;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.45;
+}
+.tabletop-app * { box-sizing: border-box; }
+.tabletop-header { min-height: 52px; display: flex; align-items: center; gap: 18px; padding: 0 18px; border-bottom: 1px solid #445158; font-size: 14px; }
+.tabletop-mode { color: #bbcacc; flex: 1; }
+.tabletop-header [role="group"] { display: flex; }
+.tabletop-header button { width: 44px; height: 44px; border: 0; background: transparent; color: #c8d1d1; font: inherit; cursor: pointer; }
+.tabletop-header button[aria-pressed="true"] { color: white; text-decoration: underline; text-underline-offset: 7px; text-decoration-color: #67e8f9; }
+.tabletop-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(330px, 1fr); }
+.tabletop-world { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.tabletop-scene { flex: 1; min-height: 0; }
+.tabletop-world-caption { padding: 8px 22px 18px; margin: 0; text-align: center; font-size: 16px; color: #c5d1cf; }
+.tabletop-panel { min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 20px; background: #14242bcc; border-left: 1px solid #445158; }
+.tabletop-reading { width: 100%; max-width: 540px; min-height: 0; flex: 1; overflow-y: auto; margin: 0 auto; padding: 4px 4px 12px; scrollbar-gutter: stable; }
+.tabletop-reading h1 { margin: 0 0 20px; color: #f2f4ed; font-size: clamp(28px, 2.5vw, 40px); font-weight: 600; line-height: 1.15; letter-spacing: -.025em; }
+.tabletop-reading h1:focus { outline: none; }
+.tabletop-reading h2 { font-size: 18px; margin: 20px 0 8px; color: #ddba85; }
+.tabletop-reading p { margin: 0 0 18px; }
+.tabletop-reading .tabletop-eyebrow { font-size: 14px; font-weight: 600; color: #ddba85; letter-spacing: .035em; }
+.tabletop-reading blockquote { margin: 18px 0; border-left: 2px solid #ddba85; padding: 8px 14px; color: #ffe1b0; }
+.tabletop-app button:focus-visible, .tabletop-app textarea:focus-visible { outline: 3px solid #67e8f9; outline-offset: 3px; }
+.tabletop-app .tt-primary, .tabletop-app .tt-secondary { min-height: 48px; padding: 11px 16px; border-radius: 4px; font: inherit; font-size: 18px; font-weight: 700; cursor: pointer; color: white; border: 1px solid #56b7cb; background: #0e7490; }
+.tabletop-app .tt-primary:hover { background: #0c6478; }
+.tabletop-app .tt-primary:active { background: #155e75; }
+.tabletop-app .tt-secondary { background: #122026; border-color: #a6bbb9; font-weight: 600; }
+.tabletop-app .tt-secondary:hover { border-color: #67e8f9; }
+.tabletop-actions { display: flex; flex-direction: column; gap: 10px; margin: 10px auto 0; flex-shrink: 0; width: 100%; max-width: 540px; }
+.tabletop-actions:empty { display: none; }
+.tabletop-choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.tabletop-choices button { display: flex; gap: 12px; align-items: center; width: 100%; padding: 12px; min-height: 70px; text-align: left; background: #1b3038; color: #f2f4ed; border: 1px solid #819a9d; border-radius: 4px; font: inherit; cursor: pointer; }
+.tabletop-choices button svg { flex-shrink: 0; }
+.tabletop-choices button strong { display: block; font-size: 18px; font-weight: 600; }
+.tabletop-choices button small { display: block; margin-top: 5px; font-size: 16px; }
+.tabletop-choices button[aria-pressed="true"] { border-color: #ffc477; background: #463823; box-shadow: inset 3px 0 #ffc477; }
+.tabletop-choices button:hover { border-color: #ffc477; }
+.tabletop-guide { list-style: none; margin: 0 0 24px; padding: 0; }
+.tabletop-guide li { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+.tabletop-guide svg { flex-shrink: 0; }
+.tabletop-guide p { margin: 4px 0 0; }
+.tabletop-reading label { display: block; }
+.tabletop-reading label small { display: block; font-size: 16px; color: #c5d1cf; margin: 4px 0 12px; }
+.tabletop-reading textarea { width: 100%; min-height: 90px; padding: 10px; background: #0b161d; color: white; border: 1px solid #819a9d; font: inherit; resize: vertical; }
+.tabletop-values { margin: 18px 0; }
+.tabletop-values > div { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid #42535a; padding: 9px 0; }
+.tabletop-values dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 600; }
+.tabletop-values small { display: inline-block; margin-left: 16px; min-width: 44px; font-size: 16px; color: #ddba85; }
+@media (min-width: 1200px) { .tabletop-panel { padding: 40px; } }
+@media (max-width: 650px) {
+  .tabletop-app { height: auto; min-height: 100dvh; }
+  .tabletop-header { flex-wrap: wrap; gap: 4px 12px; }
+  .tabletop-mode { font-size: 12px; }
+  .tabletop-layout { display: flex; flex-direction: column; }
+  .tabletop-world { height: 350px; flex: none; }
+  .tabletop-panel { border-left: 0; border-top: 1px solid #445158; overflow: visible; padding: 24px; }
+  .tabletop-reading { overflow: visible; }
+}

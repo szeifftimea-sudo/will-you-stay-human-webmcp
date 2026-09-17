@@ -14,6 +14,19 @@ This hackathon build is a working single-player vertical slice with four playabl
 | Public source repository | [https://github.com/szeifftimea-sudo/will-you-stay-human-webmcp](https://github.com/szeifftimea-sudo/will-you-stay-human-webmcp) |
 | Public demo video | **Pending YouTube upload** — `YOUTUBE_DEMO_URL` |
 
+## Spatial release checkpoint
+
+The approved spatial game and separate product reveal have explicit public entry points:
+
+- **[Play the spatial game](https://will-you-stay-human.vercel.app/play)** — Machine City intro through the domain-driven Human Balance result.
+- **[Meet the physical companion](https://will-you-stay-human.vercel.app/product)** — box, interior, folded Human Balance and unfolding reveal; **Enter the game** continues to `/play`.
+
+These routes are prepared in this checkpoint; production publication and live QA are pending deployment approval. The original `/` entry remains available. Use `/play` and `/product` as the direct Product Hunt destinations, without developer query parameters.
+
+The box, foldable Human Balance and five markers are a **physical companion concept/prototype**, not a manufactured or manufacturing-validated product. Fit checks and Blender animations demonstrate the concept, not production tolerances, durability, safety certification or availability for purchase.
+
+Editable Blender sources are in `assets/blender/`, authoring recipes in `scripts/blender/`, and web exports in `public/models/`. The 3D presentation does not compute game outcomes or change the human-only selection and confirmation boundary. [Checkpoint and QA scope](docs/RELEASE_CHECKPOINT.md).
+
 ## The idea
 
 The project takes cultural and conceptual inspiration from *Metropolis*, but builds an original world, story, and interaction model. MIND–HAND–HEART is not decoration: it is the core decision mechanic.
@@ -230,7 +243,7 @@ Implemented in this repository:
 
 The following ideas are product directions only. They are not part of the current hackathon build:
 
-- a hybrid tabletop version;
+- a manufactured hybrid tabletop edition (the digital companion concept/prototype is included in this checkpoint);
 - multiplayer sessions;
 - downloadable thematic and age-specific dilemma packs;
 - continuously expandable online content;
@@ -247,7 +260,8 @@ This project is culturally and conceptually inspired by *Metropolis*. It is an i
 - `machine-city-entry.png` and `machine-city-journey.png` were generated specifically for this project with OpenAI ImageGen from a user-approved visual brief.
 - Event sounds are synthesized at runtime with the Web Audio API. No external audio files, narration, music, or sound libraries are bundled.
 - The interface uses system font stacks; no third-party font files are redistributed.
-- Direct runtime dependencies are React and React DOM (MIT), Zod (MIT), and Phosphor Icons React (MIT).
+- Direct runtime dependencies are React and React DOM (MIT), Zod (MIT), Phosphor Icons React (MIT), and Three.js (MIT).
+- The new Machine City and companion geometries and animation are project-authored Blender assets; editable sources and Python recipes are included. The city-print surface illustration and wall background were generated for this project with OpenAI ImageGen. The landing silhouette reuses the original project image with an alpha mask; it is not a new 3D character. Texture provenance is retained in `assets/textures/`.
 - Direct development dependencies include Vite and Vitest (MIT), Testing Library (MIT), TypeScript (Apache-2.0), and jsdom (MIT).
 - Codex and OpenAI tools assisted with implementation, testing, visual generation, documentation, and iterative review. Product scope, copy, human-control rules, visual approvals, and release decisions remained under human direction.
 

@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { ComponentType, CSSProperties } from "react";
 import { uiCopy, type UiLocale } from "../../content/uiCopy";
 import type { HumanBalance as Balance } from "../../domain/gameTypes";
 
@@ -10,6 +10,7 @@ export function HumanBalance({
   continueLabel,
   continueVariant = "primary",
   locale,
+  depth: Depth,
 }: {
   balance: Balance;
   previousBalance?: Balance;
@@ -18,24 +19,11 @@ export function HumanBalance({
   continueLabel?: string;
   continueVariant?: "primary" | "secondary";
   locale: UiLocale;
+  depth?: ComponentType;
 }) {
   const copy = uiCopy[locale];
   const labels = Object.entries(copy.balance.axes) as Array<[keyof Balance, string]>;
-  return (
-    <section
-      className={`human-balance${memory ? " is-memory" : " is-revealing"}`}
-      aria-labelledby="balance-title"
-      data-testid="human-balance"
-    >
-      <div className="balance-housing">
-        <header>
-          <div>
-            <span className="balance-kicker">{copy.balance.kicker}</span>
-            <h2 id="balance-title">{copy.balance.heading}</h2>
-          </div>
-          <span className="balance-note">{copy.balance.note}</span>
-        </header>
-
+  const rows = (
         <div className="balance-list">
           {labels.map(([key, label], index) => {
             const value = balance[key];
@@ -56,7 +44,9 @@ export function HumanBalance({
                 <span className="balance-label">{label}</span>
                 <div className="balance-track" role="img" aria-label={`${label}: ${value}`}>
                   <span className="balance-stop balance-stop-minus">−2</span>
+                  {Depth && <span className="balance-stop balance-stop-minus-one">−1</span>}
                   <span className="balance-stop balance-stop-zero">0</span>
+                  {Depth && <span className="balance-stop balance-stop-plus-one">+1</span>}
                   <span className="balance-stop balance-stop-plus">+2</span>
                   <span className="balance-groove" aria-hidden="true" />
                   <span className="balance-zero" aria-hidden="true" />
@@ -75,7 +65,8 @@ export function HumanBalance({
             );
           })}
         </div>
-
+  );
+  const footer = (
         <footer className="balance-footer">
           <p>
             {memory
@@ -88,7 +79,43 @@ export function HumanBalance({
             </button>
           )}
         </footer>
+  );
+  return (
+    <section
+      className={`human-balance${Depth ? " is-foldable" : ""}${memory ? " is-memory" : " is-revealing"}`}
+      aria-labelledby="balance-title"
+      data-testid="human-balance"
+    >
+      {Depth ? (
+        <>
+          <header className="balance-context">
+            <h2 id="balance-title">{copy.balance.heading}</h2>
+            <span className="balance-note">{copy.balance.note}</span>
+          </header>
+          <div className="balance-object-stage">
+            <div className="balance-housing">
+              <Depth />
+              <header className="balance-product-title">
+                <span className="balance-kicker">{copy.balance.kicker}</span>
+              </header>
+              {rows}
+            </div>
+          </div>
+          {footer}
+        </>
+      ) : (
+      <div className="balance-housing">
+        <header>
+          <div>
+            <span className="balance-kicker">{copy.balance.kicker}</span>
+            <h2 id="balance-title">{copy.balance.heading}</h2>
+          </div>
+          <span className="balance-note">{copy.balance.note}</span>
+        </header>
+        {rows}
+        {footer}
       </div>
+      )}
     </section>
   );
 }

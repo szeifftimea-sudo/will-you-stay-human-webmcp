@@ -136,6 +136,7 @@ const huCopy = {
     reasonOptional: "Nem kötelező válaszolni.",
     reasonAriaLabel: "Miért ezt választottad? Nem kötelező válaszolni.",
     actionsLabel: "Végleges emberi döntés",
+    changeChoice: "Másik irányt választok",
     confirm: "Vállalom ezt a döntést",
   },
   sealed: {
@@ -480,9 +481,9 @@ const enCopy: TranslationShape<typeof huCopy> = {
     heading: "Are you sure this is your choice?",
     actionsLabel: "Decision after the counterpoint",
     keep: {
-      brain: "I’m sticking with MIND",
-      hand: "I’m sticking with HAND",
-      heart: "I’m sticking with HEART",
+      brain: "Continue with MIND",
+      hand: "Continue with HAND",
+      heart: "Continue with HEART",
     },
     keepFallback: "I’m sticking with this direction",
     reconsider: "Choose another direction",
@@ -495,7 +496,8 @@ const enCopy: TranslationShape<typeof huCopy> = {
     reasonOptional: "You don’t have to answer.",
     reasonAriaLabel: "Why did you choose this? You don’t have to answer.",
     actionsLabel: "Final human decision",
-    confirm: "I stand by this decision",
+    changeChoice: "Change my choice",
+    confirm: "Confirm",
   },
   sealed: {
     kicker: "Your decision is recorded",

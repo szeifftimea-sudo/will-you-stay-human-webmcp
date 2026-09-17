@@ -1,0 +1,41 @@
+{
+  "asset": "public/assets/machine-city-wall.jpg",
+  "createdAt": "2026-09-16T23:04:13Z",
+  "mode": "built-in image_gen",
+  "intent": "generate",
+  "useCase": "stylized-concept",
+  "prompt": "Use case: stylized-concept. Asset type: finished background raster for the final wall-mounted product scene in the existing Machine City decision game. Create ONE wide 16:9 image, ideally 2048 by 1152 pixels.\nScene/backdrop: a quiet premium futuristic interior in Machine City, a dark graphite architectural wall viewed nearly straight on, understated Metropolis-inspired art-deco proportions translated into minimal contemporary architecture. The wall fills the scene. A little side depth is visible only at the outer edges, with a very shallow architectural ledge near the bottom edge. The composition must feel like a real restrained lifestyle/product setting, not a sci-fi cockpit.\nComposition: the middle 78 percent of the width and central 75 percent of the height are a broad EMPTY uninterrupted wall surface with very low detail. This space is reserved for a REAL interactive 3D object to be composited later by software. Do not draw that object, its frame, mounting outline, plaque, board, instrument, or shadow. Center crop must remain safe at 790x512 and a taller desktop viewport. No central door, no archway, no tunnel, no framed recess, no screen, no grid of panels. Perspective lines stay subtle and near the outer margins.\nMaterials/light: near-black charcoal and graphite mineral-coated metal, extremely fine satin grain, soft controlled grazing light revealing material without busy texture. Dark petrol-black undertones, neutral graphite center. Very faint short cyan architectural edge illumination at one far side and a tiny restrained warm amber accent at the other far side; both low intensity and secondary. The center should be softly readable charcoal, not a white wall and not a pure flat black void. Elegant real light falloff, coherent depth, restrained premium product photography mood.\nAvoid: people, city vista, windows full of buildings, physical products, balance boards, cards, boxes, furniture clutter, plants, text, letters, numbers, logos, watermarks, UI, buttons, floating holograms, neon strips across the center, bright bloom, steampunk, gears, copper decoration, ornamental frames. Do not bake any product or game interface into the background.",
+  "referenceInspectionOnly": [
+    "public/assets/machine-city-journey.png",
+    "docs/evidence/phase3-dark-city-product/balance-en-1113x900.png"
+  ],
+  "imageInputsSentToTool": [],
+  "sourceGeneration": {
+    "filename": "exec-c292ca4f-42b9-4598-a4a6-79fa9bdd4217.png",
+    "width": 1672,
+    "height": 941,
+    "byteLength": 1946514,
+    "sha256": "ac3b5316d5cbbb2926a9fd4c27dcc681b57a977383804b4df0f1b7189be519de",
+    "retainedAt": "built-in generated_images output; original unchanged"
+  },
+  "optimization": {
+    "tool": "macOS sips",
+    "operation": "PNG to JPEG format/quality conversion only",
+    "jpegQuality": 86,
+    "resize": false,
+    "crop": false,
+    "contentEditing": false
+  },
+  "final": {
+    "width": 1672,
+    "height": 941,
+    "byteLength": 334458,
+    "sha256": "5a68e346e56b55a30c055940541bb04d402eb48e20908709fd9b19d4edf2ec62"
+  },
+  "inspection": {
+    "originalAndOptimizedViewed": true,
+    "emptyCenter": true,
+    "productOrUIBakedIn": false,
+    "notes": "Dark graphite wall with subdued cyan/amber outer architectural accents; no person, product, text, board, box or interface. Intended for the real 3D Human Balance overlay."
+  }
+}

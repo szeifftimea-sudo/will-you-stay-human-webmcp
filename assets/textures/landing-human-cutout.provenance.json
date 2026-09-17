@@ -1,0 +1,7 @@
+{
+  "asset": "public/assets/landing-human-cutout.png",
+  "method": "Built-in image_gen: reference-based background extraction, two passes. AI-derived cutout, not a pixel-identical manual extraction.",
+  "reference": "public/assets/machine-city-journey.png",
+  "finalPrompt": "BACKGROUND REMOVAL ONLY. Keep this exact back-facing full-body man unchanged. Remove ALL background, including every black pixel outside the body, every cyan/orange atmospheric glow and all haze. The area around the human must be fully TRANSPARENT (alpha=0), not black, not a checkerboard drawn into the image. Clean isolated transparent PNG cutout sprite. No glow or environment or lighting bloom outside silhouette. Preserve existing clothes, hands, hair, feet. Do not redraw, restyle, change pose or crop the body. Trim canvas close to the figure with only a small transparent margin.",
+  "verification": "RGBA PNG, 1024 x 1536; 1123237 of 1572864 pixels fully transparent. Visual integration checked at 790 x 512 and 1113 x 800. Full city illustration not rendered in the landing layer."
+}

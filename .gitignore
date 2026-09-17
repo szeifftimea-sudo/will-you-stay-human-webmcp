@@ -12,3 +12,9 @@ coverage/
 # Local inspiration source; never publish or package this PDF.
 /Metropolis - Thea von Harbou.pdf
 .vercel/
+
+# Local authoring backups and generated capture intermediates.
+*.blend[0-9]
+__pycache__/
+*.pyc
+*.mp4.sb-*

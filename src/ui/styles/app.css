@@ -647,3 +647,82 @@ button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2
 @media (prefers-reduced-motion: reduce) {
   *,*::before,*::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+/* Dilemma presentation only: the city yields to one question and its context.
+   No selectors below apply to the frozen intro or to the choice/result scenes. */
+.game-app-journey:has(.dilemma-arrival-stage)::before {
+  filter: brightness(.46) saturate(.7) blur(1px);
+}
+.game-app-journey:has(.dilemma-arrival-stage)::after {
+  background: radial-gradient(ellipse at 50% 42%,rgba(2,9,12,.12),rgba(2,9,12,.52));
+}
+.dilemma-arrival-stage {
+  justify-content: safe center;
+  gap: 24px;
+  padding: 76px 40px 68px;
+}
+.dilemma-arrival-stage .stage-heading {
+  width: min(800px,100%);
+  flex: 0 0 auto;
+  text-align: center;
+}
+.dilemma-arrival-stage .stage-kicker {
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: .13em;
+  color: var(--copper-soft);
+}
+.dilemma-arrival-stage .stage-heading h2 {
+  margin: 14px auto 0;
+  font-size: clamp(38px,4vw,60px);
+  line-height: 1.08;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.dilemma-arrival-stage .situation-beats {
+  width: 100%;
+  margin: 28px auto 0;
+  gap: 12px;
+  padding: 22px 28px;
+  text-align: left;
+  border: 1px solid rgba(160,205,207,.2);
+  border-left: 2px solid rgba(104,212,232,.65);
+  border-radius: 3px;
+  background: linear-gradient(120deg,rgba(8,23,29,.94),rgba(3,12,16,.92));
+  box-shadow: 0 16px 48px rgba(0,0,0,.24);
+}
+.dilemma-arrival-stage .stage-heading .situation-beats p {
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  color: #dce5e4;
+  font-size: 20px;
+  line-height: 1.5;
+}
+.dilemma-arrival-stage .stage-heading .situation-beats p:first-child {
+  color: var(--ivory);
+  font-weight: 600;
+}
+.dilemma-arrival-stage .stage-heading .content-notice {
+  max-height: none;
+  margin: 12px 0 0;
+  font-size: 16px;
+  line-height: 1.35;
+}
+.dilemma-arrival-stage .dilemma-options-action {
+  width: max-content;
+  max-width: 100%;
+  margin: 0;
+}
+@media (max-height:650px), (max-width:900px) {
+  .dilemma-arrival-stage { gap: 18px; padding: 56px 40px 58px; }
+  .dilemma-arrival-stage .stage-heading { width: min(720px,100%); }
+  .dilemma-arrival-stage .stage-heading h2 { font-size: 38px; margin-top: 10px; }
+  .dilemma-arrival-stage .situation-beats { margin-top: 20px; padding: 16px 22px; gap: 10px; }
+  .dilemma-arrival-stage .stage-heading .situation-beats p { font-size: 18px; line-height: 1.42; }
+}
+@media (max-width:600px) {
+  .dilemma-arrival-stage { justify-content: flex-start; padding: 76px 22px 80px; }
+  .dilemma-arrival-stage .stage-heading h2 { font-size: 34px; }
+  .dilemma-arrival-stage .situation-beats { padding: 18px; }
+}

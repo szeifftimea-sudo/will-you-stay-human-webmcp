@@ -1,0 +1,17 @@
+.git
+node_modules
+docs/evidence/*
+!docs/evidence/product-reveal
+!docs/evidence/phase3-product-depth
+docs/evidence/product-reveal/*
+!docs/evidence/product-reveal/packaging-fit.json
+docs/evidence/phase3-product-depth/*
+!docs/evidence/phase3-product-depth/human-balance-asset-report.json
+assets/blender
+assets/textures
+scripts
+coverage
+*.blend*
+*.mp4
+*.mov
+*.gif

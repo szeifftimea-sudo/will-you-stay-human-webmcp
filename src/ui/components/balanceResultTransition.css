@@ -1,0 +1,26 @@
+/* Only the hand-off from consequence. The approved result's final layout,
+   materials, marker timing and values remain untouched. */
+.balance-stage.balance-result-transition .human-balance.is-revealing {
+  animation-delay: 120ms;
+}
+.balance-stage.balance-result-transition .human-balance.is-revealing:not(.is-foldable) {
+  animation-name: balance-result-arrive;
+}
+.balance-result-transition .is-revealing .balance-footer {
+  animation: balance-result-actions 360ms ease-out 4860ms both;
+}
+@keyframes balance-result-arrive {
+  from { opacity: 0; transform: perspective(950px) rotateX(4deg) translateY(10px); }
+  to { opacity: 1; transform: perspective(950px) rotateX(4deg) translateY(0); }
+}
+@keyframes balance-result-actions {
+  from { opacity: 0; visibility: hidden; }
+  to { opacity: 1; visibility: visible; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .balance-stage.balance-result-transition .human-balance.is-revealing {
+    animation: none;
+    opacity: 1;
+  }
+  .balance-result-transition .is-revealing .balance-footer { animation: none; }
+}

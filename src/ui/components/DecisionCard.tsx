@@ -1,5 +1,7 @@
 import { Brain, Hand, Heart } from "@phosphor-icons/react";
 import type { CSSProperties } from "react";
+import { digitalSelectionMeaning } from "./selectionCopy";
+import "./digitalSelection.css";
 import {
   uiCopy,
   type LocalizedChoice,
@@ -34,7 +36,8 @@ export function LensIcon({ lens, size = 38 }: { lens: Lens; size?: number }) {
 export function DecisionCard({ choice, selected, subdued, order = 0, onSelect, locale }: Props) {
   const copy = uiCopy[locale];
   const framingSeparator = /[.!?…]$/.test(choice.framing) ? " " : ". ";
-  const accessibleName = `${choice.label} — ${choice.framing}${framingSeparator}${choice.choiceText}${selected ? ` ${copy.choice.selectedSuffix}` : ""}`;
+  const compactMeaning = locale === "en" ? digitalSelectionMeaning[choice.lens] : null;
+  const accessibleName = `${choice.label} — ${compactMeaning ?? `${choice.framing}${framingSeparator}${choice.choiceText}`}${selected ? ` ${copy.choice.selectedSuffix}` : ""}`;
 
   return (
     <button
@@ -49,8 +52,8 @@ export function DecisionCard({ choice, selected, subdued, order = 0, onSelect, l
         <span className="route-surface-light" />
         <span className="route-beacon"><LensIcon lens={choice.lens} /></span>
         <span className="route-label">{choice.label}</span>
-        <strong>{choice.framing}</strong>
-        <small>{choice.choiceText}</small>
+        <strong>{compactMeaning ?? choice.framing}</strong>
+        {!compactMeaning && <small>{choice.choiceText}</small>}
         {selected && <span className="route-footprint">{copy.choice.footprint}</span>}
       </span>
       <span className="route-contact" aria-hidden="true" />

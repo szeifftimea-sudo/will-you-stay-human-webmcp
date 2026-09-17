@@ -1,17 +1,12 @@
 import {
-  ArrowLeft,
   ArrowRight,
-  Broadcast,
   Eye,
-  Fingerprint,
-  NotePencil,
-  SealCheck,
   SlidersHorizontal,
   SpeakerHigh,
   SpeakerSlash,
   Sparkle,
 } from "@phosphor-icons/react";
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentType, type CSSProperties, type RefObject } from "react";
 import {
   localizeConsequence,
   localizeDilemma,
@@ -25,6 +20,10 @@ import {
 import type { Lens } from "../domain/gameTypes";
 import { registerWebMcpTools, type WebMcpRegistrationStatus } from "../infrastructure/webmcp/registerTools";
 import { DecisionCard, LensIcon, RitualCard } from "../ui/components/DecisionCard";
+import { ReflectionScene } from "../ui/components/ReflectionScene";
+import { HumanConfirmationScene } from "../ui/components/HumanConfirmationScene";
+import { ConsequenceScene } from "../ui/components/ConsequenceScene";
+import { BalanceResultTransition } from "../ui/components/BalanceResultTransition";
 import { DemoInspector } from "../ui/components/DemoInspector";
 import { HumanBalance } from "../ui/components/HumanBalance";
 import { getActiveJourneyStep } from "../ui/components/JourneyMap";
@@ -38,6 +37,7 @@ import {
   type RitualSoundPort,
 } from "../ui/audio/ritualSound";
 import type { AppServices } from "./bootstrap";
+import { LandingCity } from "../ui/landing/LandingCity";
 
 const INITIAL_STATUS: WebMcpRegistrationStatus = {
   mode: "registering",
@@ -53,9 +53,19 @@ const BALANCE_AXIS_ORDER = [
   "responsibility",
 ] as const;
 
-export function App({ services, sound }: { services: AppServices; sound?: RitualSoundPort }) {
+export function App({ services, sound, choiceDepth: ChoiceDepth, balanceDepth, balanceLocale }: {
+  services: AppServices;
+  sound?: RitualSoundPort;
+  /** Optional decorative renderer. It receives no commands or domain state. */
+  choiceDepth?: ComponentType;
+  /** Optional model renderer; native domain-driven balance remains authoritative. */
+  balanceDepth?: ComponentType;
+  /** Product-review presentation only; never changes the saved player language. */
+  balanceLocale?: UiLocale;
+}) {
   const view = useGameView(services.engine);
-  const [locale, setLocale] = useState<UiLocale>(loadPresentationLocale);
+  const [preferredLocale, setLocale] = useState<UiLocale>(loadPresentationLocale);
+  const [landingEntryReady, setLandingEntryReady] = useState(false);
   const [registration, setRegistration] = useState(INITIAL_STATUS);
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [error, setError] = useState("");
@@ -64,6 +74,10 @@ export function App({ services, sound }: { services: AppServices; sound?: Ritual
   const [lensGuideAcknowledged, setLensGuideAcknowledged] = useState(false);
   const [reconsidering, setReconsidering] = useState(false);
   const [outcomeStage, setOutcomeStage] = useState<"consequence" | "balance">("consequence");
+  const locale = balanceDepth && balanceLocale && (
+    view.session?.phase === "GAME_COMPLETE"
+    || (view.session?.phase === "CONSEQUENCE_REVEALED" && outcomeStage === "balance")
+  ) ? balanceLocale : preferredLocale;
   const [soundMuted, setSoundMuted] = useState(false);
   const gameAppRef = useRef<HTMLElement>(null);
   const stageHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -112,13 +126,9 @@ export function App({ services, sound }: { services: AppServices; sound?: Ritual
       : null,
     [locale, session?.revealedOutcome],
   );
-  const selectedLabel = selectedLens ? copy.cards.lenses[selectedLens].label : null;
   const selectionFeedback = selectedLens
     ? copy.choice.feedback[selectedLens]
     : copy.guide.heading;
-  const keepDirectionLabel = selectedLens && selectedLabel
-    ? copy.counterpoint.keep[selectedLens]
-    : copy.counterpoint.keepFallback;
   const activeStep = getActiveJourneyStep(phase);
   const inspectorEnabled = new URLSearchParams(window.location.search).has("inspector");
 
@@ -258,6 +268,7 @@ export function App({ services, sound }: { services: AppServices; sound?: Ritual
       <output hidden data-testid="webmcp-status">{registration.message} {registration.registeredTools.join(" · ")}</output>
       <output hidden data-testid="game-phase">{phase}</output>
       <output hidden data-testid="journey-step">{activeStep}</output>
+      <LandingCity active={isLanding} onEntryReady={setLandingEntryReady} />
 
       {isLanding ? (
         <section className="entry-screen" aria-labelledby="entry-title">
@@ -266,7 +277,7 @@ export function App({ services, sound }: { services: AppServices; sound?: Ritual
             <span aria-hidden="true">·</span>
             <button type="button" aria-label={copy.language.enLabel} aria-pressed={locale === "en"} onClick={() => selectLocale("en")}>EN</button>
           </div>
-          <div className="entry-copy">
+          <div className="entry-copy" inert={!landingEntryReady} data-entry-ready={landingEntryReady}>
             <h1 id="entry-title" ref={stageHeadingRef} tabIndex={-1}>{copy.landing.title}</h1>
             <p className="brand-subtitle">{copy.landing.subtitle}</p>
             <p className="tagline">{copy.landing.entryTagline}</p>
@@ -325,6 +336,7 @@ export function App({ services, sound }: { services: AppServices; sound?: Ritual
                 onSelect={choose}
                 headingRef={stageHeadingRef}
                 showHelp={session.completedDilemmaIds.length > 0}
+                choiceDepth={ChoiceDepth}
               />
             )}
 
@@ -336,6 +348,7 @@ export function App({ services, sound }: { services: AppServices; sound?: Ritual
                 onSelect={choose}
                 headingRef={stageHeadingRef}
                 returning
+                choiceDepth={ChoiceDepth}
               />
             )}
 
@@ -358,6 +371,7 @@ export function App({ services, sound }: { services: AppServices; sound?: Ritual
                       locale={locale}
                     />
                   ))}
+                  {ChoiceDepth && <ChoiceDepth />}
                 </div>
                 <button className="primary-action centered-action" type="button" onClick={presentReflection}>
                   {copy.choice.showCounterpoint} <Sparkle size={20} aria-hidden="true" />
@@ -365,56 +379,16 @@ export function App({ services, sound }: { services: AppServices; sound?: Ritual
               </div>
             )}
 
-            {phase === "REFLECTION_PRESENTED" && localizedReflection && !reconsidering && (
-              <div className="reflection-stage">
-                <header className="ritual-prompt">
-                  <span className="stage-kicker">{copy.counterpoint.kicker}</span>
-                  <h2 id="reflection-title" ref={stageHeadingRef} tabIndex={-1}>{copy.counterpoint.heading}</h2>
-                </header>
-                {selectedChoice && (
-                  <RitualCard choice={selectedChoice} state="reflection" reflection={localizedReflection} locale={locale} />
-                )}
-                <div className="ritual-actions decision-action-block" aria-label={copy.counterpoint.actionsLabel}>
-                  <button className="primary-action" type="button" onClick={acknowledgeReflection}>
-                    {keepDirectionLabel} <SealCheck size={20} aria-hidden="true" />
-                  </button>
-                  <button className="secondary-action" type="button" onClick={reconsiderDirection}>
-                    <ArrowLeft size={20} aria-hidden="true" /> {copy.counterpoint.reconsider}
-                  </button>
-                </div>
-              </div>
+            {phase === "REFLECTION_PRESENTED" && localizedReflection && selectedChoice && activeDilemma && !reconsidering && (
+              <ReflectionScene choices={activeDilemma.choices} choice={selectedChoice}
+                reflection={localizedReflection} copy={copy} locale={locale}
+                headingRef={stageHeadingRef} onKeep={acknowledgeReflection} onReconsider={reconsiderDirection} />
             )}
 
-            {phase === "READY_FOR_CONFIRMATION" && !reconsidering && (
-              <div className="confirmation-stage">
-                <div className="threshold-signal" aria-hidden="true">
-                  <Broadcast size={22} weight="light" />
-                  <span>{copy.confirmation.threshold}</span>
-                </div>
-                {selectedChoice && <RitualCard choice={selectedChoice} state="stamped" locale={locale} />}
-                <article className="confirmation-card note-slip" aria-labelledby="confirmation-title">
-                  <span className="stage-kicker"><NotePencil size={17} aria-hidden="true" /> {copy.confirmation.kicker}</span>
-                  <h2 id="confirmation-title" ref={stageHeadingRef} tabIndex={-1}>{copy.confirmation.heading}</h2>
-                  <label htmlFor="decision-reasoning">
-                    {copy.confirmation.reasonLabel} <span>{copy.confirmation.reasonOptional}</span>
-                  </label>
-                  <textarea
-                    id="decision-reasoning"
-                    maxLength={500}
-                    value={reasoning}
-                    onChange={(event) => setReasoning(event.target.value)}
-                    aria-label={copy.confirmation.reasonAriaLabel}
-                  />
-                  <div className="confirmation-actions" aria-label={copy.confirmation.actionsLabel}>
-                    <button className="primary-action confirm-action" type="button" onClick={confirmDecision}>
-                      {copy.confirmation.confirm} <Fingerprint size={20} aria-hidden="true" />
-                    </button>
-                    <button className="secondary-action" type="button" onClick={reconsiderDirection}>
-                      <ArrowLeft size={20} aria-hidden="true" /> {copy.counterpoint.reconsider}
-                    </button>
-                  </div>
-                </article>
-              </div>
+            {phase === "READY_FOR_CONFIRMATION" && selectedChoice && !reconsidering && (
+              <HumanConfirmationScene choice={selectedChoice} copy={copy} locale={locale}
+                headingRef={stageHeadingRef} reasoning={reasoning} onReasoning={setReasoning}
+                onChangeChoice={reconsiderDirection} onConfirm={confirmDecision} />
             )}
 
             {phase === "DECISION_CONFIRMED" && (
@@ -431,26 +405,15 @@ export function App({ services, sound }: { services: AppServices; sound?: Ritual
               </div>
             )}
 
-            {phase === "CONSEQUENCE_REVEALED" && session.revealedOutcome && outcomeStage === "consequence" && (
-              <div className="outcome-stage" aria-labelledby="outcome-title">
-                <h2 id="outcome-title" ref={stageHeadingRef} tabIndex={-1}>{copy.outcome.heading}</h2>
-                {selectedChoice && localizedConsequence && (
-                  <RitualCard
-                    choice={selectedChoice}
-                    state="outcome"
-                    consequence={localizedConsequence}
-                    locale={locale}
-                  />
-                )}
-                <button className="primary-action outcome-close-action" type="button" onClick={showBalance}>
-                  {copy.outcome.showBalance} <ArrowRight size={20} aria-hidden="true" />
-                </button>
-              </div>
+            {phase === "CONSEQUENCE_REVEALED" && session.revealedOutcome && selectedChoice && localizedConsequence && outcomeStage === "consequence" && (
+              <ConsequenceScene choice={selectedChoice} consequence={localizedConsequence} copy={copy}
+                headingRef={stageHeadingRef} onShowBalance={showBalance} />
             )}
 
             {phase === "CONSEQUENCE_REVEALED" && session.revealedOutcome && outcomeStage === "balance" && (
-              <div className="balance-stage" aria-live="polite">
+              <BalanceResultTransition>
                 <HumanBalance
+                  depth={balanceDepth}
                   balance={session.balance}
                   previousBalance={session.revealedOutcome.balanceBefore}
                   onContinue={continueJourney}
@@ -458,13 +421,14 @@ export function App({ services, sound }: { services: AppServices; sound?: Ritual
                   continueVariant={view.hasNextDilemma ? "primary" : "secondary"}
                   locale={locale}
                 />
-              </div>
+              </BalanceResultTransition>
             )}
 
           </section>
 
           {session.phase === "GAME_COMPLETE" && (
             <HumanBalance
+              depth={balanceDepth}
               balance={session.balance}
               memory
               onContinue={restartGame}
@@ -526,6 +490,7 @@ function DirectionChoiceScene({
   headingRef,
   returning = false,
   showHelp = false,
+  choiceDepth: ChoiceDepth,
 }: {
   copy: UiCopy;
   dilemma: LocalizedDilemma;
@@ -534,6 +499,7 @@ function DirectionChoiceScene({
   headingRef: RefObject<HTMLHeadingElement | null>;
   returning?: boolean;
   showHelp?: boolean;
+  choiceDepth?: ComponentType;
 }) {
   return (
     <div className={`direction-stage${returning ? " direction-stage-returning" : ""}`}>
@@ -554,6 +520,7 @@ function DirectionChoiceScene({
             locale={locale}
           />
         ))}
+        {ChoiceDepth && <ChoiceDepth />}
       </div>
       {showHelp && !returning && (
         <details className="lens-help">

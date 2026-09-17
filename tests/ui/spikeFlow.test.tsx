@@ -222,7 +222,7 @@ describe("technikai spike UI", () => {
     expect(screen.getByText("Segítek elkezdeni, de a végén minden szóért te felelsz.")).toBeVisible();
     expect(screen.getByText("Ha az én mondataimból indulsz ki, könnyen benne maradhat az én hangom is.")).toBeVisible();
     expect(screen.getByText("Mit mondanál neki akkor is, ha nem segítenék?")).toBeVisible();
-    expect(screen.getByTestId("ritual-card")).toHaveAccessibleName(/AGY döntési kártya, ellenpont feltárva/);
+    expect(screen.getByTestId("reflection-message")).toHaveAccessibleName(/AGY döntési kártya, ellenpont feltárva/);
     expect(screen.queryByTestId("human-balance")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Vállalom ezt a döntést/ })).not.toBeInTheDocument();
     const keepBrainDirection = screen.getByRole("button", { name: "Maradok az AGY mellett" });
@@ -254,13 +254,13 @@ describe("technikai spike UI", () => {
     expect(screen.getByTestId("game-phase")).toHaveTextContent("TENTATIVE_SELECTION_RECORDED");
     expect(screen.getByRole("heading", { name: "Rábíztad a feladatot a Gépre." })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: /Mutasd a másik oldalát/ }));
-    expect(screen.getByTestId("ritual-card")).toHaveAccessibleName(/KÉZ döntési kártya, ellenpont feltárva/);
+    expect(screen.getByTestId("reflection-message")).toHaveAccessibleName(/KÉZ döntési kártya, ellenpont feltárva/);
 
     fireEvent.click(screen.getByRole("button", { name: "Maradok a KÉZ mellett" }));
     expect(screen.getByLabelText(/Miért ezt választottad/)).toBeVisible();
-    expect(screen.getByTestId("ritual-card")).toHaveAccessibleName(/emberileg megtartva/);
-    const retainedSeal = screen.getByText("MEGTARTVA");
-    expect(retainedSeal.closest(".ritual-card-face")).toBeNull();
+    expect(screen.getByTestId("human-confirmation")).toBeVisible();
+    expect(screen.queryByText("MEGTARTVA")).not.toBeInTheDocument();
+    expect(screen.getByText("Még nem végleges")).toBeVisible();
     const reconsiderBeforeConfirmation = screen.getByRole("button", { name: "Másik irányt választok" });
     expect(reconsiderBeforeConfirmation).toBeVisible();
     expect(reconsiderBeforeConfirmation).toHaveClass("secondary-action");
@@ -283,7 +283,7 @@ describe("technikai spike UI", () => {
     expect(screen.getByText("Mi volt az ára?")).toBeVisible();
     expect(screen.queryByText("Ezt adtad át")).not.toBeInTheDocument();
     expect(screen.queryByText(/A döntésed nyoma/)).not.toBeInTheDocument();
-    expect(screen.getByTestId("ritual-card")).toHaveAccessibleName(/következmény feltárva/);
+    expect(screen.getByTestId("consequence-resolution")).toHaveAccessibleName(/következmény feltárva/);
     expect(screen.queryByTestId("human-balance")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Megnézem az Embermérleget" }));
     expect(screen.getByTestId("human-balance")).toBeVisible();
